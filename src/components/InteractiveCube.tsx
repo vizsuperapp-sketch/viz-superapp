@@ -56,7 +56,7 @@ const InteractiveCube = () => {
 
   return (
     <div className="flex flex-col items-center select-none relative">
-      {/* Saturn ring — orbits the cube */}
+      {/* Saturn ring */}
       <div
         className="absolute pointer-events-none"
         style={{
@@ -79,17 +79,19 @@ const InteractiveCube = () => {
         />
       </div>
 
+      {/* Breathing wrapper — separate from rotation */}
       <div
-        className="cursor-grab active:cursor-grabbing relative z-10"
-        style={{ perspective: 700, width: size * 1.6, height: size * 1.6 }}
+        className="animate-breathe cursor-grab active:cursor-grabbing relative z-10"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        style={{ perspective: 700, width: size * 1.6, height: size * 1.6 }}
       >
+        {/* Rotation container — uses preserve-3d */}
         <div
-          className="relative w-full h-full animate-breathe"
+          className="relative w-full h-full"
           style={{
             transformStyle: "preserve-3d",
             transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
