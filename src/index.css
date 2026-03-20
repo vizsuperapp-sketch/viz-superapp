@@ -135,3 +135,10 @@
 .animate-breathe {
   animation: breathe 5s ease-in-out infinite;
 }
+
+/* Ambient background drift */
+@keyframes ambient-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(2%, -1%) scale(1.02); }
+  100% { transform: translate(-1%, 1%) scale(1); }
+}
