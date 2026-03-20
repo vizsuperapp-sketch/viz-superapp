@@ -57,10 +57,12 @@ const BenefitsSection = () => {
           {benefits.map(({ icon: Icon, title, description }, i) => (
             <div
               key={title}
-              className="reveal rounded-2xl p-7 bg-card border border-border/50 hover:border-primary/20 hover:shadow-md hover:shadow-primary/5 transition-all duration-300"
+              className="reveal liquid-glass rounded-2xl p-7 hover:shadow-lg hover:shadow-primary/5 transition-all duration-500 ease-out group"
               style={{ transitionDelay: `${i * 60}ms` }}
             >
-              <Icon size={22} strokeWidth={1.5} className="text-primary mb-4" />
+              <div className="w-10 h-10 rounded-xl liquid-glass-subtle flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-500">
+                <Icon size={20} strokeWidth={1.5} className="text-primary" />
+              </div>
               <h3 className="text-base font-semibold mb-1.5">{title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
             </div>

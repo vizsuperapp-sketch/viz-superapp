@@ -20,7 +20,7 @@ const InteractiveCube = () => {
 
   useEffect(() => {
     if (!autoRotate) return;
-    const speed = isHovered ? 0.25 : 0.12;
+    const speed = isHovered ? 0.22 : 0.1;
     const animate = () => {
       setRotation((r) => ({ x: r.x, y: r.y + speed }));
       animRef.current = requestAnimationFrame(animate);
@@ -51,7 +51,7 @@ const InteractiveCube = () => {
     setTimeout(() => setAutoRotate(true), 2000);
   };
 
-  const size = 110;
+  const size = 115;
   const half = size / 2;
 
   return (
@@ -71,15 +71,16 @@ const InteractiveCube = () => {
         <div
           className="w-full h-full rounded-full"
           style={{
-            border: "1.2px solid hsla(163, 43%, 55%, 0.18)",
+            border: "1px solid hsla(163, 43%, 55%, 0.14)",
             transform: `rotateX(72deg) rotateZ(${rotation.y * 0.4}deg)`,
-            boxShadow: "0 0 16px hsla(211, 100%, 65%, 0.05), inset 0 0 16px hsla(163, 43%, 55%, 0.03)",
+            background: "radial-gradient(ellipse at center, hsla(211, 100%, 65%, 0.03) 0%, transparent 70%)",
+            boxShadow: "0 0 24px hsla(163, 43%, 55%, 0.04)",
             transition: isDragging ? "none" : "transform 0.08s linear",
           }}
         />
       </div>
 
-      {/* Breathing wrapper — separate from rotation */}
+      {/* Breathing wrapper */}
       <div
         className="animate-breathe cursor-grab active:cursor-grabbing relative z-10"
         onPointerDown={handlePointerDown}
@@ -89,7 +90,7 @@ const InteractiveCube = () => {
         onMouseLeave={() => setIsHovered(false)}
         style={{ perspective: 700, width: size * 1.6, height: size * 1.6 }}
       >
-        {/* Rotation container — uses preserve-3d */}
+        {/* Rotation container */}
         <div
           className="relative w-full h-full"
           style={{
@@ -98,27 +99,21 @@ const InteractiveCube = () => {
             transition: isDragging ? "none" : "transform 0.08s linear",
           }}
         >
-          {/* Front — Vender */}
           <CubeFace icon={faces[0].icon} label={faces[0].label} size={size}
             style={{ transform: `translateZ(${half}px)` }} />
-          {/* Back — Comprar */}
           <CubeFace icon={faces[1].icon} label={faces[1].label} size={size}
             style={{ transform: `rotateY(180deg) translateZ(${half}px)` }} />
-          {/* Right — Arrendar */}
           <CubeFace icon={faces[2].icon} label={faces[2].label} size={size}
             style={{ transform: `rotateY(90deg) translateZ(${half}px)` }} />
-          {/* Left — Serviços */}
           <CubeFace icon={faces[3].icon} label={faces[3].label} size={size}
             style={{ transform: `rotateY(-90deg) translateZ(${half}px)` }} />
-          {/* Top — Financiar */}
           <CubeFace icon={faces[4].icon} label={faces[4].label} size={size}
             style={{ transform: `rotateX(90deg) translateZ(${half}px)` }} />
-          {/* Bottom — Gerir */}
           <CubeFace icon={faces[5].icon} label={faces[5].label} size={size}
             style={{ transform: `rotateX(-90deg) translateZ(${half}px)` }} />
         </div>
       </div>
-      <p className="text-xs text-muted-foreground/50 mt-3 relative z-10">Arraste para explorar</p>
+      <p className="text-xs text-muted-foreground/40 mt-3 relative z-10">Arraste para explorar</p>
     </div>
   );
 };
@@ -134,7 +129,7 @@ const CubeFace = ({ icon: Icon, label, size, style }: CubeFaceProps) => {
   const half = size / 2;
   return (
     <div
-      className="absolute flex flex-col items-center justify-center gap-1.5 rounded-2xl"
+      className="absolute flex flex-col items-center justify-center gap-1.5"
       style={{
         width: size,
         height: size,
@@ -142,16 +137,28 @@ const CubeFace = ({ icon: Icon, label, size, style }: CubeFaceProps) => {
         top: "50%",
         marginLeft: -half,
         marginTop: -half,
-        background: "linear-gradient(145deg, hsla(163,43%,55%,0.42), hsla(211,100%,65%,0.42))",
-        backdropFilter: "blur(16px)",
-        border: "1px solid rgba(255,255,255,0.22)",
-        boxShadow: "inset 0 1px 10px rgba(255,255,255,0.06)",
+        borderRadius: "1.25rem",
+        background: "linear-gradient(145deg, rgba(255,255,255,0.5), rgba(255,255,255,0.2))",
+        backdropFilter: "blur(20px) saturate(1.4)",
+        WebkitBackdropFilter: "blur(20px) saturate(1.4)",
+        border: "1px solid rgba(255,255,255,0.55)",
+        boxShadow: `
+          inset 0 1px 0 rgba(255,255,255,0.6),
+          inset 0 -1px 0 rgba(0,0,0,0.03),
+          0 4px 16px rgba(91,191,165,0.08),
+          0 1px 3px rgba(0,0,0,0.04)
+        `,
         backfaceVisibility: "hidden",
         ...style,
       }}
     >
-      <Icon size={26} strokeWidth={1.4} className="text-white/85" />
-      <span className="text-[10px] font-medium text-white/70 tracking-wider uppercase">{label}</span>
+      <Icon size={26} strokeWidth={1.4} style={{ color: "hsl(163,43%,45%)" }} />
+      <span
+        className="text-[10px] font-semibold tracking-wider uppercase"
+        style={{ color: "hsl(220,15%,40%)" }}
+      >
+        {label}
+      </span>
     </div>
   );
 };

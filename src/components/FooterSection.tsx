@@ -1,9 +1,9 @@
 const FooterSection = () => (
-  <footer className="py-12 px-6 border-t border-border">
+  <footer className="py-12 px-6 border-t border-white/30">
     <div className="container max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
       <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-md bg-gradient-viz flex items-center justify-center">
-          <span className="text-xs font-bold text-primary-foreground">V</span>
+        <div className="w-7 h-7 rounded-lg bg-gradient-viz flex items-center justify-center">
+          <span className="text-[9px] font-bold text-primary-foreground">VIZ</span>
         </div>
         <span className="text-sm font-semibold text-foreground">VIZ</span>
       </div>
