@@ -14,7 +14,20 @@ const FinalCTASection = () => {
         background: "radial-gradient(ellipse 50% 50% at 50% 50%, hsla(211, 50%, 92%, 0.3) 0%, transparent 60%)",
       }} />
       <div className="container max-w-2xl text-center relative">
-        <div className="liquid-glass rounded-3xl p-12 md:p-16">
+        <div
+          className="rounded-3xl p-12 md:p-16"
+          style={{
+            background: "linear-gradient(145deg, rgba(255,255,255,0.6), rgba(255,255,255,0.3))",
+            backdropFilter: "blur(24px) saturate(1.5)",
+            WebkitBackdropFilter: "blur(24px) saturate(1.5)",
+            border: "1px solid rgba(255,255,255,0.5)",
+            boxShadow: `
+              inset 0 1px 0 rgba(255,255,255,0.7),
+              0 8px 40px hsla(163,43%,55%,0.08),
+              0 2px 8px rgba(0,0,0,0.03)
+            `,
+          }}
+        >
           <h2
             className="reveal text-3xl md:text-4xl font-bold mb-5 tracking-tight"
             style={{ textWrap: "balance" }}

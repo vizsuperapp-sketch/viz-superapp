@@ -39,11 +39,23 @@ const DifferentiationSection = () => {
           {differentiators.map(({ icon: Icon, title, description }, i) => (
             <div
               key={title}
-              className="reveal text-center group"
+              className="reveal text-center group relative"
               style={{ transitionDelay: `${i * 100}ms` }}
             >
-              <div className="w-14 h-14 rounded-2xl liquid-glass flex items-center justify-center mx-auto mb-5 group-hover:scale-105 transition-transform duration-500">
-                <Icon size={24} className="text-primary" />
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-105 transition-all duration-500"
+                style={{
+                  background: "linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.25))",
+                  backdropFilter: "blur(20px) saturate(1.4)",
+                  border: "1px solid rgba(255,255,255,0.5)",
+                  boxShadow: `
+                    inset 0 1px 0 rgba(255,255,255,0.65),
+                    0 4px 20px hsla(163,43%,55%,0.06),
+                    0 1px 3px rgba(0,0,0,0.03)
+                  `,
+                }}
+              >
+                <Icon size={24} strokeWidth={1.3} className="text-primary" />
               </div>
               <h3 className="text-lg font-semibold mb-2">{title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
