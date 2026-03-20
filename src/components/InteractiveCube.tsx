@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { Handshake, FileCheck, Package, Wrench, Key, LayoutDashboard } from "lucide-react";
+import { Handshake, FileCheck, Wrench, Key, LayoutDashboard, DoorOpen } from "lucide-react";
 
 const faces = [
+  { icon: DoorOpen, label: "Vender" },
   { icon: Handshake, label: "Comprar" },
-  { icon: FileCheck, label: "Financiar" },
-  { icon: Package, label: "Mudar" },
-  { icon: Wrench, label: "Serviços" },
   { icon: Key, label: "Arrendar" },
+  { icon: Wrench, label: "Serviços" },
+  { icon: FileCheck, label: "Financiar" },
   { icon: LayoutDashboard, label: "Gerir" },
 ];
 
@@ -56,29 +56,31 @@ const InteractiveCube = () => {
 
   return (
     <div className="flex flex-col items-center select-none relative">
-      {/* Saturn ring */}
+      {/* Saturn ring — orbits the cube */}
       <div
         className="absolute pointer-events-none"
         style={{
-          width: size * 2.4,
-          height: size * 2.4,
+          width: size * 2.6,
+          height: size * 2.6,
           top: "50%",
           left: "50%",
-          transform: "translate(-50%, -50%)",
+          transform: "translate(-50%, -54%)",
+          perspective: 600,
         }}
       >
         <div
           className="w-full h-full rounded-full"
           style={{
-            border: "1.5px solid hsla(163, 43%, 55%, 0.15)",
-            transform: `rotateX(70deg) rotateZ(${rotation.y * 0.3}deg)`,
-            boxShadow: "0 0 20px hsla(211, 100%, 65%, 0.06)",
+            border: "1.2px solid hsla(163, 43%, 55%, 0.18)",
+            transform: `rotateX(72deg) rotateZ(${rotation.y * 0.4}deg)`,
+            boxShadow: "0 0 16px hsla(211, 100%, 65%, 0.05), inset 0 0 16px hsla(163, 43%, 55%, 0.03)",
+            transition: isDragging ? "none" : "transform 0.08s linear",
           }}
         />
       </div>
 
       <div
-        className="cursor-grab active:cursor-grabbing"
+        className="cursor-grab active:cursor-grabbing relative z-10"
         style={{ perspective: 700, width: size * 1.6, height: size * 1.6 }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -94,27 +96,27 @@ const InteractiveCube = () => {
             transition: isDragging ? "none" : "transform 0.08s linear",
           }}
         >
-          {/* Front */}
+          {/* Front — Vender */}
           <CubeFace icon={faces[0].icon} label={faces[0].label} size={size}
             style={{ transform: `translateZ(${half}px)` }} />
-          {/* Back */}
+          {/* Back — Comprar */}
           <CubeFace icon={faces[1].icon} label={faces[1].label} size={size}
             style={{ transform: `rotateY(180deg) translateZ(${half}px)` }} />
-          {/* Right */}
+          {/* Right — Arrendar */}
           <CubeFace icon={faces[2].icon} label={faces[2].label} size={size}
             style={{ transform: `rotateY(90deg) translateZ(${half}px)` }} />
-          {/* Left */}
+          {/* Left — Serviços */}
           <CubeFace icon={faces[3].icon} label={faces[3].label} size={size}
             style={{ transform: `rotateY(-90deg) translateZ(${half}px)` }} />
-          {/* Top */}
+          {/* Top — Financiar */}
           <CubeFace icon={faces[4].icon} label={faces[4].label} size={size}
             style={{ transform: `rotateX(90deg) translateZ(${half}px)` }} />
-          {/* Bottom */}
+          {/* Bottom — Gerir */}
           <CubeFace icon={faces[5].icon} label={faces[5].label} size={size}
             style={{ transform: `rotateX(-90deg) translateZ(${half}px)` }} />
         </div>
       </div>
-      <p className="text-xs text-muted-foreground/50 mt-3">Arraste para explorar</p>
+      <p className="text-xs text-muted-foreground/50 mt-3 relative z-10">Arraste para explorar</p>
     </div>
   );
 };
@@ -138,10 +140,10 @@ const CubeFace = ({ icon: Icon, label, size, style }: CubeFaceProps) => {
         top: "50%",
         marginLeft: -half,
         marginTop: -half,
-        background: "linear-gradient(145deg, hsla(163,43%,55%,0.45), hsla(211,100%,65%,0.45))",
+        background: "linear-gradient(145deg, hsla(163,43%,55%,0.42), hsla(211,100%,65%,0.42))",
         backdropFilter: "blur(16px)",
-        border: "1px solid rgba(255,255,255,0.25)",
-        boxShadow: "inset 0 1px 12px rgba(255,255,255,0.08)",
+        border: "1px solid rgba(255,255,255,0.22)",
+        boxShadow: "inset 0 1px 10px rgba(255,255,255,0.06)",
         backfaceVisibility: "hidden",
         ...style,
       }}
