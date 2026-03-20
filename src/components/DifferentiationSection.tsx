@@ -23,7 +23,7 @@ const DifferentiationSection = () => {
   const sectionRef = useScrollReveal();
 
   return (
-    <section className="py-24 px-6" ref={sectionRef}>
+    <section className="py-28 px-6" ref={sectionRef}>
       <div className="container max-w-4xl">
         <p className="text-sm font-medium text-primary tracking-wide uppercase mb-3 text-center reveal">
           Diferenciação
@@ -39,10 +39,10 @@ const DifferentiationSection = () => {
           {differentiators.map(({ icon: Icon, title, description }, i) => (
             <div
               key={title}
-              className="reveal text-center"
+              className="reveal text-center group"
               style={{ transitionDelay: `${i * 100}ms` }}
             >
-              <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center mx-auto mb-5">
+              <div className="w-14 h-14 rounded-2xl liquid-glass flex items-center justify-center mx-auto mb-5 group-hover:scale-105 transition-transform duration-500">
                 <Icon size={24} className="text-primary" />
               </div>
               <h3 className="text-lg font-semibold mb-2">{title}</h3>

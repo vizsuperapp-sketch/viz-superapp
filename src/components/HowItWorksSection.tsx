@@ -11,8 +11,13 @@ const HowItWorksSection = () => {
   const sectionRef = useScrollReveal();
 
   return (
-    <section className="py-28 px-6 bg-gradient-soft" ref={sectionRef}>
-      <div className="container max-w-4xl">
+    <section className="py-28 px-6 relative" ref={sectionRef}>
+      {/* Subtle background glow */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: "radial-gradient(ellipse 60% 40% at 50% 50%, hsla(163, 30%, 92%, 0.3) 0%, transparent 60%)",
+      }} />
+
+      <div className="container max-w-4xl relative">
         <p className="text-sm font-medium text-primary tracking-wide uppercase mb-3 text-center reveal">
           Como funciona
         </p>
@@ -30,8 +35,9 @@ const HowItWorksSection = () => {
               className="reveal flex-1 text-center relative"
               style={{ transitionDelay: `${i * 100}ms` }}
             >
-              <span className="text-gradient text-3xl font-bold tabular-nums">{number}</span>
-              <div className="w-8 h-px bg-border mx-auto my-3" />
+              <div className="liquid-glass-subtle w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-gradient text-2xl font-bold tabular-nums">{number}</span>
+              </div>
               <h3 className="text-base font-semibold mb-1">{title}</h3>
               <p className="text-muted-foreground text-sm">{description}</p>
             </div>
