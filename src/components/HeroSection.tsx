@@ -15,18 +15,18 @@ const HeroSection = () => {
           radial-gradient(ellipse 55% 45% at 35% 30%, hsla(163, 40%, 85%, 0.5) 0%, transparent 60%),
           radial-gradient(ellipse 45% 40% at 65% 40%, hsla(211, 50%, 88%, 0.45) 0%, transparent 55%),
           radial-gradient(ellipse 40% 30% at 50% 75%, hsla(163, 30%, 92%, 0.3) 0%, transparent 45%)
-        `,
+        `
       }} />
 
       {/* Logo — liquid glass pill */}
       <div
         className="flex items-center gap-2.5 mb-16 opacity-0 animate-fade-up liquid-glass-subtle rounded-full px-4 py-2"
-        style={{ animationDelay: "0ms" }}
-      >
+        style={{ animationDelay: "0ms" }}>
+        
         <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-viz">
           <span className="text-[10px] font-bold text-white tracking-tight">VIZ</span>
         </div>
-        <span className="text-base font-semibold tracking-tight text-foreground">VIZ</span>
+        
       </div>
 
       {/* Cube */}
@@ -38,8 +38,8 @@ const HeroSection = () => {
           fill="none"
           stroke="hsl(211,35%,80%)"
           strokeWidth="0.4"
-          style={{ width: "380px", height: "380px", top: "-58%", left: "-54%", opacity: 0.1 }}
-        >
+          style={{ width: "380px", height: "380px", top: "-58%", left: "-54%", opacity: 0.1 }}>
+          
           <path d="M120 35 L195 78 L195 185 L45 185 L45 78 Z" />
           <path d="M120 35 L45 78" />
           <path d="M120 35 L195 78" />
@@ -52,8 +52,8 @@ const HeroSection = () => {
       {/* Headline */}
       <h1
         className="text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-[1.08] tracking-tight max-w-2xl mb-5 opacity-0 animate-fade-up"
-        style={{ animationDelay: "200ms", textWrap: "balance" }}
-      >
+        style={{ animationDelay: "200ms", textWrap: "balance" }}>
+        
         SuperApp para a jornada{" "}
         <span className="text-gradient">completa da casa</span>
       </h1>
@@ -61,8 +61,8 @@ const HeroSection = () => {
       {/* Subheadline */}
       <p
         className="text-lg md:text-xl text-muted-foreground text-center max-w-xl mb-10 opacity-0 animate-fade-up"
-        style={{ animationDelay: "300ms", textWrap: "pretty" }}
-      >
+        style={{ animationDelay: "300ms", textWrap: "pretty" }}>
+        
         Um só app para comprar, financiar, mudar e cuidar da sua casa.
         <br className="hidden md:block" />
         Sem intermediários. Sem comissões.
@@ -77,8 +77,8 @@ const HeroSection = () => {
       </div>
 
       <LeadFormModal open={formOpen} onOpenChange={setFormOpen} />
-    </section>
-  );
+    </section>);
+
 };
 
 export default HeroSection;
