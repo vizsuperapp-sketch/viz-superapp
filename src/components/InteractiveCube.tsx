@@ -56,32 +56,32 @@ const InteractiveCube = () => {
 
   return (
     <div className="flex flex-col items-center select-none relative">
-      {/* Wireframe house — very subtle behind everything */}
+      {/* Wireframe house */}
       <svg
         className="absolute pointer-events-none z-0"
         viewBox="0 0 280 280"
         fill="none"
-        strokeWidth="0.5"
+        strokeWidth="0.7"
         style={{
           width: size * 3.2,
           height: size * 3.2,
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -52%)",
-          opacity: 0.07,
+          opacity: 0.15,
         }}
       >
-        {/* Roof */}
-        <path d="M140 40 L240 100 L240 230 L40 230 L40 100 Z" stroke="hsl(var(--viz-green))" />
+        <path d="M140 40 L240 100 L240 230 L40 230 L40 100 Z" stroke="hsl(var(--viz-blue))" />
         <path d="M140 40 L40 100" stroke="hsl(var(--viz-blue))" />
         <path d="M140 40 L240 100" stroke="hsl(var(--viz-blue))" />
-        {/* Base */}
-        <path d="M40 230 L240 230" stroke="hsl(var(--viz-green))" />
-        {/* Vertical edges */}
-        <path d="M40 100 L40 230" stroke="hsl(var(--viz-green))" strokeOpacity="0.5" />
-        <path d="M240 100 L240 230" stroke="hsl(var(--viz-green))" strokeOpacity="0.5" />
-        {/* Door outline */}
-        <path d="M120 230 L120 170 L160 170 L160 230" stroke="hsl(var(--viz-blue))" strokeOpacity="0.4" />
+        <path d="M40 230 L240 230" stroke="hsl(var(--viz-blue))" />
+        <path d="M40 100 L40 230" stroke="hsl(var(--viz-blue))" strokeOpacity="0.5" />
+        <path d="M240 100 L240 230" stroke="hsl(var(--viz-blue))" strokeOpacity="0.5" />
+        {/* Inner structure lines */}
+        <path d="M90 100 L90 230" stroke="hsl(var(--viz-blue))" strokeOpacity="0.25" />
+        <path d="M190 100 L190 230" stroke="hsl(var(--viz-blue))" strokeOpacity="0.25" />
+        <path d="M40 165 L240 165" stroke="hsl(var(--viz-blue))" strokeOpacity="0.25" />
+        <path d="M120 230 L120 170 L160 170 L160 230" stroke="hsl(var(--viz-blue))" strokeOpacity="0.3" />
       </svg>
 
       {/* Saturn ring — orbital lifecycle */}
@@ -99,28 +99,40 @@ const InteractiveCube = () => {
         <div
           className="w-full h-full rounded-full"
           style={{
-            border: "1.5px solid transparent",
-            borderImage: "linear-gradient(135deg, hsla(163,43%,55%,0.18), hsla(211,100%,65%,0.18)) 1",
+            border: "1.5px solid hsla(163, 43%, 55%, 0.25)",
             borderRadius: "50%",
             transform: `rotateX(72deg) rotateZ(${rotation.y * 0.4}deg)`,
             boxShadow: `
-              0 0 20px hsla(163,43%,55%,0.06),
-              0 0 40px hsla(211,100%,65%,0.04),
-              inset 0 0 20px hsla(163,43%,55%,0.03)
+              0 0 30px hsla(163,43%,55%,0.12),
+              0 0 60px hsla(163,43%,55%,0.06),
+              inset 0 0 30px hsla(163,43%,55%,0.06)
             `,
             transition: isDragging ? "none" : "transform 0.08s linear",
           }}
         />
-        {/* Second ring for depth */}
         <div
           className="absolute inset-3 rounded-full"
           style={{
-            border: "0.5px solid hsla(211,100%,65%,0.08)",
+            border: "0.5px solid hsla(163,43%,55%,0.12)",
             transform: `rotateX(72deg) rotateZ(${rotation.y * 0.35 + 15}deg)`,
             transition: isDragging ? "none" : "transform 0.08s linear",
           }}
         />
       </div>
+
+      {/* Central glow behind cube */}
+      <div
+        className="absolute pointer-events-none z-[2]"
+        style={{
+          width: size * 1.8,
+          height: size * 1.8,
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "radial-gradient(circle, hsla(163,43%,55%,0.3) 0%, hsla(163,43%,60%,0.15) 30%, hsla(211,100%,65%,0.05) 60%, transparent 80%)",
+          filter: "blur(25px)",
+        }}
+      />
 
       {/* Breathing wrapper + interaction layer */}
       <div
@@ -132,15 +144,6 @@ const InteractiveCube = () => {
         onMouseLeave={() => setIsHovered(false)}
         style={{ perspective: 700, width: size * 1.6, height: size * 1.6 }}
       >
-        {/* Internal glow — soft ambient light inside cube area */}
-        <div
-          className="absolute inset-0 rounded-full pointer-events-none"
-          style={{
-            background: `radial-gradient(circle at 40% 40%, hsla(163,43%,55%,0.12) 0%, hsla(211,100%,65%,0.08) 40%, transparent 70%)`,
-            filter: "blur(20px)",
-          }}
-        />
-
         {/* Rotation container */}
         <div
           className="relative w-full h-full"
@@ -181,7 +184,7 @@ const CubeFace = ({ icon: Icon, label, size, style }: CubeFaceProps) => {
   const half = size / 2;
   return (
     <div
-      className="absolute flex flex-col items-center justify-center gap-2"
+      className="absolute flex flex-col items-center justify-center gap-2.5"
       style={{
         width: size,
         height: size,
@@ -189,30 +192,26 @@ const CubeFace = ({ icon: Icon, label, size, style }: CubeFaceProps) => {
         top: "50%",
         marginLeft: -half,
         marginTop: -half,
-        borderRadius: "1.5rem",
-        background: `
-          linear-gradient(145deg, 
-            rgba(255,255,255,0.55), 
-            rgba(255,255,255,0.25)
-          )
-        `,
-        backdropFilter: "blur(24px) saturate(1.5)",
-        WebkitBackdropFilter: "blur(24px) saturate(1.5)",
-        border: "1px solid rgba(255,255,255,0.5)",
+        borderRadius: "1.25rem",
+        background: `linear-gradient(
+          145deg,
+          hsl(163 43% 50% / 0.92),
+          hsl(163 43% 42% / 0.88),
+          hsl(180 50% 38% / 0.85)
+        )`,
+        border: "1px solid hsla(163, 43%, 65%, 0.5)",
         boxShadow: `
-          inset 0 1px 0 rgba(255,255,255,0.65),
-          inset 0 -1px 0 rgba(0,0,0,0.03),
-          0 4px 24px hsla(163,43%,55%,0.08),
-          0 1px 3px rgba(0,0,0,0.04)
+          inset 0 1px 0 hsla(163, 50%, 75%, 0.4),
+          inset 0 -2px 4px hsla(163, 43%, 25%, 0.15),
+          0 4px 24px hsla(163, 43%, 45%, 0.25),
+          0 1px 3px rgba(0, 0, 0, 0.1)
         `,
         backfaceVisibility: "hidden",
         ...style,
       }}
     >
-      <Icon size={32} strokeWidth={1.3} className="text-primary" />
-      <span
-        className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground"
-      >
+      <Icon size={36} strokeWidth={1.6} className="text-primary-foreground drop-shadow-sm" />
+      <span className="text-[11px] font-semibold tracking-wider uppercase text-primary-foreground/80">
         {label}
       </span>
     </div>
