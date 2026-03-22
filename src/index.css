@@ -39,6 +39,20 @@
     --viz-green: 163 43% 55%;
     --viz-blue: 211 100% 65%;
 
+    /* Liquid Glass material tokens */
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    --glass-bg-subtle: rgba(255, 255, 255, 0.35);
+    --glass-bg-strong: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-highlight: rgba(255, 255, 255, 0.7);
+    --glass-blur: 20px;
+    --glass-saturate: 1.4;
+
+    /* Ambient glow */
+    --glow-primary: hsla(163, 43%, 55%, 0.06);
+    --glow-primary-hover: hsla(163, 43%, 55%, 0.1);
+    --glow-secondary: hsla(211, 100%, 65%, 0.04);
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 163 43% 55%;
