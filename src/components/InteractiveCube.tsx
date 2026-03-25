@@ -180,7 +180,7 @@ const CrystalFace = ({ icon: Icon, label, size, style }: CrystalFaceProps) => {
   const half = size / 2;
   return (
     <div
-      className="absolute flex flex-col items-center justify-center gap-3"
+      className="absolute flex flex-col items-center justify-center gap-3 border-solid rounded-md shadow-sm"
       style={{
         width: size,
         height: size,
