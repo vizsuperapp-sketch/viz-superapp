@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ShieldCheck, CreditCard, HeadphonesIcon } from "lucide-react";
 import LeadFormModal from "@/components/LeadFormModal";
+
+const trustPoints = [
+  { icon: CreditCard, text: "Sem custos escondidos" },
+  { icon: ShieldCheck, text: "Dados protegidos" },
+  { icon: HeadphonesIcon, text: "Apoio humano incluído" },
+];
 
 const FinalCTASection = () => {
   const sectionRef = useScrollReveal();
@@ -19,17 +25,27 @@ const FinalCTASection = () => {
             className="reveal text-3xl md:text-4xl font-bold mb-5 tracking-tight"
             style={{ textWrap: "balance" }}
           >
-            Comece a sua jornada com a{" "}
-            <span className="text-gradient">VIZ</span>
+            Pronto para vender{" "}
+            <span className="text-gradient">sem comissão?</span>
           </h2>
-          <p className="reveal text-muted-foreground text-base mb-10" style={{ transitionDelay: "80ms" }}>
-            A sua casa merece um sistema inteligente. Experimente gratuitamente.
+          <p className="reveal text-muted-foreground text-base mb-8" style={{ transitionDelay: "80ms" }}>
+            Comece gratuitamente. Sem compromisso, sem cartão de crédito.
           </p>
-          <div className="reveal" style={{ transitionDelay: "160ms" }}>
+          <div className="reveal mb-8" style={{ transitionDelay: "160ms" }}>
             <Button variant="hero" size="xl" onClick={() => setFormOpen(true)}>
               Começar agora
               <ArrowRight className="ml-1" />
             </Button>
+          </div>
+
+          {/* Trust reassurance */}
+          <div className="reveal flex items-center justify-center gap-5 flex-wrap" style={{ transitionDelay: "240ms" }}>
+            {trustPoints.map(({ icon: Icon, text }) => (
+              <div key={text} className="flex items-center gap-1.5">
+                <Icon size={13} className="text-primary/50" />
+                <span className="text-[11px] text-muted-foreground/50">{text}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
