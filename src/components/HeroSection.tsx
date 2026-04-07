@@ -51,11 +51,48 @@ const HeroSection = () => {
         <div className="flex flex-col items-start">
           {/* Logo pill */}
           <div
-            className="flex items-center gap-2.5 mb-8 opacity-0 animate-fade-up liquid-glass-subtle rounded-full px-4 py-2"
+            className="flex items-center gap-2.5 mb-8 opacity-0 animate-fade-up"
             style={{ animationDelay: "0ms" }}
           >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-viz">
-              <span className="text-[10px] font-bold text-primary-foreground tracking-tight">VIZ </span>
+            {/* Mini 3D cube logo */}
+            <div className="w-10 h-10" style={{ perspective: 120 }}>
+              <div
+                className="w-full h-full relative"
+                style={{
+                  transformStyle: "preserve-3d",
+                  transform: "rotateX(-22deg) rotateY(35deg)",
+                  animation: "spin-slow 8s linear infinite",
+                }}
+              >
+                {/* Front */}
+                <div className="absolute inset-0 flex items-center justify-center rounded-md"
+                  style={{
+                    transform: "translateZ(20px)",
+                    background: "linear-gradient(145deg, hsla(163,50%,60%,0.4), hsla(211,70%,60%,0.3))",
+                    border: "1px solid hsla(0,0%,100%,0.5)",
+                    backfaceVisibility: "hidden",
+                  }}>
+                  <span className="text-[11px] font-extrabold text-white/90">V</span>
+                </div>
+                {/* Right */}
+                <div className="absolute inset-0 flex items-center justify-center rounded-md"
+                  style={{
+                    transform: "rotateY(90deg) translateZ(20px)",
+                    background: "linear-gradient(145deg, hsla(190,60%,55%,0.35), hsla(211,70%,60%,0.3))",
+                    border: "1px solid hsla(0,0%,100%,0.5)",
+                    backfaceVisibility: "hidden",
+                  }}>
+                  <span className="text-[11px] font-extrabold text-white/90">I</span>
+                </div>
+                {/* Top */}
+                <div className="absolute inset-0 rounded-md"
+                  style={{
+                    transform: "rotateX(90deg) translateZ(20px)",
+                    background: "linear-gradient(145deg, hsla(163,50%,60%,0.3), hsla(190,60%,55%,0.25))",
+                    border: "1px solid hsla(0,0%,100%,0.4)",
+                    backfaceVisibility: "hidden",
+                  }} />
+              </div>
             </div>
           </div>
 
