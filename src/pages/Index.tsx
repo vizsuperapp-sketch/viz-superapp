@@ -5,6 +5,7 @@ import ProblemSection from "@/components/ProblemSection";
 import BenefitsSection from "@/components/BenefitsSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import DifferentiationSection from "@/components/DifferentiationSection";
+import AppShowcaseSection from "@/components/AppShowcaseSection";
 import EcosystemSection from "@/components/EcosystemSection";
 import FinalCTASection from "@/components/FinalCTASection";
 import FooterSection from "@/components/FooterSection";
@@ -19,6 +20,7 @@ const Index = () => {
       <BenefitsSection />
       <HowItWorksSection />
       <DifferentiationSection />
+      <AppShowcaseSection />
       <EcosystemSection />
       <FinalCTASection />
       <FooterSection />
