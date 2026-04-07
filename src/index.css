@@ -177,6 +177,11 @@
   animation: breathe 5s ease-in-out infinite;
 }
 
+@keyframes spin-slow {
+  from { transform: rotateX(-22deg) rotateY(0deg); }
+  to { transform: rotateX(-22deg) rotateY(360deg); }
+}
+
 /* Sparkle particles */
 @keyframes sparkle {
   0% { opacity: 0.2; transform: scale(0.8); }
