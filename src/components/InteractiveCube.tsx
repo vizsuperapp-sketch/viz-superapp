@@ -51,30 +51,19 @@ const InteractiveCube = () => {
     setTimeout(() => setAutoRotate(true), 2000);
   };
 
-  const outerSize = 220;
-  const outerHalf = outerSize / 2;
-  const innerSize = 140;
-  const innerHalf = innerSize / 2;
+  const cubeSize = 260;
+  const half = cubeSize / 2;
 
-  const outerTransforms = [
-    `translateZ(${outerHalf}px)`,
-    `rotateY(180deg) translateZ(${outerHalf}px)`,
-    `rotateY(90deg) translateZ(${outerHalf}px)`,
-    `rotateY(-90deg) translateZ(${outerHalf}px)`,
-    `rotateX(90deg) translateZ(${outerHalf}px)`,
-    `rotateX(-90deg) translateZ(${outerHalf}px)`,
+  const faceTransforms = [
+    `translateZ(${half}px)`,
+    `rotateY(180deg) translateZ(${half}px)`,
+    `rotateY(90deg) translateZ(${half}px)`,
+    `rotateY(-90deg) translateZ(${half}px)`,
+    `rotateX(90deg) translateZ(${half}px)`,
+    `rotateX(-90deg) translateZ(${half}px)`,
   ];
 
-  const innerTransforms = [
-    `translateZ(${innerHalf}px)`,
-    `rotateY(180deg) translateZ(${innerHalf}px)`,
-    `rotateY(90deg) translateZ(${innerHalf}px)`,
-    `rotateY(-90deg) translateZ(${innerHalf}px)`,
-    `rotateX(90deg) translateZ(${innerHalf}px)`,
-    `rotateX(-90deg) translateZ(${innerHalf}px)`,
-  ];
-
-  const containerSize = outerSize * 1.6;
+  const containerSize = cubeSize * 1.7;
 
   return (
     <div className="flex flex-col items-center select-none relative">
@@ -82,13 +71,13 @@ const InteractiveCube = () => {
       <div
         className="absolute pointer-events-none z-0"
         style={{
-          width: containerSize,
-          height: outerSize * 0.35,
-          bottom: "8%",
+          width: containerSize * 0.7,
+          height: cubeSize * 0.3,
+          bottom: "6%",
           left: "50%",
           transform: "translateX(-50%)",
-          background: "radial-gradient(ellipse 80% 60% at 50% 50%, hsla(163,30%,50%,0.18) 0%, transparent 70%)",
-          filter: "blur(22px)",
+          background: "radial-gradient(ellipse 90% 70% at 50% 50%, hsla(163,45%,50%,0.3) 0%, transparent 70%)",
+          filter: "blur(28px)",
         }}
       />
 
@@ -96,13 +85,13 @@ const InteractiveCube = () => {
       <div
         className="absolute pointer-events-none z-0"
         style={{
-          width: containerSize * 1.5,
-          height: containerSize * 1.5,
+          width: containerSize * 1.6,
+          height: containerSize * 1.6,
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          background: "radial-gradient(circle, hsla(163,50%,70%,0.14) 0%, hsla(190,40%,70%,0.06) 40%, transparent 70%)",
-          filter: "blur(40px)",
+          background: "radial-gradient(circle, hsla(163,50%,65%,0.18) 0%, hsla(190,40%,65%,0.08) 40%, transparent 70%)",
+          filter: "blur(50px)",
         }}
       />
 
@@ -123,35 +112,14 @@ const InteractiveCube = () => {
             transition: isDragging ? "none" : "transform 0.08s linear",
           }}
         >
-          {/* Outer wireframe shell */}
-          {outerTransforms.map((t, i) => (
-            <div
-              key={`outer-${i}`}
-              className="absolute"
-              style={{
-                width: outerSize,
-                height: outerSize,
-                left: "50%",
-                top: "50%",
-                marginLeft: -outerHalf,
-                marginTop: -outerHalf,
-                transform: t,
-                backfaceVisibility: "hidden",
-                border: "1px solid hsla(163, 50%, 80%, 0.2)",
-                borderRadius: "1rem",
-                background: "hsla(163, 50%, 90%, 0.03)",
-              }}
-            />
-          ))}
-
-          {/* Inner floating panels with icons */}
+          {/* Cube faces */}
           {faces.map((face, i) => (
-            <InnerPanel
+            <CubeFace
               key={face.label}
               icon={face.icon}
               label={face.label}
-              size={innerSize}
-              style={{ transform: innerTransforms[i] }}
+              size={cubeSize}
+              style={{ transform: faceTransforms[i] }}
             />
           ))}
 
@@ -159,25 +127,25 @@ const InteractiveCube = () => {
           <div
             className="absolute"
             style={{
-              width: outerSize * 0.5,
-              height: outerSize * 0.5,
+              width: cubeSize * 0.6,
+              height: cubeSize * 0.6,
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: "radial-gradient(circle, hsla(163,60%,65%,0.5) 0%, hsla(180,50%,60%,0.2) 40%, transparent 75%)",
+              background: "radial-gradient(circle, hsla(163,55%,60%,0.6) 0%, hsla(180,50%,55%,0.25) 40%, transparent 70%)",
               borderRadius: "50%",
-              filter: "blur(20px)",
+              filter: "blur(25px)",
             }}
           />
 
           {/* Sparkle points */}
           {[
-            { top: "10%", left: "15%", delay: "0s", s: 5 },
-            { top: "20%", right: "10%", delay: "1.2s", s: 4 },
-            { bottom: "15%", left: "20%", delay: "0.6s", s: 4 },
-            { bottom: "10%", right: "15%", delay: "1.8s", s: 5 },
-            { top: "50%", left: "5%", delay: "0.3s", s: 3 },
-            { top: "5%", left: "50%", delay: "1.5s", s: 3 },
+            { top: "8%", left: "12%", delay: "0s", s: 5 },
+            { top: "18%", right: "8%", delay: "1.2s", s: 4 },
+            { bottom: "12%", left: "18%", delay: "0.6s", s: 5 },
+            { bottom: "8%", right: "12%", delay: "1.8s", s: 5 },
+            { top: "48%", left: "3%", delay: "0.3s", s: 3 },
+            { top: "3%", left: "48%", delay: "1.5s", s: 4 },
           ].map((sp, i) => (
             <div
               key={i}
@@ -187,8 +155,8 @@ const InteractiveCube = () => {
                 width: sp.s,
                 height: sp.s,
                 borderRadius: "50%",
-                background: "hsla(0,0%,100%,0.9)",
-                boxShadow: "0 0 6px 2px hsla(163,50%,80%,0.6)",
+                background: "hsla(0,0%,100%,0.95)",
+                boxShadow: "0 0 8px 3px hsla(163,50%,75%,0.7)",
                 animation: `sparkle 2s ease-in-out ${sp.delay} infinite alternate`,
               }}
             />
@@ -203,18 +171,18 @@ const InteractiveCube = () => {
   );
 };
 
-interface InnerPanelProps {
+interface CubeFaceProps {
   icon: typeof Handshake;
   label: string;
   size: number;
   style: React.CSSProperties;
 }
 
-const InnerPanel = ({ icon: Icon, label, size, style }: InnerPanelProps) => {
+const CubeFace = ({ icon: Icon, label, size, style }: CubeFaceProps) => {
   const half = size / 2;
   return (
     <div
-      className="absolute flex flex-col items-center justify-center gap-2.5"
+      className="absolute flex flex-col items-center justify-center gap-3"
       style={{
         width: size,
         height: size,
@@ -222,21 +190,21 @@ const InnerPanel = ({ icon: Icon, label, size, style }: InnerPanelProps) => {
         top: "50%",
         marginLeft: -half,
         marginTop: -half,
-        borderRadius: "1.1rem",
+        borderRadius: "1.25rem",
         background: `linear-gradient(
           145deg,
-          hsla(163, 50%, 85%, 0.22) 0%,
-          hsla(170, 45%, 80%, 0.12) 30%,
-          hsla(180, 40%, 75%, 0.08) 60%,
-          hsla(190, 50%, 80%, 0.14) 100%
+          hsla(163, 45%, 60%, 0.38) 0%,
+          hsla(170, 42%, 55%, 0.28) 30%,
+          hsla(180, 38%, 50%, 0.22) 60%,
+          hsla(190, 45%, 55%, 0.32) 100%
         )`,
-        backdropFilter: "blur(8px) saturate(1.2)",
-        WebkitBackdropFilter: "blur(8px) saturate(1.2)",
-        border: "1px solid hsla(163, 50%, 85%, 0.3)",
+        backdropFilter: "blur(12px) saturate(1.4)",
+        WebkitBackdropFilter: "blur(12px) saturate(1.4)",
+        border: "1.5px solid hsla(163, 50%, 82%, 0.5)",
         boxShadow: `
-          inset 0 1px 0 hsla(0, 0%, 100%, 0.35),
-          inset 0 -1px 0 hsla(170, 40%, 60%, 0.06),
-          0 4px 24px hsla(163, 40%, 50%, 0.08)
+          inset 0 1px 0 hsla(0, 0%, 100%, 0.4),
+          inset 0 -1px 0 hsla(170, 40%, 50%, 0.08),
+          0 8px 32px hsla(163, 40%, 45%, 0.12)
         `,
         backfaceVisibility: "hidden",
         ...style,
@@ -246,23 +214,29 @@ const InnerPanel = ({ icon: Icon, label, size, style }: InnerPanelProps) => {
       <div
         className="absolute pointer-events-none"
         style={{
-          top: 5,
-          left: 5,
-          right: "35%",
-          height: "22%",
-          background: "linear-gradient(135deg, hsla(0,0%,100%,0.3) 0%, hsla(0,0%,100%,0.02) 55%, transparent 100%)",
-          borderRadius: "0.7rem 0.7rem 1.5rem 0.3rem",
+          top: 6,
+          left: 6,
+          right: "30%",
+          height: "20%",
+          background: "linear-gradient(135deg, hsla(0,0%,100%,0.35) 0%, hsla(0,0%,100%,0.03) 50%, transparent 100%)",
+          borderRadius: "0.8rem 0.8rem 2rem 0.4rem",
         }}
       />
 
       <Icon
-        size={30}
+        size={38}
         strokeWidth={1.5}
-        style={{ color: "hsla(0, 0%, 100%, 0.88)", filter: "drop-shadow(0 1px 4px hsla(163,40%,40%,0.35))" }}
+        style={{
+          color: "hsla(0, 0%, 100%, 0.95)",
+          filter: "drop-shadow(0 2px 6px hsla(163,40%,35%,0.4))",
+        }}
       />
       <span
-        className="text-[9px] font-bold tracking-[0.18em] uppercase"
-        style={{ color: "hsla(0, 0%, 100%, 0.72)", textShadow: "0 1px 3px hsla(163,40%,30%,0.3)" }}
+        className="text-[11px] font-bold tracking-[0.2em] uppercase"
+        style={{
+          color: "hsla(0, 0%, 100%, 0.88)",
+          textShadow: "0 1px 4px hsla(163,40%,25%,0.35)",
+        }}
       >
         {label}
       </span>
