@@ -1,27 +1,36 @@
 
 
-## Plano: Redesenhar o cubo interativo com estética de vidro em camadas
+## Plano: Redesenhar o cubo para corresponder à imagem de referência
 
-### Objectivo
-Substituir o cubo actual por um design mais sofisticado que replica a imagem de referência: um cubo com shell exterior wireframe, painéis interiores flutuantes com ícones, e um núcleo central brilhante — mantendo toda a interactividade existente (drag, auto-rotate, hover).
+### Problemas actuais
+- Cubo demasiado pequeno e desbotado
+- Painéis interiores quase invisíveis (opacidade muito baixa)
+- Ícones e labels mal se vêem
+- Falta contraste e presença visual
+- O shell exterior é demasiado subtil
 
-### Alterações visuais (baseadas na imagem)
-- **Shell exterior**: cubo wireframe translúcido maior (arestas finas, faces quase invisíveis)
-- **Painéis interiores**: 6 faces mais pequenas que "flutuam" a partir do centro, com espaço entre elas e o shell — cada uma com ícone e label
-- **Núcleo central**: glow teal/verde intenso no centro do cubo
-- **Camadas múltiplas**: sensação de profundidade com 2 cubos concêntricos (outer shell + inner panels)
+### O que a imagem de referência mostra
+- Cubo grande e sólido com cantos arredondados bem visíveis
+- Faces com fundo verde/teal translúcido mas **claramente visível** (não quase transparente)
+- Ícones brancos grandes e legíveis dentro de cada face
+- Labels em uppercase branco bem legíveis
+- Arestas/bordas visíveis com brilho
+- Glow ambiente forte por baixo e à volta
+- Sensação de objeto sólido de vidro fosco, não wireframe invisível
 
-### Labels actualizadas (conforme a imagem)
-Substituir "Arrendar" → "Mudar" e "Gerir" → manter ou ajustar conforme as 6 faces visíveis na referência.
+### Alterações no ficheiro `src/components/InteractiveCube.tsx`
 
-### Ficheiro alterado
-- `src/components/InteractiveCube.tsx` — reescrita do componente visual, mantendo toda a lógica de interacção (drag, auto-rotate, pointer events, hover speed-up)
+1. **Aumentar tamanho**: outer de 220px para 280px, inner de 140px para 240px (painéis quase do tamanho do cubo, sem gap wireframe)
+2. **Remover o shell exterior wireframe** — na imagem de referência não existe um wireframe separado; é um cubo sólido com faces visíveis
+3. **Painéis com fundo muito mais opaco**: `hsla(163, 45%, 65%, 0.35)` em vez de 0.03-0.12
+4. **Bordas mais visíveis**: `1.5px solid hsla(163, 50%, 85%, 0.5)` 
+5. **Ícones maiores** (36-40px) com cor branca mais opaca (0.95)
+6. **Labels maiores** (11px) com cor branca mais opaca
+7. **Glow central mais forte e maior**
+8. **Sombra ambiente mais pronunciada**
+9. **Container maior** para dar presença no hero
+10. **Manter toda a lógica** de drag, auto-rotate, hover, pointer events
 
-### Detalhes técnicos
-- Continua a usar CSS `transform-style: preserve-3d` com `rotateX/Y`
-- Shell exterior: cubo com `translateZ` maior (~160px), faces com `border` fino e `background` quase transparente
-- Painéis interiores: cubo com `translateZ` menor (~100px), faces glass com ícones
-- Núcleo: div central com `radial-gradient` e `blur` intenso
-- Toda a lógica de `onPointerDown/Move/Up`, `autoRotate`, `isHovered` permanece inalterada
-- Animações `breathe` e `sparkle` mantidas
+### Resultado esperado
+Um cubo 3D grande, sólido e elegante com faces de vidro verde-teal visíveis, ícones brancos claros, e presença visual forte no hero — fiel à imagem de referência.
 
