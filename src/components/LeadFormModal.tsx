@@ -16,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LeadFormModalProps {
   open: boolean;
@@ -34,6 +35,8 @@ const services = [
 
 const LeadFormModal = ({ open, onOpenChange }: LeadFormModalProps) => {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -42,15 +45,35 @@ const LeadFormModal = ({ open, onOpenChange }: LeadFormModalProps) => {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { error: insertError } = await supabase.from("leads").insert({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        user_type: form.service,
+        goal: form.service,
+        message: form.message || null,
+      });
+
+      if (insertError) throw insertError;
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err?.message || "Ocorreu um erro. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = (val: boolean) => {
     if (!val) {
       setTimeout(() => {
         setSubmitted(false);
+        setError(null);
         setForm({ name: "", phone: "", email: "", service: "", message: "" });
       }, 300);
     }
@@ -128,8 +151,23 @@ const LeadFormModal = ({ open, onOpenChange }: LeadFormModalProps) => {
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
               />
-              <Button type="submit" variant="hero" size="lg" className="w-full rounded-xl mt-1">
-                Continuar
+
+              {error && (
+                <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-xl px-3 py-2">
+                  <AlertCircle size={16} />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <Button type="submit" variant="hero" size="lg" className="w-full rounded-xl mt-1" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    A enviar...
+                  </>
+                ) : (
+                  "Continuar"
+                )}
               </Button>
             </form>
           </>
