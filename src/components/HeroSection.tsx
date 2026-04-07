@@ -32,6 +32,19 @@ const HeroSection = () => {
         />
       </div>
 
+      {/* Top nav */}
+      <div className="absolute top-4 right-4 z-20">
+        <Button
+          variant="outline"
+          size="sm"
+          className="rounded-full"
+          onClick={() => navigate(user ? "/documentos" : "/auth")}
+        >
+          <UserCircle className="h-4 w-4 mr-2" />
+          {user ? "Os meus documentos" : "Área de Cliente"}
+        </Button>
+      </div>
+
       {/* Logo pill */}
       <div
         className="flex items-center gap-2.5 mb-6 opacity-0 animate-fade-up liquid-glass-subtle rounded-full px-4 py-2"
