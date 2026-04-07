@@ -2,36 +2,12 @@ import { Handshake, FileCheck, Wrench, Key, LayoutDashboard, DoorOpen } from "lu
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const benefits = [
-  {
-    icon: DoorOpen,
-    title: "Vender",
-    description: "Venda diretamente ao comprador. Sem agentes, sem comissões escondidas.",
-  },
-  {
-    icon: Handshake,
-    title: "Comprar",
-    description: "Negoceia diretamente com o vendedor. Sem intermediários.",
-  },
-  {
-    icon: Key,
-    title: "Arrendar",
-    description: "Marketplace de arrendamento transparente e sem taxas.",
-  },
-  {
-    icon: FileCheck,
-    title: "Financiar",
-    description: "Compare taxas e obtenha pré-aprovação — tudo dentro da app.",
-  },
-  {
-    icon: Wrench,
-    title: "Serviços",
-    description: "Manutenção, reparações e serviços para a casa.",
-  },
-  {
-    icon: LayoutDashboard,
-    title: "Gerir",
-    description: "Dashboard para despesas, seguros e ciclo de vida da propriedade.",
-  },
+  { icon: DoorOpen, title: "Vender", description: "Venda diretamente ao comprador. Sem agentes, sem comissões escondidas." },
+  { icon: Handshake, title: "Comprar", description: "Negoceia diretamente com o vendedor. Sem intermediários." },
+  { icon: Key, title: "Arrendar", description: "Marketplace de arrendamento transparente e sem taxas." },
+  { icon: FileCheck, title: "Financiar", description: "Compare taxas e obtenha pré-aprovação — tudo dentro da app." },
+  { icon: Wrench, title: "Serviços", description: "Manutenção, reparações e serviços para a casa." },
+  { icon: LayoutDashboard, title: "Gerir", description: "Dashboard para despesas, seguros e ciclo de vida da propriedade." },
 ];
 
 const BenefitsSection = () => {
@@ -60,14 +36,12 @@ const BenefitsSection = () => {
               className="reveal group relative rounded-2xl p-7 transition-all duration-500 ease-out cursor-default glass-card"
               style={{ transitionDelay: `${i * 60}ms` }}
             >
-              {/* Hover glow */}
               <div
                 className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                 style={{
-                  background: "radial-gradient(ellipse at 50% 0%, var(--glow-primary-hover) 0%, var(--glow-secondary) 50%, transparent 80%)",
+                  background: "radial-gradient(ellipse at 50% 0%, hsla(211, 80%, 55%, 0.08) 0%, transparent 60%)",
                 }}
               />
-
               <div className="relative z-10 w-11 h-11 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-500 glass-icon">
                 <Icon size={20} strokeWidth={1.3} className="text-primary" />
               </div>

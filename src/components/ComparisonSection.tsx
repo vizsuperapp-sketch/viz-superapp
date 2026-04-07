@@ -24,9 +24,9 @@ const ComparisonSection = () => {
           <div
             className="reveal rounded-3xl p-8 md:p-10 relative overflow-hidden"
             style={{
-              background: "hsla(220, 15%, 94%, 0.6)",
-              border: "1px solid hsla(220, 15%, 88%, 0.5)",
-              filter: "saturate(0.3)",
+              background: "hsla(220, 20%, 12%, 0.6)",
+              border: "1px solid hsla(220, 15%, 20%, 0.5)",
+              filter: "saturate(0.4)",
             }}
           >
             <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground/50 mb-4">
@@ -39,7 +39,7 @@ const ComparisonSection = () => {
                   className="flex items-start gap-3 text-muted-foreground/40"
                   style={{ transitionDelay: `${i * 80}ms` }}
                 >
-                  <X size={18} className="mt-0.5 shrink-0 text-destructive/30" />
+                  <X size={18} className="mt-0.5 shrink-0 text-destructive/40" />
                   <span className="text-sm line-through decoration-muted-foreground/20">
                     {item}
                   </span>
@@ -50,17 +50,15 @@ const ComparisonSection = () => {
 
           {/* RIGHT — VIZ */}
           <div
-            className="reveal rounded-3xl p-8 md:p-10 relative overflow-hidden"
+            className="reveal rounded-3xl p-8 md:p-10 relative overflow-hidden glass-card"
             style={{ transitionDelay: "120ms" }}
           >
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background:
-                  "radial-gradient(ellipse 70% 60% at 50% 50%, hsla(163, 43%, 55%, 0.08) 0%, transparent 70%)",
+                background: "radial-gradient(ellipse 70% 60% at 50% 50%, hsla(211, 80%, 55%, 0.06) 0%, transparent 70%)",
               }}
             />
-            <div className="liquid-glass-strong rounded-3xl absolute inset-0" />
 
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-4">

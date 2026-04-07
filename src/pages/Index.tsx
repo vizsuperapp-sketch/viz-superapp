@@ -1,11 +1,9 @@
 import HeroSection from "@/components/HeroSection";
+import NotAgencySection from "@/components/NotAgencySection";
 import ComparisonSection from "@/components/ComparisonSection";
-import ComparisonTableSection from "@/components/ComparisonTableSection";
-import ProblemSection from "@/components/ProblemSection";
-import BenefitsSection from "@/components/BenefitsSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
-import DifferentiationSection from "@/components/DifferentiationSection";
-import AppShowcaseSection from "@/components/AppShowcaseSection";
+import ManifestoSection from "@/components/ManifestoSection";
+import BenefitsSection from "@/components/BenefitsSection";
 import EcosystemSection from "@/components/EcosystemSection";
 import FinalCTASection from "@/components/FinalCTASection";
 import FooterSection from "@/components/FooterSection";
@@ -14,13 +12,11 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <HeroSection />
+      <NotAgencySection />
       <ComparisonSection />
-      <ComparisonTableSection />
-      <ProblemSection />
-      <BenefitsSection />
       <HowItWorksSection />
-      <DifferentiationSection />
-      <AppShowcaseSection />
+      <ManifestoSection />
+      <BenefitsSection />
       <EcosystemSection />
       <FinalCTASection />
       <FooterSection />
