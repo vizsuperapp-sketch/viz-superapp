@@ -1,36 +1,37 @@
 
 
-## Plano: Redesenhar o cubo para corresponder à imagem de referência
+## Plano: Cubo V-I-Z com hover labels
 
-### Problemas actuais
-- Cubo demasiado pequeno e desbotado
-- Painéis interiores quase invisíveis (opacidade muito baixa)
-- Ícones e labels mal se vêem
-- Falta contraste e presença visual
-- O shell exterior é demasiado subtil
+### Conceito
+Substituir os 6 ícones/labels actuais por um cubo onde as 3 faces visíveis principais mostram as letras **V**, **I**, **Z** em grande (tipografia bold, branca). As restantes 3 faces (traseira, topo, fundo) ficam com glass subtil sem conteúdo. Ao fazer hover sobre o cubo, aparecem micro-labels flutuantes junto às faces visíveis.
 
-### O que a imagem de referência mostra
-- Cubo grande e sólido com cantos arredondados bem visíveis
-- Faces com fundo verde/teal translúcido mas **claramente visível** (não quase transparente)
-- Ícones brancos grandes e legíveis dentro de cada face
-- Labels em uppercase branco bem legíveis
-- Arestas/bordas visíveis com brilho
-- Glow ambiente forte por baixo e à volta
-- Sensação de objeto sólido de vidro fosco, não wireframe invisível
+### Faces do cubo
+| Face | Conteúdo principal | Hover label |
+|------|-------------------|-------------|
+| Frente | **V** | Venda direta |
+| Direita | **I** | IA que acompanha |
+| Esquerda | **Z** | Zero comissão |
+| Traseira | glass vazio | Transparência total |
+| Topo | glass sutil | — |
+| Fundo | glass sutil | — |
 
-### Alterações no ficheiro `src/components/InteractiveCube.tsx`
+### Hover labels
+- Estado: `hoveredFace` tracked via `onMouseEnter` em cada face
+- Ao hovering no cubo inteiro, mostrar 3 labels posicionados com CSS absoluto fora do cubo (offset ~20px das arestas), com animação `fade-in` + leve `translateY`
+- Labels em texto pequeno (10-11px), uppercase, cor branca com opacidade
 
-1. **Aumentar tamanho**: outer de 220px para 280px, inner de 140px para 240px (painéis quase do tamanho do cubo, sem gap wireframe)
-2. **Remover o shell exterior wireframe** — na imagem de referência não existe um wireframe separado; é um cubo sólido com faces visíveis
-3. **Painéis com fundo muito mais opaco**: `hsla(163, 45%, 65%, 0.35)` em vez de 0.03-0.12
-4. **Bordas mais visíveis**: `1.5px solid hsla(163, 50%, 85%, 0.5)` 
-5. **Ícones maiores** (36-40px) com cor branca mais opaca (0.95)
-6. **Labels maiores** (11px) com cor branca mais opaca
-7. **Glow central mais forte e maior**
-8. **Sombra ambiente mais pronunciada**
-9. **Container maior** para dar presença no hero
-10. **Manter toda a lógica** de drag, auto-rotate, hover, pointer events
+### Alterações visuais
+- Letras V/I/Z: `font-size: 72px`, `font-weight: 800`, cor branca com `text-shadow` glow azul
+- Remover ícones Lucide (já não necessários)
+- Glow ambiente muda de verde/teal para **azul profundo** (`hsla(211, 80%, 55%, ...)`) conforme a identidade "blue glass"
+- Faces glass: gradiente azul translúcido em vez de verde
+- Core glow: azul profundo
 
-### Resultado esperado
-Um cubo 3D grande, sólido e elegante com faces de vidro verde-teal visíveis, ícones brancos claros, e presença visual forte no hero — fiel à imagem de referência.
+### Lógica mantida
+- Toda a interactividade (drag, auto-rotate, hover speed-up, pointer events)
+- Animações `breathe` e `sparkle`
+- Mesmo tamanho (260px) e container
+
+### Ficheiro alterado
+- `src/components/InteractiveCube.tsx` — reescrita das faces e adição de hover labels
 
