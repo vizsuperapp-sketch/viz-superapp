@@ -51,16 +51,18 @@ const LeadFormModal = ({ open, onOpenChange }: LeadFormModalProps) => {
     setError(null);
 
     try {
-      const { error: insertError } = await supabase.from("leads").insert({
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        user_type: form.service,
-        goal: form.service,
-        message: form.message || null,
+      const { data, error: invokeError } = await supabase.functions.invoke("submit-lead", {
+        body: {
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          service: form.service,
+          message: form.message,
+        },
       });
 
-      if (insertError) throw insertError;
+      if (invokeError) throw new Error(invokeError.message);
+      if (data?.error) throw new Error(data.error);
       setSubmitted(true);
     } catch (err: any) {
       setError(err?.message || "Ocorreu um erro. Tente novamente.");
