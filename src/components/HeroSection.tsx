@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Play, ShieldCheck, Users, Lock } from "lucide-react";
+import { ChevronRight, Play, ShieldCheck, Users, Lock, UserCircle } from "lucide-react";
 import InteractiveCube from "@/components/InteractiveCube";
 import LeadFormModal from "@/components/LeadFormModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const HeroSection = () => {
   const [formOpen, setFormOpen] = useState(false);
