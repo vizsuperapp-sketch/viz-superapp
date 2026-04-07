@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { Handshake, FileCheck, Wrench, Key, LayoutDashboard, DoorOpen } from "lucide-react";
 
 const faces = [
-  { icon: DoorOpen, label: "Vender" },
-  { icon: Handshake, label: "Comprar" },
-  { icon: Key, label: "Mudar" },
-  { icon: Wrench, label: "Serviços" },
-  { icon: FileCheck, label: "Financiar" },
-  { icon: LayoutDashboard, label: "Gerir" },
+  { letter: "V", label: "Venda direta" },
+  { letter: "I", label: "IA que acompanha" },
+  { letter: "Z", label: "Zero comissão" },
+  { letter: null, label: "Transparência total" },
+  { letter: null, label: null },
+  { letter: null, label: null },
 ];
 
 const InteractiveCube = () => {
@@ -55,12 +54,12 @@ const InteractiveCube = () => {
   const half = cubeSize / 2;
 
   const faceTransforms = [
-    `translateZ(${half}px)`,
-    `rotateY(180deg) translateZ(${half}px)`,
-    `rotateY(90deg) translateZ(${half}px)`,
-    `rotateY(-90deg) translateZ(${half}px)`,
-    `rotateX(90deg) translateZ(${half}px)`,
-    `rotateX(-90deg) translateZ(${half}px)`,
+    `translateZ(${half}px)`,                    // front - V
+    `rotateY(90deg) translateZ(${half}px)`,     // right - I
+    `rotateY(-90deg) translateZ(${half}px)`,    // left - Z
+    `rotateY(180deg) translateZ(${half}px)`,    // back
+    `rotateX(90deg) translateZ(${half}px)`,     // top
+    `rotateX(-90deg) translateZ(${half}px)`,    // bottom
   ];
 
   const containerSize = cubeSize * 1.7;
@@ -76,7 +75,7 @@ const InteractiveCube = () => {
           bottom: "6%",
           left: "50%",
           transform: "translateX(-50%)",
-          background: "radial-gradient(ellipse 90% 70% at 50% 50%, hsla(163,45%,50%,0.3) 0%, transparent 70%)",
+          background: "radial-gradient(ellipse 90% 70% at 50% 50%, hsla(211,80%,55%,0.3) 0%, transparent 70%)",
           filter: "blur(28px)",
         }}
       />
@@ -90,7 +89,7 @@ const InteractiveCube = () => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          background: "radial-gradient(circle, hsla(163,50%,65%,0.18) 0%, hsla(190,40%,65%,0.08) 40%, transparent 70%)",
+          background: "radial-gradient(circle, hsla(211,80%,60%,0.18) 0%, hsla(211,60%,55%,0.08) 40%, transparent 70%)",
           filter: "blur(50px)",
         }}
       />
@@ -104,6 +103,71 @@ const InteractiveCube = () => {
         onMouseLeave={() => setIsHovered(false)}
         style={{ perspective: 900, width: containerSize, height: containerSize }}
       >
+        {/* Hover labels - positioned outside the cube */}
+        <div
+          className="absolute pointer-events-none z-20 transition-opacity duration-500"
+          style={{
+            opacity: isHovered ? 1 : 0,
+            top: "50%",
+            left: "-10px",
+            transform: "translateY(-50%)",
+          }}
+        >
+          <span
+            className="text-[10px] font-semibold uppercase tracking-[0.15em] px-2 py-1 rounded-full"
+            style={{
+              color: "hsla(0,0%,100%,0.8)",
+              background: "hsla(211,80%,55%,0.15)",
+              border: "1px solid hsla(211,60%,70%,0.2)",
+              backdropFilter: "blur(8px)",
+            }}
+          >
+            Zero comissão
+          </span>
+        </div>
+        <div
+          className="absolute pointer-events-none z-20 transition-opacity duration-500"
+          style={{
+            opacity: isHovered ? 1 : 0,
+            top: "50%",
+            right: "-10px",
+            transform: "translateY(-50%)",
+          }}
+        >
+          <span
+            className="text-[10px] font-semibold uppercase tracking-[0.15em] px-2 py-1 rounded-full"
+            style={{
+              color: "hsla(0,0%,100%,0.8)",
+              background: "hsla(211,80%,55%,0.15)",
+              border: "1px solid hsla(211,60%,70%,0.2)",
+              backdropFilter: "blur(8px)",
+            }}
+          >
+            IA que acompanha
+          </span>
+        </div>
+        <div
+          className="absolute pointer-events-none z-20 transition-opacity duration-500"
+          style={{
+            opacity: isHovered ? 1 : 0,
+            bottom: "18%",
+            left: "50%",
+            transform: "translateX(-50%)",
+          }}
+        >
+          <span
+            className="text-[10px] font-semibold uppercase tracking-[0.15em] px-2 py-1 rounded-full whitespace-nowrap"
+            style={{
+              color: "hsla(0,0%,100%,0.8)",
+              background: "hsla(211,80%,55%,0.15)",
+              border: "1px solid hsla(211,60%,70%,0.2)",
+              backdropFilter: "blur(8px)",
+            }}
+          >
+            Venda direta
+          </span>
+        </div>
+
         <div
           className="relative w-full h-full"
           style={{
@@ -112,18 +176,16 @@ const InteractiveCube = () => {
             transition: isDragging ? "none" : "transform 0.08s linear",
           }}
         >
-          {/* Cube faces */}
           {faces.map((face, i) => (
             <CubeFace
-              key={face.label}
-              icon={face.icon}
-              label={face.label}
+              key={i}
+              letter={face.letter}
               size={cubeSize}
               style={{ transform: faceTransforms[i] }}
             />
           ))}
 
-          {/* Glowing core */}
+          {/* Glowing core - blue */}
           <div
             className="absolute"
             style={{
@@ -132,7 +194,7 @@ const InteractiveCube = () => {
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: "radial-gradient(circle, hsla(163,55%,60%,0.6) 0%, hsla(180,50%,55%,0.25) 40%, transparent 70%)",
+              background: "radial-gradient(circle, hsla(211,80%,60%,0.6) 0%, hsla(211,60%,50%,0.25) 40%, transparent 70%)",
               borderRadius: "50%",
               filter: "blur(25px)",
             }}
@@ -156,7 +218,7 @@ const InteractiveCube = () => {
                 height: sp.s,
                 borderRadius: "50%",
                 background: "hsla(0,0%,100%,0.95)",
-                boxShadow: "0 0 8px 3px hsla(163,50%,75%,0.7)",
+                boxShadow: "0 0 8px 3px hsla(211,70%,70%,0.7)",
                 animation: `sparkle 2s ease-in-out ${sp.delay} infinite alternate`,
               }}
             />
@@ -172,17 +234,16 @@ const InteractiveCube = () => {
 };
 
 interface CubeFaceProps {
-  icon: typeof Handshake;
-  label: string;
+  letter: string | null;
   size: number;
   style: React.CSSProperties;
 }
 
-const CubeFace = ({ icon: Icon, label, size, style }: CubeFaceProps) => {
+const CubeFace = ({ letter, size, style }: CubeFaceProps) => {
   const half = size / 2;
   return (
     <div
-      className="absolute flex flex-col items-center justify-center gap-3"
+      className="absolute flex flex-col items-center justify-center"
       style={{
         width: size,
         height: size,
@@ -193,18 +254,18 @@ const CubeFace = ({ icon: Icon, label, size, style }: CubeFaceProps) => {
         borderRadius: "1.25rem",
         background: `linear-gradient(
           145deg,
-          hsla(163, 45%, 60%, 0.38) 0%,
-          hsla(170, 42%, 55%, 0.28) 30%,
-          hsla(180, 38%, 50%, 0.22) 60%,
-          hsla(190, 45%, 55%, 0.32) 100%
+          hsla(211, 80%, 55%, 0.35) 0%,
+          hsla(211, 70%, 50%, 0.25) 30%,
+          hsla(220, 60%, 48%, 0.2) 60%,
+          hsla(211, 80%, 60%, 0.3) 100%
         )`,
         backdropFilter: "blur(12px) saturate(1.4)",
         WebkitBackdropFilter: "blur(12px) saturate(1.4)",
-        border: "1.5px solid hsla(163, 50%, 82%, 0.5)",
+        border: "1.5px solid hsla(211, 60%, 75%, 0.45)",
         boxShadow: `
-          inset 0 1px 0 hsla(0, 0%, 100%, 0.4),
-          inset 0 -1px 0 hsla(170, 40%, 50%, 0.08),
-          0 8px 32px hsla(163, 40%, 45%, 0.12)
+          inset 0 1px 0 hsla(0, 0%, 100%, 0.35),
+          inset 0 -1px 0 hsla(211, 60%, 45%, 0.08),
+          0 8px 32px hsla(211, 60%, 40%, 0.12)
         `,
         backfaceVisibility: "hidden",
         ...style,
@@ -218,28 +279,25 @@ const CubeFace = ({ icon: Icon, label, size, style }: CubeFaceProps) => {
           left: 6,
           right: "30%",
           height: "20%",
-          background: "linear-gradient(135deg, hsla(0,0%,100%,0.35) 0%, hsla(0,0%,100%,0.03) 50%, transparent 100%)",
+          background: "linear-gradient(135deg, hsla(0,0%,100%,0.3) 0%, hsla(0,0%,100%,0.03) 50%, transparent 100%)",
           borderRadius: "0.8rem 0.8rem 2rem 0.4rem",
         }}
       />
 
-      <Icon
-        size={38}
-        strokeWidth={1.5}
-        style={{
-          color: "hsla(0, 0%, 100%, 0.95)",
-          filter: "drop-shadow(0 2px 6px hsla(163,40%,35%,0.4))",
-        }}
-      />
-      <span
-        className="text-[11px] font-bold tracking-[0.2em] uppercase"
-        style={{
-          color: "hsla(0, 0%, 100%, 0.88)",
-          textShadow: "0 1px 4px hsla(163,40%,25%,0.35)",
-        }}
-      >
-        {label}
-      </span>
+      {letter && (
+        <span
+          style={{
+            fontSize: "72px",
+            fontWeight: 800,
+            lineHeight: 1,
+            color: "hsla(0, 0%, 100%, 0.95)",
+            textShadow: "0 0 30px hsla(211,80%,60%,0.6), 0 2px 8px hsla(211,60%,40%,0.4)",
+            fontFamily: "'DM Sans', system-ui, sans-serif",
+          }}
+        >
+          {letter}
+        </span>
+      )}
     </div>
   );
 };
