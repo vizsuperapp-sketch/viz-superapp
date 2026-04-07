@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Loader2, RefreshCw, Inbox } from "lucide-react";
+import { ArrowLeft, Loader2, RefreshCw, Inbox, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
+import type { Session } from "@supabase/supabase-js";
 
 interface Lead {
   id: string;
@@ -16,9 +18,45 @@ interface Lead {
 }
 
 const Admin = () => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
+
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError(null);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: loginEmail,
+      password: loginPassword,
+    });
+    if (error) {
+      setLoginError(error.message);
+    }
+    setLoginLoading(false);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -29,7 +67,7 @@ const Admin = () => {
       .order("created_at", { ascending: false });
 
     if (fetchError) {
-      setError(fetchError.message);
+      setError("Sem permissão para ver leads ou erro de ligação.");
     } else {
       setLeads((data as Lead[]) || []);
     }
@@ -37,8 +75,53 @@ const Admin = () => {
   };
 
   useEffect(() => {
-    fetchLeads();
-  }, []);
+    if (session) {
+      fetchLeads();
+    }
+  }, [session]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-full max-w-sm mx-auto px-6">
+          <h1 className="text-2xl font-bold tracking-tight mb-6 text-center">Admin Login</h1>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <Input
+              type="email"
+              placeholder="Email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              required
+            />
+            <Input
+              type="password"
+              placeholder="Password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              required
+            />
+            {loginError && <p className="text-destructive text-sm">{loginError}</p>}
+            <Button type="submit" className="w-full" disabled={loginLoading}>
+              {loginLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar"}
+            </Button>
+          </form>
+          <div className="mt-4 text-center">
+            <Link to="/">
+              <Button variant="ghost" size="sm">← Voltar ao site</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,10 +140,16 @@ const Admin = () => {
               </p>
             </div>
           </div>
-          <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={fetchLeads} disabled={loading}>
-            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-            Atualizar
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={fetchLeads} disabled={loading}>
+              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+              Atualizar
+            </Button>
+            <Button variant="ghost" size="sm" className="rounded-xl gap-2" onClick={handleLogout}>
+              <LogOut size={14} />
+              Sair
+            </Button>
+          </div>
         </div>
 
         {loading && leads.length === 0 ? (
