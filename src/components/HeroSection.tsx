@@ -1,11 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Play, ShieldCheck, Users, Lock } from "lucide-react";
+import { ChevronRight, Play, ShieldCheck, Users, Lock, UserCircle } from "lucide-react";
 import InteractiveCube from "@/components/InteractiveCube";
 import LeadFormModal from "@/components/LeadFormModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const HeroSection = () => {
   const [formOpen, setFormOpen] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const scrollToHowItWorks = () => {
     document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
@@ -26,6 +30,19 @@ const HeroSection = () => {
             animation: "ambient-drift 25s ease-in-out infinite alternate",
           }}
         />
+      </div>
+
+      {/* Top nav */}
+      <div className="absolute top-4 right-4 z-20">
+        <Button
+          variant="outline"
+          size="sm"
+          className="rounded-full"
+          onClick={() => navigate(user ? "/documentos" : "/auth")}
+        >
+          <UserCircle className="h-4 w-4 mr-2" />
+          {user ? "Os meus documentos" : "Área de Cliente"}
+        </Button>
       </div>
 
       {/* Logo pill */}
