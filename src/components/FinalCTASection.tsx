@@ -25,7 +25,7 @@ const FinalCTASection = () => {
             className="reveal text-3xl md:text-4xl font-bold mb-5 tracking-tight"
             style={{ textWrap: "balance" }}
           >
-            Pronto para vender{" "}
+            Pronto para vender ou comprar{" "}
             <span className="text-gradient">sem comissão?</span>
           </h2>
           <p className="reveal text-muted-foreground text-base mb-8" style={{ transitionDelay: "80ms" }}>
