@@ -55,16 +55,16 @@ const HeroSection = () => {
             style={{ animationDelay: "0ms" }}
           >
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-viz">
-              <span className="text-[10px] font-bold text-primary-foreground tracking-tight">VIZ</span>
+              <span className="text-[10px] font-bold text-primary-foreground tracking-tight">VIZ </span>
             </div>
           </div>
 
           <h1
-            className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight mb-5 opacity-0 animate-fade-up"
+            className="text-5xl font-bold leading-[1.05] tracking-tight mb-5 opacity-0 animate-fade-up"
             style={{ animationDelay: "100ms", textWrap: "balance" }}
           >
-            Comprar ou vender casa,{" "}
-            <span className="text-gradient">sem agência.</span>
+            SuperApp da casa<br />
+            Comprar ou vender , <span className="text-gradient">sem comissões.</span>
           </h1>
 
           <p
