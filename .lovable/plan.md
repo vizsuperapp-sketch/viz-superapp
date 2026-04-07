@@ -1,24 +1,25 @@
 
 
-## Plan: Create Admin Account
+## Plano: Email automático de confirmação para leads
 
-### Steps
+### O que será feito
+Quando alguém submeter o formulário de contacto, receberá automaticamente um email de confirmação no endereço que indicou. O email terá o branding da VIZ e uma mensagem personalizada.
 
-1. **Create a one-time edge function** (`create-admin`) that:
-   - Uses the `SUPABASE_SERVICE_ROLE_KEY` (already configured) to create the user via `supabase.auth.admin.createUser()`
-   - Email: `admin@viz.pt`, Password: `18062011`, email auto-confirmed
-   - Inserts a row into `user_roles` with `role = 'admin'` for the new user
-   - Returns success/error response
+### Pré-requisitos
+1. **Verificar domínio de email** — confirmar se já existe um domínio de email configurado no projeto. Se não existir, será necessário configurar um primeiro.
+2. **Configurar infraestrutura de email** — garantir que a infraestrutura de envio (filas, funções) está ativa.
 
-2. **Invoke the edge function** to create the account
+### Passos técnicos
 
-3. **Delete the edge function** immediately after — it's a one-time setup utility and should not remain in the codebase
+1. **Verificar estado do domínio de email** — verificar se já há um domínio configurado
+2. **Configurar infraestrutura de email** (se necessário) — preparar filas e funções de envio
+3. **Criar template de email** — criar um template React Email em português com o branding VIZ (cores, fontes do projeto), com mensagem do tipo:
+   - Assunto: "Recebemos o seu pedido — VIZ"
+   - Corpo: saudação personalizada com o nome, confirmação de receção, indicação de que a equipa entrará em contacto
+4. **Registar template** no registry de templates
+5. **Atualizar o formulário de lead** (`LeadFormModal.tsx`) — após inserir o lead na base de dados com sucesso, chamar a função de envio de email com o template criado
+6. **Deploy das funções** — publicar as alterações
 
-### Files changed
-- `supabase/functions/create-admin/index.ts` — created, then deleted after use
-
-### Security
-- The edge function uses the service role key (already stored as a secret) — no credentials are hardcoded
-- The function is deleted immediately after invocation
-- You should change your password after first login since it was shared in chat
+### Resultado
+Cada pessoa que submeter o formulário receberá imediatamente um email profissional de confirmação no seu inbox.
 
