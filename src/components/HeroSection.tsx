@@ -64,7 +64,7 @@ const HeroSection = () => {
             style={{ animationDelay: "100ms", textWrap: "balance" }}
           >
             SuperApp da casa<br />
-            Comprar ou vender, <span className="text-gradient">sem comissões.</span>
+            Comprar ou vender , <span className="text-gradient">sem comissões.</span>
           </h1>
 
           <p
