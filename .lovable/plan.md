@@ -1,28 +1,27 @@
 
 
-## Plano: Adicionar secção de mockups da app ao landing page
+## Plano: Redesenhar o cubo interativo com estética de vidro em camadas
 
-### O que vai ser feito
-Criar uma nova secção visual no landing page que mostra a imagem dos mockups do iPhone com as anotações sobre simplicidade, linguagem humana e transparência radical.
+### Objectivo
+Substituir o cubo actual por um design mais sofisticado que replica a imagem de referência: um cubo com shell exterior wireframe, painéis interiores flutuantes com ícones, e um núcleo central brilhante — mantendo toda a interactividade existente (drag, auto-rotate, hover).
 
-### Onde no site
-A secção será inserida entre **DifferentiationSection** e **EcosystemSection** — um encaixe natural, pois reforça a diferenciação do produto antes de mostrar o ecossistema.
+### Alterações visuais (baseadas na imagem)
+- **Shell exterior**: cubo wireframe translúcido maior (arestas finas, faces quase invisíveis)
+- **Painéis interiores**: 6 faces mais pequenas que "flutuam" a partir do centro, com espaço entre elas e o shell — cada uma com ícone e label
+- **Núcleo central**: glow teal/verde intenso no centro do cubo
+- **Camadas múltiplas**: sensação de profundidade com 2 cubos concêntricos (outer shell + inner panels)
 
-### Passos
+### Labels actualizadas (conforme a imagem)
+Substituir "Arrendar" → "Mudar" e "Gerir" → manter ou ajustar conforme as 6 faces visíveis na referência.
 
-1. **Copiar a imagem** do upload para `src/assets/app-mockups.png`
-
-2. **Criar `src/components/AppShowcaseSection.tsx`**
-   - Secção com fundo subtil (consistente com o design glass/gradient existente)
-   - Importa a imagem como módulo ES6 e apresenta-a responsivamente
-   - A imagem ocupa a largura principal com `max-w-5xl` e auto margins
-   - Usa a classe `reveal` existente para animação de scroll
-
-3. **Atualizar `src/pages/Index.tsx`**
-   - Importar e inserir `<AppShowcaseSection />` entre `<DifferentiationSection />` e `<EcosystemSection />`
+### Ficheiro alterado
+- `src/components/InteractiveCube.tsx` — reescrita do componente visual, mantendo toda a lógica de interacção (drag, auto-rotate, pointer events, hover speed-up)
 
 ### Detalhes técnicos
-- Imagem importada via `import mockups from "@/assets/app-mockups.png"` para optimização pelo Vite
-- Responsive: imagem com `w-full` e `object-contain`
-- Integra o hook `useScrollReveal` já existente no projecto
+- Continua a usar CSS `transform-style: preserve-3d` com `rotateX/Y`
+- Shell exterior: cubo com `translateZ` maior (~160px), faces com `border` fino e `background` quase transparente
+- Painéis interiores: cubo com `translateZ` menor (~100px), faces glass com ícones
+- Núcleo: div central com `radial-gradient` e `blur` intenso
+- Toda a lógica de `onPointerDown/Move/Up`, `autoRotate`, `isHovered` permanece inalterada
+- Animações `breathe` e `sparkle` mantidas
 
