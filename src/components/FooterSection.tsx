@@ -8,7 +8,7 @@ const FooterSection = () => (
           <span className="text-xs font-bold text-primary-foreground">V</span>
         </div>
       </div>
-      <div className="flex items-center gap-1.5 text-muted-foreground/40">
+      <div className="flex items-center gap-1.5 text-muted-foreground/30">
         <ShieldCheck size={12} />
         <span className="text-[11px]">Os seus dados estão protegidos e nunca são partilhados</span>
       </div>
