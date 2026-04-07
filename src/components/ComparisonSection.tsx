@@ -2,15 +2,15 @@ import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { X, Check, Sparkles } from "lucide-react";
 
 const pastItems = [
-  "Não é uma agência imobiliária",
-  "Não é um portal de anúncios",
-  "Não é mais um intermediário",
+  "Comissões de 5% + IVA sobre o valor da venda",
+  "Processo opaco e sem controlo",
+  "Dependência total do agente",
 ];
 
 const futureItems = [
-  "Um SuperApp da jornada da casa",
-  "Conexão direta guiada por IA",
-  "Zero intermediários. Zero comissões",
+  "Zero comissões — o dinheiro é seu",
+  "Cada passo visível e verificável",
+  "Você decide, nós guiamos",
 ];
 
 const ComparisonSection = () => {
@@ -20,7 +20,7 @@ const ComparisonSection = () => {
     <section className="py-28 px-6 relative" ref={sectionRef}>
       <div className="container max-w-5xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {/* LEFT — The Past (faded) */}
+          {/* LEFT — The Past */}
           <div
             className="reveal rounded-3xl p-8 md:p-10 relative overflow-hidden"
             style={{
@@ -30,7 +30,7 @@ const ComparisonSection = () => {
             }}
           >
             <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground/50 mb-4">
-              O passado
+              Modelo tradicional
             </p>
             <div className="space-y-4">
               {pastItems.map((item, i) => (
@@ -48,12 +48,11 @@ const ComparisonSection = () => {
             </div>
           </div>
 
-          {/* RIGHT — The New Standard (glowing) */}
+          {/* RIGHT — VIZ */}
           <div
             className="reveal rounded-3xl p-8 md:p-10 relative overflow-hidden"
             style={{ transitionDelay: "120ms" }}
           >
-            {/* Glow background */}
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
@@ -67,7 +66,7 @@ const ComparisonSection = () => {
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles size={14} className="text-primary" />
                 <p className="text-xs font-semibold tracking-widest uppercase text-primary">
-                  O novo padrão
+                  Com a VIZ
                 </p>
               </div>
               <div className="space-y-4">

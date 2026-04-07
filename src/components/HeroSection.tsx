@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Play } from "lucide-react";
+import { ChevronRight, Play, ShieldCheck, Users, Lock } from "lucide-react";
 import InteractiveCube from "@/components/InteractiveCube";
 import LeadFormModal from "@/components/LeadFormModal";
 
@@ -13,7 +13,7 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
-      {/* Ambient background — lavender/blue tint like reference image */}
+      {/* Ambient background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
           className="absolute w-[140%] h-[140%] -top-[20%] -left-[20%]"
@@ -38,22 +38,24 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Disruptive headline — BEFORE the cube */}
+      {/* Headline — clear value, bold */}
       <h1
-        className="text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-[1.05] tracking-tight max-w-2xl mb-2 opacity-0 animate-fade-up"
+        className="text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-[1.05] tracking-tight max-w-2xl mb-3 opacity-0 animate-fade-up"
         style={{ animationDelay: "100ms", textWrap: "balance" }}
       >
-        Erro no sistema imobiliário.
+        Venda a sua casa.
+        <br />
+        <span className="text-gradient">Sem pagar comissão.</span>
       </h1>
 
       <p
-        className="text-xl md:text-2xl lg:text-3xl font-semibold text-center mb-8 opacity-0 animate-fade-up text-gradient"
-        style={{ animationDelay: "200ms" }}
+        className="text-base md:text-lg text-center mb-8 opacity-0 animate-fade-up text-muted-foreground max-w-md"
+        style={{ animationDelay: "200ms", textWrap: "balance" }}
       >
-        O jogo mudou.
+        A plataforma que liga compradores e vendedores diretamente — com verificação, apoio legal e zero intermediários.
       </p>
 
-      {/* CUBE — the product, large and dominant */}
+      {/* CUBE */}
       <div
         className="relative mb-8 opacity-0 animate-fade-up"
         style={{ animationDelay: "300ms" }}
@@ -63,11 +65,11 @@ const HeroSection = () => {
 
       {/* CTA buttons */}
       <div
-        className="flex flex-col sm:flex-row items-center gap-3 mb-5 opacity-0 animate-fade-up"
+        className="flex flex-col sm:flex-row items-center gap-3 mb-6 opacity-0 animate-fade-up"
         style={{ animationDelay: "450ms" }}
       >
         <Button variant="hero" size="xl" onClick={() => setFormOpen(true)}>
-          Começar agora
+          Começar gratuitamente
           <ChevronRight className="ml-1" />
         </Button>
         <Button
@@ -81,13 +83,22 @@ const HeroSection = () => {
         </Button>
       </div>
 
-      {/* Trust signal */}
-      <p
-        className="text-xs tracking-widest uppercase text-muted-foreground/50 opacity-0 animate-fade-up"
+      {/* Trust micro-signals */}
+      <div
+        className="flex items-center gap-5 opacity-0 animate-fade-up"
         style={{ animationDelay: "550ms" }}
       >
-        Zero intermediários · Zero comissões
-      </p>
+        {[
+          { icon: ShieldCheck, text: "Dados verificados" },
+          { icon: Lock, text: "Processo seguro" },
+          { icon: Users, text: "Apoio em cada passo" },
+        ].map(({ icon: Icon, text }) => (
+          <div key={text} className="flex items-center gap-1.5">
+            <Icon size={13} className="text-primary/60" />
+            <span className="text-[11px] text-muted-foreground/60">{text}</span>
+          </div>
+        ))}
+      </div>
 
       <LeadFormModal open={formOpen} onOpenChange={setFormOpen} />
     </section>

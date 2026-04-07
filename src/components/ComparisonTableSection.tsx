@@ -2,9 +2,10 @@ import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { X, Check } from "lucide-react";
 
 const rows = [
-  { label: "Comissão", old: "5% + IVA", viz: "0% comissão" },
-  { label: "Modelo", old: "Intermediários", viz: "Direto + IA" },
-  { label: "Transparência", old: "Opaco", viz: "Transparente e verificado" },
+  { label: "Comissão", old: "5% + IVA", viz: "0%" },
+  { label: "Controlo", old: "No agente", viz: "No proprietário" },
+  { label: "Transparência", old: "Custos ocultos", viz: "Tudo visível" },
+  { label: "Apoio", old: "Variável", viz: "IA + profissionais" },
 ];
 
 const ComparisonTableSection = () => {
@@ -17,14 +18,14 @@ const ComparisonTableSection = () => {
           className="reveal text-3xl md:text-4xl font-bold text-center mb-4 tracking-tight"
           style={{ textWrap: "balance" as any }}
         >
-          Porquê mudar?{" "}
-          <span className="text-gradient">Compare.</span>
+          Compare e{" "}
+          <span className="text-gradient">decida.</span>
         </h2>
         <p
           className="reveal text-muted-foreground text-center text-sm mb-14 max-w-md mx-auto"
           style={{ transitionDelay: "80ms" }}
         >
-          A diferença entre o modelo tradicional e o Sistema VIZ.
+          O modelo tradicional vs. a VIZ — lado a lado.
         </p>
 
         <div className="reveal rounded-3xl overflow-hidden liquid-glass" style={{ transitionDelay: "160ms" }}>
@@ -36,7 +37,7 @@ const ComparisonTableSection = () => {
               style={{ background: "hsla(220, 15%, 94%, 0.4)" }}
             >
               <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground/60">
-                Modelo Tradicional
+                Tradicional
               </p>
             </div>
             <div
@@ -47,7 +48,7 @@ const ComparisonTableSection = () => {
               }}
             >
               <p className="text-xs font-semibold tracking-widest uppercase text-primary">
-                Sistema VIZ
+                VIZ
               </p>
             </div>
           </div>
@@ -59,23 +60,18 @@ const ComparisonTableSection = () => {
               className="reveal grid grid-cols-3 border-t border-border/30 group transition-colors duration-300 hover:bg-accent/30"
               style={{ transitionDelay: `${(i + 2) * 100}ms` }}
             >
-              {/* Label */}
               <div className="p-5 flex items-center">
                 <span className="text-sm font-semibold text-foreground">{label}</span>
               </div>
-
-              {/* Old */}
               <div
                 className="p-5 flex items-center justify-center gap-2 border-l border-border/40"
                 style={{ background: "hsla(220, 15%, 94%, 0.25)" }}
               >
                 <X size={14} className="shrink-0 text-destructive/40" />
-                <span className="text-sm text-muted-foreground/60 line-through decoration-muted-foreground/20">
+                <span className="text-sm text-muted-foreground/60">
                   {old}
                 </span>
               </div>
-
-              {/* VIZ */}
               <div
                 className="p-5 flex items-center justify-center gap-2 border-l relative overflow-hidden transition-all duration-300 group-hover:shadow-[inset_0_0_30px_hsla(163,43%,55%,0.06)]"
                 style={{
