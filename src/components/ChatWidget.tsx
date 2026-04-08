@@ -116,7 +116,7 @@ export default function ChatWidget() {
         content: `Olá ${data.name}! 👋 Vi que tens interesse em **${data.interest.toLowerCase()}**. Em que posso ajudar-te?`,
       };
       setMessages([welcome]);
-      await saveMessage(session.id, "assistant", welcome.content);
+      await saveMessage(newId, "assistant", welcome.content);
     } catch {
       console.error("Failed to create chat session");
     } finally {
