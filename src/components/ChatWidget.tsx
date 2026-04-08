@@ -101,15 +101,14 @@ export default function ChatWidget() {
   const handleFormSubmit = async (data: ChatLead) => {
     setFormLoading(true);
     try {
-      const { data: session, error } = await supabase
+      const newId = crypto.randomUUID();
+      const { error } = await supabase
         .from("chat_sessions")
-        .insert({ name: data.name, email: data.email, phone: data.phone, interest: data.interest })
-        .select("id")
-        .single();
+        .insert({ id: newId, name: data.name, email: data.email, phone: data.phone, interest: data.interest });
 
-      if (error || !session) throw error;
+      if (error) throw error;
 
-      setSessionId(session.id);
+      setSessionId(newId);
       setLead(data);
 
       const welcome: Msg = {
@@ -117,7 +116,7 @@ export default function ChatWidget() {
         content: `Olá ${data.name}! 👋 Vi que tens interesse em **${data.interest.toLowerCase()}**. Em que posso ajudar-te?`,
       };
       setMessages([welcome]);
-      await saveMessage(session.id, "assistant", welcome.content);
+      await saveMessage(newId, "assistant", welcome.content);
     } catch {
       console.error("Failed to create chat session");
     } finally {
