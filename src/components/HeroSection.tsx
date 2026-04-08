@@ -90,6 +90,14 @@ const HeroSection = () => {
               <ChevronRight className="ml-1" />
             </Button>
             <Button
+              variant="outline"
+              size="lg"
+              className="border-primary/30 text-foreground hover:bg-primary/10"
+              onClick={() => navigate("/vender")}
+            >
+              Quero Vender
+            </Button>
+            <Button
               variant="ghost"
               size="lg"
               className="text-muted-foreground hover:text-foreground gap-2"

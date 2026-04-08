@@ -31,10 +31,18 @@ const FinalCTASection = () => {
           <p className="reveal text-muted-foreground text-base mb-8" style={{ transitionDelay: "80ms" }}>
             Comece gratuitamente. Sem compromisso, sem cartão de crédito.
           </p>
-          <div className="reveal mb-8" style={{ transitionDelay: "160ms" }}>
+          <div className="reveal flex flex-col sm:flex-row items-center justify-center gap-3 mb-8" style={{ transitionDelay: "160ms" }}>
             <Button variant="hero" size="xl" onClick={() => setFormOpen(true)}>
               Entrar na VIZ
               <ArrowRight className="ml-1" />
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-primary/30 text-foreground hover:bg-primary/10"
+              onClick={() => navigate("/vender")}
+            >
+              Vender o meu imóvel
             </Button>
           </div>
 
