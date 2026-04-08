@@ -5,7 +5,7 @@ const FooterSection = () => (
     <div className="container max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
       <div className="flex items-center gap-2">
         <div className="w-7 h-7 rounded-md bg-gradient-viz flex items-center justify-center">
-          <span className="text-xs font-bold text-primary-foreground">V</span>
+          <span className="font-bold text-primary-foreground text-sm border-8 font-sans">VIZ</span>
         </div>
       </div>
       <div className="flex items-center gap-1.5 text-muted-foreground/30">
