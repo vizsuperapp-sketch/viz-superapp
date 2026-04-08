@@ -10,6 +10,7 @@ import Admin from "./pages/Admin.tsx";
 import Auth from "./pages/Auth.tsx";
 import Documentos from "./pages/Documentos.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import ChatWidget from "./components/ChatWidget";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        <ChatWidget />
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
