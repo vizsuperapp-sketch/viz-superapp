@@ -13,61 +13,61 @@ async function streamChat({
   name,
   interest,
   onDelta,
-  onDone,
-  onError,
 }: {
   messages: Msg[];
   sessionId: string;
   name: string;
   interest: string;
   onDelta: (t: string) => void;
-  onDone: () => void;
-  onError: (msg: string) => void;
 }) {
-  const resp = await fetch(CHAT_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-    },
-    body: JSON.stringify({ messages, session_id: sessionId, name, interest }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 60_000);
 
-  if (resp.status === 429) { onError("Demasiados pedidos. Aguarda um momento."); return; }
-  if (resp.status === 402) { onError("Serviço temporariamente indisponível."); return; }
-  if (!resp.ok || !resp.body) { onError("Erro ao contactar o assistente."); return; }
+  try {
+    const resp = await fetch(CHAT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({ messages, session_id: sessionId, name, interest }),
+      signal: controller.signal,
+    });
 
-  const reader = resp.body.getReader();
-  const decoder = new TextDecoder();
-  let buf = "";
-  let done = false;
+    if (resp.status === 429) throw new Error("Demasiados pedidos. Aguarda um momento.");
+    if (resp.status === 402) throw new Error("Serviço temporariamente indisponível.");
+    if (!resp.ok || !resp.body) throw new Error("Erro ao contactar o assistente.");
 
-  while (!done) {
-    const { done: rd, value } = await reader.read();
-    if (rd) break;
-    buf += decoder.decode(value, { stream: true });
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
 
-    let idx: number;
-    while ((idx = buf.indexOf("\n")) !== -1) {
-      let line = buf.slice(0, idx);
-      buf = buf.slice(idx + 1);
-      if (line.endsWith("\r")) line = line.slice(0, -1);
-      if (line.startsWith(":") || line.trim() === "") continue;
-      if (!line.startsWith("data: ")) continue;
-      const json = line.slice(6).trim();
-      if (json === "[DONE]") { done = true; break; }
-      try {
-        const p = JSON.parse(json);
-        const c = p.choices?.[0]?.delta?.content as string | undefined;
-        if (c) onDelta(c);
-      } catch {
-        buf = line + "\n" + buf;
-        break;
+    while (true) {
+      const { done: rd, value } = await reader.read();
+      if (rd) break;
+      buf += decoder.decode(value, { stream: true });
+
+      let idx: number;
+      while ((idx = buf.indexOf("\n")) !== -1) {
+        let line = buf.slice(0, idx);
+        buf = buf.slice(idx + 1);
+        if (line.endsWith("\r")) line = line.slice(0, -1);
+        if (line.startsWith(":") || line.trim() === "") continue;
+        if (!line.startsWith("data: ")) continue;
+        const json = line.slice(6).trim();
+        if (json === "[DONE]") return;
+        try {
+          const p = JSON.parse(json);
+          const c = p.choices?.[0]?.delta?.content as string | undefined;
+          if (c) onDelta(c);
+        } catch {
+          buf = line + "\n" + buf;
+          break;
+        }
       }
     }
-  }
 
-  if (buf.trim()) {
+    // Process remaining buffer
     for (let raw of buf.split("\n")) {
       if (!raw) continue;
       if (raw.endsWith("\r")) raw = raw.slice(0, -1);
@@ -80,9 +80,9 @@ async function streamChat({
         if (c) onDelta(c);
       } catch { /* skip */ }
     }
+  } finally {
+    clearTimeout(timeout);
   }
-
-  onDone();
 }
 
 export default function ChatWidget() {
@@ -153,21 +153,23 @@ export default function ChatWidget() {
         name: lead.name,
         interest: lead.interest,
         onDelta: upsert,
-        onDone: async () => {
-          setLoading(false);
-          if (assistantSoFar) await saveMessage(sessionId, "assistant", assistantSoFar);
-        },
-        onError: async (msg) => {
-          setMessages((prev) => [...prev, { role: "assistant", content: msg }]);
-          setLoading(false);
-          await saveMessage(sessionId, "assistant", msg);
-        },
       });
-    } catch {
-      const errMsg = "Ocorreu um erro. Tenta novamente.";
-      setMessages((prev) => [...prev, { role: "assistant", content: errMsg }]);
+    } catch (err) {
+      const errMsg = err instanceof Error && err.name === "AbortError"
+        ? "A resposta demorou demasiado. Tenta novamente."
+        : err instanceof Error
+          ? err.message
+          : "Ocorreu um erro. Tenta novamente.";
+
+      if (!assistantSoFar) {
+        setMessages((prev) => [...prev, { role: "assistant", content: errMsg }]);
+        assistantSoFar = errMsg;
+      }
+    } finally {
       setLoading(false);
-      await saveMessage(sessionId, "assistant", errMsg);
+      if (assistantSoFar) {
+        await saveMessage(sessionId, "assistant", assistantSoFar);
+      }
     }
   }, [input, loading, messages, sessionId, lead]);
 
