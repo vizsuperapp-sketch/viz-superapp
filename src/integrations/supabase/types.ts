@@ -71,6 +71,54 @@ export type Database = {
         }
         Relationships: []
       }
+      properties: {
+        Row: {
+          ai_description: string | null
+          area: number | null
+          condition: string | null
+          created_at: string
+          description: string | null
+          extras: string | null
+          id: string
+          location: string | null
+          status: Database["public"]["Enums"]["property_status"]
+          title: string | null
+          typology: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_description?: string | null
+          area?: number | null
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          extras?: string | null
+          id?: string
+          location?: string | null
+          status?: Database["public"]["Enums"]["property_status"]
+          title?: string | null
+          typology?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_description?: string | null
+          area?: number | null
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          extras?: string | null
+          id?: string
+          location?: string | null
+          status?: Database["public"]["Enums"]["property_status"]
+          title?: string | null
+          typology?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -104,6 +152,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      property_status: "draft" | "pending" | "active"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -232,6 +281,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      property_status: ["draft", "pending", "active"],
     },
   },
 } as const
