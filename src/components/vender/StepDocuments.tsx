@@ -147,6 +147,7 @@ const StepDocuments = ({ propertyId, userId, onNext }: StepDocumentsProps) => {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) handleFileSelect(doc.key, file);
+                        e.target.value = "";
                       }}
                     />
                     <Button
