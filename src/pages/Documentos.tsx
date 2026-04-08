@@ -205,6 +205,12 @@ const Documentos = () => {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <PropertyDocumentsSection
+          documents={documents}
+          uploading={uploading}
+          onUpload={uploadFile}
+        />
+
         <Card
           className={`border-2 border-dashed transition-colors cursor-pointer ${
             dragOver
