@@ -136,7 +136,7 @@ const Documentos = () => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files;
     if (selected) {
-      Array.from(selected).forEach(uploadFile);
+      Array.from(selected).forEach((f) => uploadFile(f));
     }
     e.target.value = "";
   };
@@ -145,7 +145,7 @@ const Documentos = () => {
     e.preventDefault();
     setDragOver(false);
     const dropped = e.dataTransfer.files;
-    if (dropped) Array.from(dropped).forEach(uploadFile);
+    if (dropped) Array.from(dropped).forEach((f) => uploadFile(f));
   };
 
   const downloadFile = async (doc: ClientDocument) => {
