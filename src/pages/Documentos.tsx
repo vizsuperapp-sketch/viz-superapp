@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Upload,
   FileText,
-  Trash2,
   Download,
   LogOut,
   ArrowLeft,
@@ -16,11 +15,13 @@ import {
   FolderOpen,
 } from "lucide-react";
 
-interface StorageFile {
-  name: string;
+interface ClientDocument {
   id: string;
+  bucket: string;
+  storage_path: string;
+  file_name: string;
+  document_type: string;
   created_at: string;
-  metadata: { size: number; mimetype: string } | null;
 }
 
 const ACCEPTED_TYPES = [
@@ -46,7 +47,7 @@ const Documentos = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [files, setFiles] = useState<StorageFile[]>([]);
+  const [documents, setDocuments] = useState<ClientDocument[]>([]);
   const [uploading, setUploading] = useState(false);
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [dragOver, setDragOver] = useState(false);
@@ -57,23 +58,25 @@ const Documentos = () => {
     }
   }, [authLoading, user, navigate]);
 
-  const fetchFiles = useCallback(async () => {
+  const fetchDocuments = useCallback(async () => {
     if (!user) return;
     setLoadingFiles(true);
-    const { data, error } = await supabase.storage
-      .from("documents")
-      .list(user.id, { sortBy: { column: "created_at", order: "desc" } });
+    const { data, error } = await supabase
+      .from("client_documents")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
     if (error) {
-      console.error("Error listing files:", error);
+      console.error("Error listing documents:", error);
     } else {
-      setFiles((data as StorageFile[]) || []);
+      setDocuments(data || []);
     }
     setLoadingFiles(false);
   }, [user]);
 
   useEffect(() => {
-    if (user) fetchFiles();
-  }, [user, fetchFiles]);
+    if (user) fetchDocuments();
+  }, [user, fetchDocuments]);
 
   const uploadFile = async (file: File) => {
     if (!user) return;
@@ -96,20 +99,37 @@ const Documentos = () => {
 
     setUploading(true);
     const filePath = `${user.id}/${Date.now()}-${file.name}`;
-    const { error } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from("documents")
       .upload(filePath, file, { contentType: file.type });
 
-    if (error) {
+    if (uploadError) {
       toast({
         title: "Erro no upload",
-        description: error.message,
+        description: uploadError.message,
         variant: "destructive",
       });
-    } else {
-      toast({ title: "Ficheiro enviado com sucesso!" });
-      fetchFiles();
+      setUploading(false);
+      return;
     }
+
+    // Register in client_documents table
+    const { error: insertError } = await supabase
+      .from("client_documents")
+      .insert({
+        user_id: user.id,
+        bucket: "documents",
+        storage_path: filePath,
+        file_name: file.name,
+        document_type: "outro",
+      });
+
+    if (insertError) {
+      console.error("Error registering document:", insertError);
+    }
+
+    toast({ title: "Ficheiro enviado com sucesso!" });
+    fetchDocuments();
     setUploading(false);
   };
 
@@ -128,11 +148,10 @@ const Documentos = () => {
     if (dropped) Array.from(dropped).forEach(uploadFile);
   };
 
-  const downloadFile = async (fileName: string) => {
-    if (!user) return;
+  const downloadFile = async (doc: ClientDocument) => {
     const { data, error } = await supabase.storage
-      .from("documents")
-      .download(`${user.id}/${fileName}`);
+      .from(doc.bucket)
+      .download(doc.storage_path);
     if (error) {
       toast({ title: "Erro ao descarregar", description: error.message, variant: "destructive" });
       return;
@@ -140,22 +159,9 @@ const Documentos = () => {
     const url = URL.createObjectURL(data);
     const a = document.createElement("a");
     a.href = url;
-    a.download = fileName;
+    a.download = doc.file_name;
     a.click();
     URL.revokeObjectURL(url);
-  };
-
-  const deleteFile = async (fileName: string) => {
-    if (!user) return;
-    const { error } = await supabase.storage
-      .from("documents")
-      .remove([`${user.id}/${fileName}`]);
-    if (error) {
-      toast({ title: "Erro ao apagar", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Ficheiro apagado" });
-      fetchFiles();
-    }
   };
 
   const handleSignOut = async () => {
@@ -175,7 +181,6 @@ const Documentos = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border/50 bg-card/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -200,7 +205,6 @@ const Documentos = () => {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-        {/* Upload area */}
         <Card
           className={`border-2 border-dashed transition-colors cursor-pointer ${
             dragOver
@@ -235,7 +239,6 @@ const Documentos = () => {
           </CardContent>
         </Card>
 
-        {/* File list */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-foreground">
@@ -248,49 +251,38 @@ const Documentos = () => {
               <div className="flex justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
-            ) : files.length === 0 ? (
+            ) : documents.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <FileText className="h-12 w-12 mx-auto mb-3 opacity-40" />
                 <p>Ainda não enviou nenhum ficheiro.</p>
               </div>
             ) : (
               <div className="divide-y divide-border">
-                {files.map((file) => (
+                {documents.map((doc) => (
                   <div
-                    key={file.id}
+                    key={doc.id}
                     className="flex items-center justify-between py-3 gap-3"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <FileText className="h-5 w-5 text-primary shrink-0" />
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">
-                          {file.name.replace(/^\d+-/, "")}
+                          {doc.file_name}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {file.metadata?.size ? formatSize(file.metadata.size) : ""}{" "}
-                          · {new Date(file.created_at).toLocaleDateString("pt-PT")}
+                          {doc.document_type !== "outro" ? doc.document_type + " · " : ""}
+                          {new Date(doc.created_at).toLocaleDateString("pt-PT")}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => { e.stopPropagation(); downloadFile(file.name); }}
-                        title="Descarregar"
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => { e.stopPropagation(); deleteFile(file.name); }}
-                        title="Apagar"
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => { e.stopPropagation(); downloadFile(doc); }}
+                      title="Descarregar"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
                   </div>
                 ))}
               </div>
