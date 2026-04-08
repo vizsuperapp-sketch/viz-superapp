@@ -14,6 +14,7 @@ import {
   Loader2,
   FolderOpen,
 } from "lucide-react";
+import PropertyDocumentsSection from "@/components/documentos/PropertyDocumentsSection";
 
 interface ClientDocument {
   id: string;
