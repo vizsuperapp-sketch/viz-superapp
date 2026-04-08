@@ -13,6 +13,7 @@ const trustPoints = [
 
 const FinalCTASection = () => {
   const sectionRef = useScrollReveal();
+  const navigate = useNavigate();
   const [formOpen, setFormOpen] = useState(false);
 
   return (
