@@ -9,6 +9,7 @@ import type { Session } from "@supabase/supabase-js";
 import AdminLeadsTab from "@/components/admin/AdminLeadsTab";
 import AdminClientsTab from "@/components/admin/AdminClientsTab";
 import AdminDocumentsTab from "@/components/admin/AdminDocumentsTab";
+import AdminChatTab from "@/components/admin/AdminChatTab";
 
 const Admin = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -104,6 +105,7 @@ const Admin = () => {
             <TabsTrigger value="leads">Leads</TabsTrigger>
             <TabsTrigger value="clients">Clientes</TabsTrigger>
             <TabsTrigger value="documents">Documentos</TabsTrigger>
+            <TabsTrigger value="chat">Chat</TabsTrigger>
           </TabsList>
 
           <TabsContent value="leads">
@@ -116,6 +118,10 @@ const Admin = () => {
 
           <TabsContent value="documents">
             <AdminDocumentsTab preselectedClient={docClient} />
+          </TabsContent>
+
+          <TabsContent value="chat">
+            <AdminChatTab />
           </TabsContent>
         </Tabs>
       </div>
