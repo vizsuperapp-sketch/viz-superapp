@@ -14,6 +14,7 @@ import {
   Loader2,
   FolderOpen,
 } from "lucide-react";
+import PropertyDocumentsSection from "@/components/documentos/PropertyDocumentsSection";
 
 interface ClientDocument {
   id: string;
@@ -78,7 +79,7 @@ const Documentos = () => {
     if (user) fetchDocuments();
   }, [user, fetchDocuments]);
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = async (file: File, documentType = "outro") => {
     if (!user) return;
     if (!ACCEPTED_TYPES.includes(file.type)) {
       toast({
@@ -113,7 +114,6 @@ const Documentos = () => {
       return;
     }
 
-    // Register in client_documents table
     const { error: insertError } = await supabase
       .from("client_documents")
       .insert({
@@ -121,7 +121,7 @@ const Documentos = () => {
         bucket: "documents",
         storage_path: filePath,
         file_name: file.name,
-        document_type: "outro",
+        document_type: documentType,
       });
 
     if (insertError) {
@@ -136,7 +136,7 @@ const Documentos = () => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files;
     if (selected) {
-      Array.from(selected).forEach(uploadFile);
+      Array.from(selected).forEach((f) => uploadFile(f));
     }
     e.target.value = "";
   };
@@ -145,7 +145,7 @@ const Documentos = () => {
     e.preventDefault();
     setDragOver(false);
     const dropped = e.dataTransfer.files;
-    if (dropped) Array.from(dropped).forEach(uploadFile);
+    if (dropped) Array.from(dropped).forEach((f) => uploadFile(f));
   };
 
   const downloadFile = async (doc: ClientDocument) => {
@@ -205,6 +205,12 @@ const Documentos = () => {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <PropertyDocumentsSection
+          documents={documents}
+          uploading={uploading}
+          onUpload={uploadFile}
+        />
+
         <Card
           className={`border-2 border-dashed transition-colors cursor-pointer ${
             dragOver
