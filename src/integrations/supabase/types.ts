@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      client_documents: {
+        Row: {
+          bucket: string
+          created_at: string
+          document_type: string
+          file_name: string
+          id: string
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          bucket: string
+          created_at?: string
+          document_type?: string
+          file_name: string
+          id?: string
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          id?: string
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           created_at: string

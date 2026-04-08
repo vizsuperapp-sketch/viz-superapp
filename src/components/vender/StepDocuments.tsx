@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Upload, FileCheck, AlertCircle, X, FileText } from "lucide-react";
+import { Upload, FileCheck, AlertCircle, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -47,19 +47,34 @@ const StepDocuments = ({ propertyId, userId, onNext }: StepDocumentsProps) => {
       [key]: { ...prev[key], file, uploading: true },
     }));
 
-    const filePath = `${userId}/${propertyId}/documents/${key}_${file.name}`;
+    const filePath = `${userId}/${propertyId}/documents/${key}_${Date.now()}_${file.name}`;
 
-    const { error } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from("property-files")
-      .upload(filePath, file, { upsert: true });
+      .upload(filePath, file, { upsert: false });
 
-    if (error) {
-      toast({ title: "Erro ao carregar documento", description: error.message, variant: "destructive" });
+    if (uploadError) {
+      toast({ title: "Erro ao carregar documento", description: uploadError.message, variant: "destructive" });
       setDocuments((prev) => ({
         ...prev,
         [key]: { ...prev[key], uploading: false },
       }));
       return;
+    }
+
+    // Register in client_documents table
+    const { error: insertError } = await supabase
+      .from("client_documents")
+      .insert({
+        user_id: userId,
+        bucket: "property-files",
+        storage_path: filePath,
+        file_name: file.name,
+        document_type: key,
+      });
+
+    if (insertError) {
+      console.error("Error registering document:", insertError);
     }
 
     setDocuments((prev) => ({
@@ -68,17 +83,6 @@ const StepDocuments = ({ propertyId, userId, onNext }: StepDocumentsProps) => {
     }));
 
     toast({ title: "Documento carregado", description: `${REQUIRED_DOCS.find((d) => d.key === key)?.label} carregado com sucesso.` });
-  };
-
-  const handleRemove = async (key: string) => {
-    const doc = documents[key];
-    if (doc.storagePath) {
-      await supabase.storage.from("property-files").remove([doc.storagePath]);
-    }
-    setDocuments((prev) => ({
-      ...prev,
-      [key]: { file: null, uploaded: false, uploading: false },
-    }));
   };
 
   return (
@@ -112,6 +116,9 @@ const StepDocuments = ({ propertyId, userId, onNext }: StepDocumentsProps) => {
                   {state.file && (
                     <p className="text-xs text-muted-foreground truncate">{state.file.name}</p>
                   )}
+                  {state.uploaded && (
+                    <p className="text-xs text-primary">Enviado com sucesso</p>
+                  )}
                   {!doc.required && !state.file && (
                     <p className="text-xs text-muted-foreground">Opcional</p>
                   )}
@@ -120,9 +127,7 @@ const StepDocuments = ({ propertyId, userId, onNext }: StepDocumentsProps) => {
 
               <div className="flex items-center gap-2 shrink-0">
                 {state.uploaded ? (
-                  <Button variant="ghost" size="icon" onClick={() => handleRemove(doc.key)}>
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <span className="text-xs text-muted-foreground px-2">✓</span>
                 ) : (
                   <>
                     <input
