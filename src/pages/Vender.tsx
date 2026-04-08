@@ -6,6 +6,7 @@ import StepDocuments from "@/components/vender/StepDocuments";
 import StepDescription from "@/components/vender/StepDescription";
 import StepPhotos from "@/components/vender/StepPhotos";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 const STEPS = ["Documentos", "Descrição", "Fotos"];
 
@@ -15,6 +16,7 @@ const Vender = () => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [propertyId, setPropertyId] = useState<string | null>(null);
+  const [createError, setCreateError] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -23,24 +25,27 @@ const Vender = () => {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (user && !propertyId) {
+    if (user && !propertyId && !createError) {
       createDraftProperty();
     }
   }, [user]);
 
   const createDraftProperty = async () => {
     if (!user) return;
-    const { data, error } = await supabase
+    setCreateError(false);
+
+    const newId = crypto.randomUUID();
+    const { error } = await supabase
       .from("properties")
-      .insert({ user_id: user.id, status: "draft" as any })
-      .select("id")
-      .single();
+      .insert({ id: newId, user_id: user.id, status: "draft" as any });
 
     if (error) {
+      console.error("Error creating draft property:", error);
+      setCreateError(true);
       toast({ title: "Erro ao iniciar processo", description: error.message, variant: "destructive" });
       return;
     }
-    setPropertyId(data.id);
+    setPropertyId(newId);
   };
 
   const handleDescriptionNext = async (data: {
@@ -81,7 +86,26 @@ const Vender = () => {
     navigate("/sucesso");
   };
 
-  if (loading || !user || !propertyId) {
+  if (loading || (!user)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">A carregar...</div>
+      </div>
+    );
+  }
+
+  if (createError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-destructive font-medium">Erro ao iniciar o processo de venda.</p>
+          <Button variant="outline" onClick={createDraftProperty}>Tentar novamente</Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!propertyId) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">A carregar...</div>

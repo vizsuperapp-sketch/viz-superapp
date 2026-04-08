@@ -47,42 +47,51 @@ const StepDocuments = ({ propertyId, userId, onNext }: StepDocumentsProps) => {
       [key]: { ...prev[key], file, uploading: true },
     }));
 
-    const filePath = `${userId}/${propertyId}/documents/${key}_${Date.now()}_${file.name}`;
+    try {
+      const filePath = `${userId}/${propertyId}/documents/${key}_${Date.now()}_${file.name}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from("property-files")
-      .upload(filePath, file, { upsert: false });
+      const { error: uploadError } = await supabase.storage
+        .from("property-files")
+        .upload(filePath, file, { upsert: false });
 
-    if (uploadError) {
-      toast({ title: "Erro ao carregar documento", description: uploadError.message, variant: "destructive" });
+      if (uploadError) {
+        toast({ title: "Erro ao carregar documento", description: uploadError.message, variant: "destructive" });
+        setDocuments((prev) => ({
+          ...prev,
+          [key]: { ...prev[key], file: null, uploading: false },
+        }));
+        return;
+      }
+
+      // Register in client_documents table
+      const { error: insertError } = await supabase
+        .from("client_documents")
+        .insert({
+          user_id: userId,
+          bucket: "property-files",
+          storage_path: filePath,
+          file_name: file.name,
+          document_type: key,
+        });
+
+      if (insertError) {
+        console.error("Error registering document:", insertError);
+      }
+
       setDocuments((prev) => ({
         ...prev,
-        [key]: { ...prev[key], uploading: false },
+        [key]: { file, uploaded: true, uploading: false, storagePath: filePath },
       }));
-      return;
+
+      toast({ title: "Documento carregado", description: `${REQUIRED_DOCS.find((d) => d.key === key)?.label} carregado com sucesso.` });
+    } catch (err) {
+      console.error("Unexpected upload error:", err);
+      toast({ title: "Erro inesperado ao carregar documento", variant: "destructive" });
+      setDocuments((prev) => ({
+        ...prev,
+        [key]: { ...prev[key], file: null, uploading: false },
+      }));
     }
-
-    // Register in client_documents table
-    const { error: insertError } = await supabase
-      .from("client_documents")
-      .insert({
-        user_id: userId,
-        bucket: "property-files",
-        storage_path: filePath,
-        file_name: file.name,
-        document_type: key,
-      });
-
-    if (insertError) {
-      console.error("Error registering document:", insertError);
-    }
-
-    setDocuments((prev) => ({
-      ...prev,
-      [key]: { file, uploaded: true, uploading: false, storagePath: filePath },
-    }));
-
-    toast({ title: "Documento carregado", description: `${REQUIRED_DOCS.find((d) => d.key === key)?.label} carregado com sucesso.` });
   };
 
   return (
