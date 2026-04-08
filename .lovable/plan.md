@@ -1,43 +1,59 @@
 
 
-## Chatbot IA para o Site VIZ
+## Fluxo de Venda de Imóvel — Processo Guiado com IA
 
-### Como funciona
-- O utilizador escreve perguntas em linguagem natural no chat
-- A IA responde automaticamente com base num **system prompt** que tu defines
-- Não há comandos — é conversa livre
-- Tu controlas o conhecimento e comportamento do bot editando o system prompt
+### Resumo
+Criar uma nova rota `/vender` com um wizard multi-step para vendedores, que guia o utilizador por 3 etapas:
+1. **Upload de documentos obrigatórios** (CPU, Certidão, Certificado Energético) + opcional (Planta)
+2. **Descrição do imóvel com ajuda da IA** — o utilizador preenche dados básicos e a IA gera uma descrição profissional
+3. **Upload de fotos com melhoramento por IA** — o utilizador envia fotos e a IA melhora-as automaticamente
 
 ### O que será construído
 
-**1. Edge function `chat`**
-- Recebe mensagens do utilizador, adiciona o system prompt com contexto VIZ, e envia para o Lovable AI (modelo `google/gemini-3-flash-preview`)
-- Streaming SSE para respostas em tempo real (token a token)
-- Tratamento de erros (rate limit 429, créditos 402)
-- System prompt em PT com info sobre: o que é a VIZ, como funciona, zero comissões, processo de compra/venda, não é imobiliária
+**1. Tabela `properties` na base de dados**
+- Campos: `id`, `user_id`, `title`, `description`, `ai_description`, `status` (draft/pending/active), `created_at`, `updated_at`
+- RLS: utilizadores só acedem às suas próprias propriedades
 
-**2. Componente `ChatWidget.tsx`**
-- Botão flutuante no canto inferior direito (ícone de chat)
-- Janela de chat com mensagem de boas-vindas
-- Input de texto + envio
-- Respostas renderizadas com markdown (`react-markdown`)
-- Streaming token-by-token
-- Botão minimizar/fechar
+**2. Bucket de storage `property-files`**
+- Estrutura: `{user_id}/{property_id}/documents/` e `{user_id}/{property_id}/photos/`
+- RLS: acesso isolado por utilizador
 
-**3. Integração no `App.tsx`**
-- Widget visível em todas as páginas
+**3. Página `/vender` — Wizard multi-step**
+- **Step 1 — Documentos**: Upload de ficheiros com checklist visual (CPU ✓, Certidão ✓, Cert. Energético ✓, Planta opcional). Barra de progresso. Validação antes de avançar.
+- **Step 2 — Descrição**: Formulário com campos básicos (tipologia, localização, área, estado, extras). Botão "Gerar descrição com IA" que chama edge function para produzir texto profissional. O utilizador pode editar o resultado.
+- **Step 3 — Fotos**: Upload de múltiplas fotos. Botão "Melhorar fotos com IA" que envia cada foto à IA para enhancement (brilho, contraste, correção de cor). Preview antes/depois.
+
+**4. Edge function `generate-description`**
+- Recebe dados do imóvel (tipologia, área, localização, extras)
+- Usa Lovable AI (`google/gemini-3-flash-preview`) para gerar descrição profissional em PT
+- System prompt focado em imobiliário português
+
+**5. Edge function `enhance-photo`**
+- Recebe imagem base64
+- Usa Lovable AI (`google/gemini-3.1-flash-image-preview`) para melhorar a foto
+- Retorna imagem melhorada
+
+**6. Integração no `App.tsx`**
+- Nova rota `/vender` protegida (requer autenticação)
 
 ### Ficheiros
-- **Criar**: `supabase/functions/chat/index.ts`, `src/components/ChatWidget.tsx`
-- **Modificar**: `App.tsx` (adicionar `<ChatWidget />`)
-- **Instalar**: `react-markdown`
 
-### System prompt (editável por ti a qualquer momento)
-Incluirá contexto sobre:
-- O que é a VIZ (SuperApp imobiliário)
-- Zero comissões
-- Liga comprador e vendedor diretamente
-- Não é imobiliária tradicional
-- Processo de registo e utilização
-- Tom informal mas profissional, em PT
+| Ação | Ficheiro |
+|------|---------|
+| Criar | `src/pages/Vender.tsx` (wizard principal) |
+| Criar | `src/components/vender/StepDocuments.tsx` |
+| Criar | `src/components/vender/StepDescription.tsx` |
+| Criar | `src/components/vender/StepPhotos.tsx` |
+| Criar | `supabase/functions/generate-description/index.ts` |
+| Criar | `supabase/functions/enhance-photo/index.ts` |
+| Modificar | `src/App.tsx` (rota `/vender`) |
+| Migration | Tabela `properties` + bucket `property-files` + RLS |
+
+### Detalhes técnicos
+
+- **Wizard state**: React state local com step counter (1-3) e dados acumulados
+- **Documentos obrigatórios**: CPU, Certidão Permanente, Certificado Energético — o utilizador não avança sem os 3
+- **Geração de descrição**: Edge function com prompt tipo "Gera uma descrição profissional para venda de imóvel em Portugal com os seguintes dados: ..."
+- **Enhancement de fotos**: Usa modelo de imagem `google/gemini-3.1-flash-image-preview` com prompt "Enhance this real estate photo: improve lighting, color balance, and make it look professional"
+- **Autenticação**: Redireciona para `/auth` se não autenticado
 
