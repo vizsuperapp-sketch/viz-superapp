@@ -9,6 +9,7 @@ import SuccessPostSale from "./pages/SuccessPostSale.tsx";
 import Admin from "./pages/Admin.tsx";
 import Auth from "./pages/Auth.tsx";
 import Documentos from "./pages/Documentos.tsx";
+import Vender from "./pages/Vender.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ChatWidget from "./components/ChatWidget";
 
