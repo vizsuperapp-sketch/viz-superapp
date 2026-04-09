@@ -42,6 +42,13 @@ const StepDocuments = ({ propertyId, userId, onNext }: StepDocumentsProps) => {
   const progress = (totalUploaded / REQUIRED_DOCS.length) * 100;
 
   const handleFileSelect = async (key: string, file: File) => {
+    // Verify session before upload
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({ title: "Sessão expirada", description: "Faça login novamente para continuar.", variant: "destructive" });
+      return;
+    }
+
     setDocuments((prev) => ({
       ...prev,
       [key]: { ...prev[key], file, uploading: true },

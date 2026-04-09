@@ -81,6 +81,13 @@ const Documentos = () => {
 
   const uploadFile = async (file: File, documentType = "outro") => {
     if (!user) return;
+    // Verify session before upload
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({ title: "Sessão expirada", description: "Faça login novamente para continuar.", variant: "destructive" });
+      navigate("/auth", { replace: true });
+      return;
+    }
     if (!ACCEPTED_TYPES.includes(file.type)) {
       toast({
         title: "Tipo não suportado",
