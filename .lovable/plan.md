@@ -1,35 +1,54 @@
 
 
-## Corrigir chat que fica preso a carregar e não guarda mensagens
+## Correções consolidadas — 1 única mensagem de implementação
 
-### Problema identificado
+Todas as correções serão feitas numa só mensagem para minimizar o consumo de créditos.
 
-Há dois problemas relacionados:
+---
 
-**1. Stream nunca termina** — Se o AI gateway não enviar `[DONE]` ou a conexão ficar pendente, o loop `while (!done)` em `streamChat` nunca sai. O `loading` nunca volta a `false` e o chat fica "preso" a responder para sempre.
+### O que será corrigido
 
-**2. `setLoading(false)` depende de callbacks frágeis** — O reset do estado `loading` está dentro de `onDone` e `onError`, que são callbacks. Se `streamChat` falhar de forma inesperada (timeout de rede, erro no reader), nenhum dos callbacks é chamado e o chat trava.
+**1. CORS do `submit-lead` (edge function)**
+- Os headers CORS estão incompletos — faltam `x-supabase-client-platform`, `x-supabase-client-platform-version`, `x-supabase-client-runtime`, `x-supabase-client-runtime-version`
+- Isto pode causar falhas de preflight em browsers modernos com versões recentes do SDK
 
-**3. Mensagens podem não estar a ser guardadas** — Se o stream falha antes de `onDone`, a mensagem do assistente nunca é gravada na base de dados. A sessão é criada mas fica sem mensagens no histórico.
+**2. Uploads de documentos — tratamento de sessão expirada**
+- Em `StepDocuments.tsx` e `Documentos.tsx`, se a sessão do utilizador expirar durante o fluxo, o upload falha silenciosamente
+- Será adicionada verificação de sessão antes de cada upload, com mensagem de erro clara e redirecionamento para login
 
-### Solução
+**3. Migração SQL de segurança**
+- Restringir execução da função `has_role` apenas a `authenticated` e `service_role` (actualmente `public` pode executar)
+- Adicionar política DELETE no bucket `property-files` para que utilizadores possam apagar os seus próprios ficheiros
+
+---
+
+### Ficheiros alterados
 
 | Ficheiro | Alteração |
 |----------|-----------|
-| `src/components/ChatWidget.tsx` | Corrigir gestão de estado e adicionar timeout |
+| `supabase/functions/submit-lead/index.ts` | Atualizar CORS headers |
+| `src/components/vender/StepDocuments.tsx` | Verificar sessão antes de upload |
+| `src/pages/Documentos.tsx` | Verificar sessão antes de upload |
+| Migração SQL | Restringir `has_role` + DELETE policy no storage |
 
-**Alterações concretas:**
+---
 
-1. **Adicionar `AbortController` com timeout de 60s** ao `fetch` dentro de `streamChat` — se a resposta demorar mais de 60s, aborta automaticamente e mostra erro ao utilizador.
+### Detalhes técnicos
 
-2. **Mover `setLoading(false)` para um bloco `finally`** na função `send` — garante que o estado é sempre resetado, independentemente de como o stream termina.
+**CORS** — Linha 5 do `submit-lead/index.ts` passa a incluir todos os headers do SDK:
+```
+authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version
+```
 
-3. **Guardar mensagem do assistente no `finally`** — se `assistantSoFar` tiver conteúdo quando o stream termina (por qualquer razão), gravar na base de dados.
+**Sessão expirada** — Antes de cada upload, chamar `supabase.auth.getSession()`. Se não houver sessão, mostrar toast de erro e redirecionar para `/auth`.
 
-4. **Remover `onDone`/`onError` callbacks** — simplificar `streamChat` para ser uma função que faz throw em caso de erro, em vez de usar callbacks. O controlo de estado fica todo no `send`.
+**SQL** — Uma migração com:
+```sql
+REVOKE EXECUTE ON FUNCTION public.has_role FROM public;
+GRANT EXECUTE ON FUNCTION public.has_role TO authenticated, service_role;
 
-### Resultado esperado
-- Chat responde e termina a resposta normalmente
-- Se houver timeout, mostra mensagem de erro e permite enviar nova mensagem
-- Todas as mensagens (user + assistant) ficam guardadas e aparecem no histórico admin
+CREATE POLICY "Users can delete own files from property-files"
+ON storage.objects FOR DELETE TO authenticated
+USING (bucket_id = 'property-files' AND (storage.foldername(name))[1] = auth.uid()::text);
+```
 
