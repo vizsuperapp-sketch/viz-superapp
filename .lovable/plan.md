@@ -1,54 +1,40 @@
 
 
-## Correções consolidadas — 1 única mensagem de implementação
+## Redesign do Cubo Interativo — Material cristalino + 6 faces com conteúdo
 
-Todas as correções serão feitas numa só mensagem para minimizar o consumo de créditos.
+### Referência visual
+A imagem mostra um cubo de cristal/vidro com gradiente verde-teal (esquerda) para azul (direita), arestas com brilho neon ciano, reflexos especulares intensos, e ícones brancos grandes nas faces visíveis (casa, aperto de mão) com "VIZ" no topo.
 
----
+### Conteúdo das 6 faces
 
-### O que será corrigido
+| Face | Posição | Conteúdo |
+|------|---------|----------|
+| Frente | `translateZ` | **VIZ** (texto grande 72px, sem ícone) |
+| Direita | `rotateY(90deg)` | 🏠 ícone `Home` + **COMPRAR** |
+| Esquerda | `rotateY(-90deg)` | 📈 ícone `TrendingUp` + **VENDER** |
+| Trás | `rotateY(180deg)` | 🏛 ícone `Landmark` + **FINANCIAR** |
+| Topo | `rotateX(90deg)` | 🔑 ícone `Key` + **ARRENDAR** |
+| Baixo | `rotateX(-90deg)` | ⚙️ ícone `Settings` + **GERIR** |
 
-**1. CORS do `submit-lead` (edge function)**
-- Os headers CORS estão incompletos — faltam `x-supabase-client-platform`, `x-supabase-client-platform-version`, `x-supabase-client-runtime`, `x-supabase-client-runtime-version`
-- Isto pode causar falhas de preflight em browsers modernos com versões recentes do SDK
+### Alterações ao material (para corresponder à imagem)
 
-**2. Uploads de documentos — tratamento de sessão expirada**
-- Em `StepDocuments.tsx` e `Documentos.tsx`, se a sessão do utilizador expirar durante o fluxo, o upload falha silenciosamente
-- Será adicionada verificação de sessão antes de cada upload, com mensagem de erro clara e redirecionamento para login
+- **Gradiente das faces**: mais saturado, transição verde-teal → azul mais intensa (`hsla(163,60%,55%,0.4)` → `hsla(211,80%,55%,0.45)`)
+- **Arestas com brilho neon**: border mais luminoso (`2px solid hsla(180,80%,70%,0.6)`) com `boxShadow` de glow ciano nas arestas
+- **Reflexo especular**: mais pronunciado, cobrindo ~25% do topo da face
+- **Core glow**: mais intenso e com tom ciano
+- **Sparkle points**: nos cantos, simulando os brilhos de aresta visíveis na imagem
 
-**3. Migração SQL de segurança**
-- Restringir execução da função `has_role` apenas a `authenticated` e `service_role` (actualmente `public` pode executar)
-- Adicionar política DELETE no bucket `property-files` para que utilizadores possam apagar os seus próprios ficheiros
-
----
-
-### Ficheiros alterados
+### Ficheiro alterado
 
 | Ficheiro | Alteração |
 |----------|-----------|
-| `supabase/functions/submit-lead/index.ts` | Atualizar CORS headers |
-| `src/components/vender/StepDocuments.tsx` | Verificar sessão antes de upload |
-| `src/pages/Documentos.tsx` | Verificar sessão antes de upload |
-| Migração SQL | Restringir `has_role` + DELETE policy no storage |
-
----
+| `src/components/InteractiveCube.tsx` | Atualizar `faces` array com ícones Lucide + palavras, redesenhar material do `CubeFace`, atualizar hover labels |
 
 ### Detalhes técnicos
 
-**CORS** — Linha 5 do `submit-lead/index.ts` passa a incluir todos os headers do SDK:
-```
-authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version
-```
-
-**Sessão expirada** — Antes de cada upload, chamar `supabase.auth.getSession()`. Se não houver sessão, mostrar toast de erro e redirecionar para `/auth`.
-
-**SQL** — Uma migração com:
-```sql
-REVOKE EXECUTE ON FUNCTION public.has_role FROM public;
-GRANT EXECUTE ON FUNCTION public.has_role TO authenticated, service_role;
-
-CREATE POLICY "Users can delete own files from property-files"
-ON storage.objects FOR DELETE TO authenticated
-USING (bucket_id = 'property-files' AND (storage.foldername(name))[1] = auth.uid()::text);
-```
+- Importar `Home, TrendingUp, Landmark, Key, Settings` de `lucide-react`
+- `CubeFace` recebe `icon` (componente Lucide) + `label` (texto) + `isLogo` (boolean para face VIZ)
+- Face VIZ: texto 72px bold, sem ícone
+- Faces com serviço: ícone ~48px acima + texto ~20px bold abaixo
+- Hover labels atualizados para as 3 faces visíveis no ângulo padrão
 
