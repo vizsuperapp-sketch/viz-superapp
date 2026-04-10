@@ -50,9 +50,16 @@ const Auth = () => {
         });
       }
     } catch (error: any) {
+      const msg = error.message || "";
+      const translated =
+        /weak|pwned|hibp/i.test(msg) ? "A password é demasiado fraca. Escolha outra." :
+        /already registered|already been registered/i.test(msg) ? "Este email já está registado." :
+        /invalid login credentials/i.test(msg) ? "Email ou password incorrectos." :
+        /email not confirmed/i.test(msg) ? "Confirme o seu email antes de iniciar sessão." :
+        msg || "Ocorreu um erro. Tente novamente.";
       toast({
         title: "Erro",
-        description: error.message || "Ocorreu um erro. Tente novamente.",
+        description: translated,
         variant: "destructive",
       });
     } finally {

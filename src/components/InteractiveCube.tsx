@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, forwardRef } from "react";
 import { Home, TrendingUp, Landmark, Key, Settings, LucideIcon } from "lucide-react";
 
 interface FaceData {
@@ -202,10 +202,11 @@ interface CubeFaceProps {
   style: React.CSSProperties;
 }
 
-const CubeFace = ({ label, icon: Icon, isLogo, size, style }: CubeFaceProps) => {
+const CubeFace = forwardRef<HTMLDivElement, CubeFaceProps>(({ label, icon: Icon, isLogo, size, style }, ref) => {
   const half = size / 2;
   return (
     <div
+      ref={ref}
       className="absolute flex flex-col items-center justify-center gap-2"
       style={{
         width: size, height: size,
@@ -271,6 +272,8 @@ const CubeFace = ({ label, icon: Icon, isLogo, size, style }: CubeFaceProps) => 
       )}
     </div>
   );
-};
+});
+
+CubeFace.displayName = "CubeFace";
 
 export default InteractiveCube;
