@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -33,7 +33,7 @@ const services = [
   { value: "gerir", label: "Gerir" },
 ];
 
-const LeadFormModal = ({ open, onOpenChange }: LeadFormModalProps) => {
+const LeadFormModal = forwardRef<HTMLDivElement, LeadFormModalProps>(({ open, onOpenChange }, ref) => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -177,6 +177,8 @@ const LeadFormModal = ({ open, onOpenChange }: LeadFormModalProps) => {
       </DialogContent>
     </Dialog>
   );
-};
+});
+
+LeadFormModal.displayName = "LeadFormModal";
 
 export default LeadFormModal;
