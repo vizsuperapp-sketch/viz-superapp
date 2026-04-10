@@ -1,40 +1,52 @@
 
 
-## Redesign do Cubo Interativo — Material cristalino + 6 faces com conteúdo
+## Correções identificadas no teste end-to-end
 
-### Referência visual
-A imagem mostra um cubo de cristal/vidro com gradiente verde-teal (esquerda) para azul (direita), arestas com brilho neon ciano, reflexos especulares intensos, e ícones brancos grandes nas faces visíveis (casa, aperto de mão) com "VIZ" no topo.
+Testei o registo de novos clientes, upload de documentos e inspeccionei os logs de consola. Eis os problemas encontrados e as correções necessárias:
 
-### Conteúdo das 6 faces
+---
 
-| Face | Posição | Conteúdo |
-|------|---------|----------|
-| Frente | `translateZ` | **VIZ** (texto grande 72px, sem ícone) |
-| Direita | `rotateY(90deg)` | 🏠 ícone `Home` + **COMPRAR** |
-| Esquerda | `rotateY(-90deg)` | 📈 ícone `TrendingUp` + **VENDER** |
-| Trás | `rotateY(180deg)` | 🏛 ícone `Landmark` + **FINANCIAR** |
-| Topo | `rotateX(90deg)` | 🔑 ícone `Key` + **ARRENDAR** |
-| Baixo | `rotateX(-90deg)` | ⚙️ ícone `Settings` + **GERIR** |
+### Problemas encontrados
 
-### Alterações ao material (para corresponder à imagem)
+| Problema | Gravidade | Local |
+|----------|-----------|-------|
+| Mensagens de erro de autenticação em inglês (ex: HIBP password check) | Média | `src/pages/Auth.tsx` |
+| Warnings "Function components cannot be given refs" no `InteractiveCube` e `LeadFormModal` | Baixa | `src/components/InteractiveCube.tsx`, `src/components/LeadFormModal.tsx` |
+| `CubeFace` recebe ref mas não usa `forwardRef` | Baixa | `src/components/InteractiveCube.tsx` |
 
-- **Gradiente das faces**: mais saturado, transição verde-teal → azul mais intensa (`hsla(163,60%,55%,0.4)` → `hsla(211,80%,55%,0.45)`)
-- **Arestas com brilho neon**: border mais luminoso (`2px solid hsla(180,80%,70%,0.6)`) com `boxShadow` de glow ciano nas arestas
-- **Reflexo especular**: mais pronunciado, cobrindo ~25% do topo da face
-- **Core glow**: mais intenso e com tom ciano
-- **Sparkle points**: nos cantos, simulando os brilhos de aresta visíveis na imagem
+### O que funciona correctamente
 
-### Ficheiro alterado
+- Registo de novos utilizadores (com password forte) -- funciona
+- Upload de documentos no `/documentos` -- funciona (4/4 documentos OK)
+- Listagem e download de ficheiros -- funciona
+- Verificação de sessão antes de uploads -- funciona
+- Formulário de lead -- formulário renderiza correctamente
+- Autenticação Google -- botão presente e funcional
+
+---
+
+### Correções a implementar (1 mensagem)
+
+**1. Traduzir erros de auth para português** (`src/pages/Auth.tsx`)
+- Mapear mensagens comuns do backend para português:
+  - "Password is known to be weak" → "A password é demasiado fraca. Escolha outra."
+  - "User already registered" → "Este email já está registado."
+  - "Invalid login credentials" → "Email ou password incorrectos."
+  - Outros erros mantêm a mensagem original
+
+**2. Corrigir warning de refs no `InteractiveCube`** (`src/components/InteractiveCube.tsx`)
+- Envolver `CubeFace` com `React.forwardRef` para eliminar o warning de consola
+
+**3. Corrigir warning de refs no `LeadFormModal`** (`src/components/LeadFormModal.tsx`)
+- Envolver o componente com `React.forwardRef` se necessário, ou remover a ref não utilizada
+
+---
+
+### Ficheiros alterados
 
 | Ficheiro | Alteração |
 |----------|-----------|
-| `src/components/InteractiveCube.tsx` | Atualizar `faces` array com ícones Lucide + palavras, redesenhar material do `CubeFace`, atualizar hover labels |
-
-### Detalhes técnicos
-
-- Importar `Home, TrendingUp, Landmark, Key, Settings` de `lucide-react`
-- `CubeFace` recebe `icon` (componente Lucide) + `label` (texto) + `isLogo` (boolean para face VIZ)
-- Face VIZ: texto 72px bold, sem ícone
-- Faces com serviço: ícone ~48px acima + texto ~20px bold abaixo
-- Hover labels atualizados para as 3 faces visíveis no ângulo padrão
+| `src/pages/Auth.tsx` | Adicionar mapeamento de erros EN→PT |
+| `src/components/InteractiveCube.tsx` | Envolver `CubeFace` com `forwardRef` |
+| `src/components/LeadFormModal.tsx` | Corrigir warning de refs |
 
