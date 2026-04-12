@@ -19,11 +19,11 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
 
   useEffect(() => {
-    if (user) navigate("/documentos", { replace: true });
-  }, [user, navigate]);
+    if (user && session) navigate("/documentos", { replace: true });
+  }, [user, session, navigate]);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
