@@ -33,7 +33,7 @@ const services = [
   { value: "gerir", label: "Gerir" },
 ];
 
-const LeadFormModal = forwardRef<HTMLDivElement, LeadFormModalProps>(({ open, onOpenChange }, ref) => {
+const LeadFormModal = ({ open, onOpenChange }: LeadFormModalProps) => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -177,8 +177,6 @@ const LeadFormModal = forwardRef<HTMLDivElement, LeadFormModalProps>(({ open, on
       </DialogContent>
     </Dialog>
   );
-});
-
-LeadFormModal.displayName = "LeadFormModal";
+};
 
 export default LeadFormModal;
