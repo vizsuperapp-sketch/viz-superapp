@@ -96,6 +96,12 @@ const StepPhotos = ({ propertyId, userId, onFinish, onBack }: StepPhotosProps) =
   };
 
   const handleFinish = async () => {
+    // Verify session before upload
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({ title: "Sessão expirada", description: "Faça login novamente.", variant: "destructive" });
+      return;
+    }
     setUploading(true);
     try {
       for (const photo of photos) {

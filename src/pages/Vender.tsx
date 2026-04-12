@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 const STEPS = ["Documentos", "Descrição", "Fotos"];
 
 const Vender = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, session } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
@@ -19,10 +19,10 @@ const Vender = () => {
   const [createError, setCreateError] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && (!user || !session)) {
       navigate("/auth");
     }
-  }, [user, loading, navigate]);
+  }, [user, session, loading, navigate]);
 
   useEffect(() => {
     if (user && !propertyId && !createError) {
