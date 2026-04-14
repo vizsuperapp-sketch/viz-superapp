@@ -1,83 +1,72 @@
 
 
-## Revisao Geral do Site — Problemas Encontrados e Correcoes
+## Portal de Imoveis — Adicionar secao de empreendimentos ao site
 
-Analisei todo o codigo, base de dados, policies de storage, edge functions, fluxo de autenticacao, uploads e leads. Eis os problemas identificados e as correcoes necessarias.
-
----
-
-### Problemas Encontrados
-
-| # | Problema | Gravidade | Causa |
-|---|----------|-----------|-------|
-| 1 | **Pagina crasha apos registo por email** | Alta | Apos signup, email nao esta confirmado. O `useEffect` em `Auth.tsx` detecta `user` e redireciona para `/documentos`. La, o utilizador nao tem sessao valida (email nao confirmado), mas o `AuthProvider` reporta `user` brevemente antes do estado estabilizar, causando flash/crash. |
-| 2 | **Signup por email redireciona para /documentos mesmo sem confirmar email** | Alta | Em `Auth.tsx` linha 25, o `useEffect` navega para `/documentos` quando `user` existe, mas apos `signUp` o Supabase pode emitir um evento de sessao temporario mesmo sem confirmacao. |
-| 3 | **Admin (admin@viz.pt) sem perfil na tabela profiles** | Media | O trigger `on_auth_user_created` foi criado depois do registo deste utilizador. Falta INSERT manual. |
-| 4 | **StepPhotos.tsx nao verifica sessao antes de upload** | Media | Diferente de `StepDocuments.tsx` e `Documentos.tsx`, o `StepPhotos` nao valida sessao antes de enviar fotos para o storage. |
-| 5 | **`generate-description` usa `serve` deprecated** | Baixa | Usa `import { serve } from "https://deno.land/std@0.168.0/http/server.ts"` em vez de `Deno.serve`. |
+### Objectivo
+Criar uma nova pagina `/imoveis` (portal de imoveis) e uma seccao na homepage que mostre os 2 empreendimentos (Machado Santos e Horizon) com os dados extraidos dos links fornecidos.
 
 ---
 
-### Correcoes a Implementar
+### O que sera criado
 
-**1. Corrigir fluxo pos-signup (`Auth.tsx`)**
-- Apos `signUp` bem-sucedido, NAO redirecionar — mostrar apenas o toast "Verifique o seu email"
-- O `useEffect` que redireciona quando `user` existe deve verificar `user.email_confirmed_at` ou `session` antes de redirecionar
-- Assim a pagina nao crasha nem redireciona para `/documentos` sem sessao valida
+**1. Pagina `/imoveis` — Portal de Imoveis**
+- Lista dos empreendimentos em cards com imagem principal, nome, tipologia, preco, area e localidade
+- Ao clicar num empreendimento, abre a pagina de detalhe
 
-**2. Proteger `/documentos` e `/vender` contra sessao sem email confirmado**
-- Em `Documentos.tsx` e `Vender.tsx`, verificar que o utilizador tem sessao activa (nao apenas `user`) antes de permitir acesso
+**2. Pagina `/imoveis/:slug` — Detalhe do Empreendimento**
+- Galeria de imagens (carousel)
+- Descricao completa do empreendimento
+- Tabela de fracoes com tipologia, area, preco, garagem e referencia
+- Botao "Contacte-nos" que abre o formulario de lead
 
-**3. Migracoes SQL**
-- Inserir perfil em falta para admin@viz.pt
-- (Opcional) Nenhuma alteracao de schema necessaria — tabelas e policies estao correctas
+**3. Seccao na Homepage — antes do FinalCTASection**
+- Preview dos 2 empreendimentos com link para o portal
+- Titulo "Empreendimentos em Destaque"
 
-**4. Verificacao de sessao no StepPhotos.tsx**
-- Adicionar `supabase.auth.getSession()` check antes do upload, igual ao padrao ja usado em `StepDocuments.tsx`
-
-**5. Atualizar `generate-description` para usar `Deno.serve`**
-- Substituir `import { serve }` por `Deno.serve` para consistencia com as outras edge functions
-
----
-
-### Ficheiros Alterados
-
-| Ficheiro | Alteracao |
-|----------|-----------|
-| `src/pages/Auth.tsx` | Corrigir redirect pos-signup; verificar email_confirmed_at no useEffect |
-| `src/pages/Documentos.tsx` | Verificar sessao activa (nao apenas user) |
-| `src/pages/Vender.tsx` | Verificar sessao activa |
-| `src/components/vender/StepPhotos.tsx` | Adicionar verificacao de sessao antes de upload |
-| `supabase/functions/generate-description/index.ts` | Migrar para Deno.serve |
-| Migracao SQL | INSERT perfil admin@viz.pt |
+**4. Rota no App.tsx**
+- `/imoveis` e `/imoveis/:slug`
 
 ---
 
-### Detalhes Tecnicos
+### Dados dos empreendimentos (hardcoded inicialmente)
 
-**Auth.tsx — logica corrigida:**
-```typescript
-// useEffect: so redirecionar se user TEM sessao confirmada
-useEffect(() => {
-  if (user && session) navigate("/documentos", { replace: true });
-}, [user, session, navigate]);
+**Machado Santos**
+- Localizacao: Margem Sul (Montijo)
+- Tipologia: T0 - T2
+- Preco: 285.000 EUR - 395.000 EUR
+- Area: 80,02 m2 - 173,11 m2
+- Conclusao: 1o Semestre 2027
+- Imagem principal: `https://static.wixstatic.com/media/a9bb7d_aa24eb9118dd4ded8cb5103109d0e1f8~mv2.jpg/v1/fill/w_1905,h_782,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/img74.jpg`
+- 5 fracoes com dados de area, preco e referencia
 
-// Apos signUp: nao navegar, apenas mostrar toast
-```
+**Horizon**
+- Localizacao: Lourinha (Lisboa)
+- Tipologia: T3 - T4
+- Preco: 1.450.000 EUR - 2.300.000 EUR
+- Area: 283,6 m2 - 501,1 m2
+- 15 moradias exclusivas, piscina, mobiladas
+- Imagem principal: `https://static.wixstatic.com/media/a9bb7d_60db3151f85d427fb897ea71a1adec88~mv2.jpg/v1/fill/w_1600,h_657,al_c,q_85,enc_avif,quality_auto/06.jpg`
+- 9 villas com dados de area, preco, garagem e referencia
 
-**StepPhotos.tsx — verificacao de sessao:**
-```typescript
-const { data: { session } } = await supabase.auth.getSession();
-if (!session) {
-  toast({ title: "Sessao expirada", description: "Faca login novamente.", variant: "destructive" });
-  return;
-}
-```
+---
 
-**SQL — perfil admin:**
-```sql
-INSERT INTO public.profiles (id, full_name, email)
-VALUES ('1130c394-7a1a-43ef-a5b9-2fa4ee0cec3e', 'Admin', 'admin@viz.pt')
-ON CONFLICT (id) DO NOTHING;
-```
+### Ficheiros a criar/alterar
+
+| Ficheiro | Accao |
+|----------|-------|
+| `src/data/properties.ts` | Criar — dados estaticos dos 2 empreendimentos |
+| `src/pages/Imoveis.tsx` | Criar — listagem de empreendimentos |
+| `src/pages/ImovelDetalhe.tsx` | Criar — pagina de detalhe com galeria e tabela de fracoes |
+| `src/components/FeaturedPropertiesSection.tsx` | Criar — seccao de destaque para a homepage |
+| `src/pages/Index.tsx` | Alterar — adicionar FeaturedPropertiesSection |
+| `src/App.tsx` | Alterar — adicionar rotas `/imoveis` e `/imoveis/:slug` |
+
+---
+
+### Design
+
+- Cards com imagem de capa, badge de localizacao, nome, tipologia e faixa de preco
+- Pagina de detalhe com carousel de imagens usando o componente Carousel existente
+- Tabela de fracoes responsiva
+- Estilo consistente com o resto do site (dark theme, tons de azul/verde)
 
