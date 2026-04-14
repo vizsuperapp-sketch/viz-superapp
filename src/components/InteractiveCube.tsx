@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect, forwardRef } from "react";
-import { Home, TrendingUp, Landmark, Key, Settings, LucideIcon, HelpCircle } from "lucide-react";
-
-// Adicionei HelpCircle para o caso de precisar de um ícone genérico "vizinho"
+import { Home, TrendingUp, Landmark, Key, Settings, LucideIcon } from "lucide-react";
 
 interface FaceData {
   label: string | null;
@@ -10,21 +8,14 @@ interface FaceData {
 }
 
 const faces: FaceData[] = [
-  // De acordo com a imagem, a face frontal tem o texto "VIZ"
   { label: "VIZ", icon: null, isLogo: true },
-  // O ícone de aperto de mão (Handshake) não é nativo no Lucide-react clássico,
-  // mas o 'Hand' ou 'HandCoins' aproxima. Para ser exato, mantemos TrendingUp ou Home.
-  // Vamos usar 'Home' para a face com a casa da imagem.
-  { label: "CASA", icon: Home, isLogo: false },
-  // Para a face com o aperto de mão, podemos usar um ícone que represente acordo.
-  { label: "ACORDO", icon: Landmark, isLogo: false },
-  { label: "GERIR", icon: Settings, isLogo: false },
-  { label: "ARRENDAR", icon: Key, isLogo: false },
-  // De acordo com o fluxo, talvez queiras TrendingUp.
+  { label: "COMPRAR", icon: Home, isLogo: false },
   { label: "VENDER", icon: TrendingUp, isLogo: false },
+  { label: "FINANCIAR", icon: Landmark, isLogo: false },
+  { label: "ARRENDAR", icon: Key, isLogo: false },
+  { label: "GERIR", icon: Settings, isLogo: false },
 ];
 
-// Normais para cálculo de face ativa (para o tooltip dinâmico funcionar)
 const faceNormals: [number, number, number][] = [
   [0, 0, 1],
   [1, 0, 0],
@@ -55,8 +46,7 @@ function getActiveFace(rotX: number, rotY: number): number {
 }
 
 const InteractiveCube = () => {
-  // Rotação inicial para mostrar a face VIZ e a Casa, como na imagem.
-  const [rotation, setRotation] = useState({ x: -10, y: 35 });
+  const [rotation, setRotation] = useState({ x: -22, y: 35 });
   const [isDragging, setIsDragging] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
   const [activeFace, setActiveFace] = useState(0);
@@ -71,10 +61,10 @@ const InteractiveCube = () => {
         let newX = r.x;
         let newY = r.y;
         if (autoRotate) {
-          newY = r.y + 0.15; // Rotação automática mais lenta para ser hipnótica
+          newY = r.y + 0.18;
         } else if (!isDragging) {
-          velocity.current.x *= 0.94; // Mais momentum
-          velocity.current.y *= 0.94;
+          velocity.current.x *= 0.92;
+          velocity.current.y *= 0.92;
           newX = r.x + velocity.current.x;
           newY = r.y + velocity.current.y;
         }
@@ -102,20 +92,19 @@ const InteractiveCube = () => {
     if (!isDragging) return;
     const dx = e.clientX - lastPos.current.x;
     const dy = e.clientY - lastPos.current.y;
-    velocity.current = { x: -dy * 0.4, y: dx * 0.4 };
+    velocity.current = { x: -dy * 0.45, y: dx * 0.45 };
     setRotation((r) => ({ x: r.x + velocity.current.x, y: r.y + velocity.current.y }));
     lastPos.current = { x: e.clientX, y: e.clientY };
   };
 
   const handlePointerUp = () => {
     setIsDragging(false);
-    // Tempo maior antes de retomar rotação automática
-    autoTimer.current = setTimeout(() => setAutoRotate(true), 3500);
+    autoTimer.current = setTimeout(() => setAutoRotate(true), 2500);
   };
 
-  // Ajuste de tamanho para maior presença
-  const cubeSize = 250;
+  const cubeSize = 220;
   const half = cubeSize / 2;
+
   const faceTransforms = [
     `translateZ(${half}px)`,
     `rotateY(90deg) translateZ(${half}px)`,
@@ -124,37 +113,38 @@ const InteractiveCube = () => {
     `rotateX(90deg) translateZ(${half}px)`,
     `rotateX(-90deg) translateZ(${half}px)`,
   ];
-  // Container maior para acomodar a perspetiva sem cortar
-  const containerSize = cubeSize * 1.9;
+
+  const containerSize = cubeSize * 1.7;
 
   return (
-    <div className="flex flex-col items-center select-none relative w-full h-full p-6">
-      {/* Luz ambiente azul/cian de fundo para "gelar" o espaço */}
+    <div className="flex flex-col items-center select-none relative">
+      {/* Ambient glow */}
       <div
         className="absolute pointer-events-none z-0"
         style={{
-          width: containerSize * 2,
-          height: containerSize * 2,
+          width: containerSize * 1.6,
+          height: containerSize * 1.6,
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          background: "radial-gradient(circle, hsla(180,90%,50%,0.2) 0%, transparent 80%)",
-          filter: "blur(70px)",
+          background: "radial-gradient(circle, hsla(180,80%,60%,0.18) 0%, transparent 70%)",
+          filter: "blur(50px)",
         }}
       />
+
       <div
-        className="cursor-grab active:cursor-grabbing relative z-10 w-full flex justify-center items-center"
+        className="cursor-grab active:cursor-grabbing relative z-10"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        style={{ perspective: 1100, width: containerSize, height: containerSize }}
+        style={{ perspective: 900, width: containerSize, height: containerSize }}
       >
         <div
           className="relative w-full h-full"
           style={{
             transformStyle: "preserve-3d",
             transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
-            transition: isDragging ? "none" : "transform 0.08s linear",
+            transition: isDragging ? "none" : "transform 0.05s linear",
           }}
         >
           {faces.map((face, i) => (
@@ -163,7 +153,6 @@ const InteractiveCube = () => {
               label={face.label}
               icon={face.icon}
               isLogo={face.isLogo}
-              // Destaca a face ativa com maior brilho
               isActive={activeFace === i}
               size={cubeSize}
               style={{ transform: faceTransforms[i] }}
@@ -171,12 +160,16 @@ const InteractiveCube = () => {
           ))}
         </div>
       </div>
-      {/* Label dinâmica abaixo do cubo - Mais discreta */}
+
+      {/* Active face label */}
       <p
-        className="text-[10px] font-medium uppercase tracking-[0.3em] mt-3 relative z-10 transition-all duration-300"
-        style={{ color: "hsla(180,90%,80%,0.8)", minHeight: "20px" }}
+        className="text-xs font-semibold uppercase tracking-widest mt-2 relative z-10 transition-all duration-300"
+        style={{ color: "hsla(180,80%,70%,0.9)", letterSpacing: "0.2em", minHeight: "20px" }}
       >
         {faces[activeFace]?.label ?? ""}
+      </p>
+      <p className="text-xs relative z-10" style={{ color: "hsla(0,0%,100%,0.3)", marginTop: "4px" }}>
+        Arraste para explorar
       </p>
     </div>
   );
@@ -205,87 +198,78 @@ const CubeFace = forwardRef<HTMLDivElement, CubeFaceProps>(
           top: "50%",
           marginLeft: -half,
           marginTop: -half,
-          // Cantos ligeiramente curvos como na imagem
-          borderRadius: "1.5rem",
-          // O gradiente da imagem é verde em cima à esquerda e azul em baixo à direita.
-          // O fundo deve parecer vidro esbranquiçado ou gelo.
-          background: `
-            radial-gradient(at top left, hsla(160,80%,70%,0.3) 0%, transparent 50%),
-            radial-gradient(at bottom right, hsla(200,80%,70%,0.3) 0%, transparent 50%),
-            linear-gradient(135deg, hsla(0,0%,100%,0.1) 0%, hsla(180,90%,50%,0.15) 100%)
-          `,
-          backdropFilter: "blur(18px) saturate(2)",
-          WebkitBackdropFilter: "blur(18px) saturate(2)",
-          // Borda brilhante azul/cian (neon) como na imagem
-          border: isActive
-            ? "3px solid hsla(180,90%,70%,0.95)" // Face ativa brilha mais
-            : "2px solid hsla(180,90%,60%,0.7)", // Outras faces com brilho suave
+          borderRadius: "1.25rem",
+          background: `linear-gradient(145deg, hsla(163,60%,55%,0.4), hsla(180,70%,55%,0.35), hsla(211,80%,55%,0.45))`,
+          backdropFilter: "blur(12px) saturate(1.5)",
+          WebkitBackdropFilter: "blur(12px) saturate(1.5)",
+          border: isActive ? "2px solid hsla(180,80%,80%,0.9)" : "1.5px solid hsla(180,80%,70%,0.5)",
           boxShadow: isActive
-            ? `
-              inset 0 0 15px hsla(180,90%,90%,0.3), // Brilho interno
-              0 0 25px hsla(180,90%,50%,0.8),    // Glow externo forte
-              0 0 50px hsla(180,90%,50%,0.4)     // Glow externo suave
-            `
-            : `
-              inset 0 0 10px hsla(180,90%,90%,0.1),
-              0 0 15px hsla(180,90%,50%,0.5)
-            `,
+            ? `inset 0 1px 0 hsla(180,80%,90%,0.5), 0 0 30px hsla(180,80%,60%,0.5), 0 0 60px hsla(180,80%,60%,0.2)`
+            : `inset 0 1px 0 hsla(180,80%,90%,0.3), 0 0 15px hsla(180,80%,60%,0.1)`,
           backfaceVisibility: "hidden",
-          transition: "border-color 0.4s, box-shadow 0.4s, background 0.4s",
+          transition: "border-color 0.3s, box-shadow 0.3s",
           ...style,
         }}
       >
-        {/* Efeito de reflexo de vidro na parte superior da face */}
         <div
           className="absolute pointer-events-none"
           style={{
-            top: 8,
-            left: 8,
-            right: "30%",
-            height: "25%",
-            background: "linear-gradient(135deg, hsla(0,0%,100%,0.5) 0%, transparent 100%)",
-            borderRadius: "1.2rem 1.2rem 2rem 0.6rem",
+            top: 6,
+            left: 6,
+            right: "25%",
+            height: "22%",
+            background: "linear-gradient(135deg, hsla(0,0%,100%,0.45) 0%, transparent 100%)",
+            borderRadius: "0.8rem 0.8rem 2rem 0.4rem",
           }}
-        />
-
-        {/* Efeito de brilho concentrado nas arestas (conforme a imagem) */}
-        <div
-          className="absolute inset-0 border border-hsla(180,90%,90%,0.4) rounded-[1.4rem]"
-          style={{ margin: "-1px" }}
         />
 
         {isLogo && label && (
           <span
             style={{
-              fontSize: "78px",
+              fontSize: "68px",
               fontWeight: 800,
               lineHeight: 1,
-              color: "hsla(0,0%,100%,0.98)", // Texto branco neon
-              textShadow: "0 0 25px hsla(180,90%,50%,0.9), 0 0 50px hsla(180,90%,50%,0.6)",
+              color: "hsla(0,0%,100%,0.97)",
+              textShadow: "0 0 30px hsla(180,80%,60%,0.7), 0 0 60px hsla(180,80%,60%,0.3)",
               fontFamily: "'DM Sans', system-ui, sans-serif",
-              animation: isActive ? "pulse-active 2.5s ease-in-out infinite" : "none",
+              animation: "pulse-logo 3s ease-in-out infinite",
             }}
           >
             {label}
           </span>
         )}
+
         {!isLogo && Icon && (
           <Icon
-            size={70}
-            strokeWidth={1}
+            size={44}
+            strokeWidth={1.5}
             style={{
-              color: "hsla(0,0%,100%,0.95)", // Ícone branco neon
-              filter: "drop-shadow(0 0 15px hsla(180,90%,50%,0.8))",
-              transition: "transform 0.4s",
-              transform: isActive ? "scale(1.1)" : "scale(1)",
+              color: "hsla(0,0%,100%,0.92)",
+              filter: "drop-shadow(0 0 10px hsla(180,80%,60%,0.6))",
+              transition: "transform 0.3s",
+              transform: isActive ? "scale(1.15)" : "scale(1)",
             }}
           />
         )}
-        {/* Removi a label interna para simplificar e focar nos ícones, conforme a imagem */}
+
+        {!isLogo && label && (
+          <span
+            style={{
+              fontSize: "18px",
+              fontWeight: 700,
+              color: "hsla(0,0%,100%,0.92)",
+              textShadow: "0 0 20px hsla(180,80%,60%,0.4)",
+              fontFamily: "'DM Sans', system-ui, sans-serif",
+              letterSpacing: "0.08em",
+            }}
+          >
+            {label}
+          </span>
+        )}
       </div>
     );
   },
 );
-CubeFace.displayName = "CubeFace";
 
+CubeFace.displayName = "CubeFace";
 export default InteractiveCube;
