@@ -202,7 +202,7 @@ const ImovelDetalhe = () => {
                           ) : f.status === "reserved" ? (
                             <Badge
                               variant="outline"
-                              className="text-xs border-yellow-500/50 text-yellow-500"
+                              className="text-xs border-accent-foreground/50 text-accent-foreground"
                             >
                               Reservado
                             </Badge>
