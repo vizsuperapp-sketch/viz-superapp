@@ -1,37 +1,10 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-
-  // 🔒 VERIFICAÇÃO DE LOGIN
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader) {
-    return new Response(JSON.stringify({ error: "Não autenticado." }), {
-      status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
-  const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!);
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
-
-  if (authError || !user) {
-    return new Response(JSON.stringify({ error: "Sessão inválida. Faz login novamente." }), {
-      status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-  // 🔒 FIM DA VERIFICAÇÃO
 
   try {
     const { typology, location, area, condition, extras } = await req.json();
@@ -44,6 +17,7 @@ Deno.serve(async (req) => {
 - Área: ${area ? area + " m²" : "Não especificada"}
 - Estado: ${condition || "Não especificado"}
 - Extras/Características: ${extras || "Nenhum"}
+
 A descrição deve ser em português de Portugal, profissional, destacar os pontos fortes do imóvel, e ter entre 150-250 palavras. Não incluir preço. Usar linguagem que apele às emoções do comprador.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -57,8 +31,7 @@ A descrição deve ser em português de Portugal, profissional, destacar os pont
         messages: [
           {
             role: "system",
-            content:
-              "És um copywriter imobiliário profissional especializado no mercado português. Crias descrições elegantes, persuasivas e detalhadas para anúncios de imóveis. Respondes apenas com a descrição, sem títulos ou formatação extra.",
+            content: "És um copywriter imobiliário profissional especializado no mercado português. Crias descrições elegantes, persuasivas e detalhadas para anúncios de imóveis. Respondes apenas com a descrição, sem títulos ou formatação extra.",
           },
           { role: "user", content: prompt },
         ],
@@ -67,25 +40,19 @@ A descrição deve ser em português de Portugal, profissional, destacar os pont
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limite de pedidos excedido. Tenta novamente em alguns segundos." }),
-          {
-            status: 429,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          },
-        );
+        return new Response(JSON.stringify({ error: "Limite de pedidos excedido. Tenta novamente em alguns segundos." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
       if (response.status === 402) {
         return new Response(JSON.stringify({ error: "Créditos de IA esgotados." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
       return new Response(JSON.stringify({ error: "Erro ao gerar descrição" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -98,8 +65,7 @@ A descrição deve ser em português de Portugal, profissional, destacar os pont
   } catch (e) {
     console.error("generate-description error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
