@@ -10,6 +10,8 @@ import Admin from "./pages/Admin.tsx";
 import Auth from "./pages/Auth.tsx";
 import Documentos from "./pages/Documentos.tsx";
 import Vender from "./pages/Vender.tsx";
+import Imoveis from "./pages/Imoveis.tsx";
+import ImovelDetalhe from "./pages/ImovelDetalhe.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ChatWidget from "./components/ChatWidget";
 
@@ -29,6 +31,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/documentos" element={<Documentos />} />
             <Route path="/vender" element={<Vender />} />
+            <Route path="/imoveis" element={<Imoveis />} />
+            <Route path="/imoveis/:slug" element={<ImovelDetalhe />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

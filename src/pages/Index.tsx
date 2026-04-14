@@ -5,6 +5,7 @@ import HowItWorksSection from "@/components/HowItWorksSection";
 import ManifestoSection from "@/components/ManifestoSection";
 import BenefitsSection from "@/components/BenefitsSection";
 import EcosystemSection from "@/components/EcosystemSection";
+import FeaturedPropertiesSection from "@/components/FeaturedPropertiesSection";
 import FinalCTASection from "@/components/FinalCTASection";
 import FooterSection from "@/components/FooterSection";
 
@@ -18,6 +19,7 @@ const Index = () => {
       <ManifestoSection />
       <BenefitsSection />
       <EcosystemSection />
+      <FeaturedPropertiesSection />
       <FinalCTASection />
       <FooterSection />
     </div>
