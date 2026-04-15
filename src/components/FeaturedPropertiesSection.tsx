@@ -21,7 +21,7 @@ const FeaturedPropertiesSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {properties.map((property) => (
             <Link key={property.slug} to={`/imoveis/${property.slug}`} cgroup-hover:text-cyan-400>
-              <div className="rounded-2xl overflow-hidden border border-border/50 bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
+              <div className="group relative bg-[#0B1120] rounded-[2.5rem] overflow-hidden border border-slate-800 transition-all duration-500 hover:border-cyan-500/50 hover:shadow-[0_0_40px_rgba(6,182,212,0.2)] hover:-translate-y-2">
                 <div className="aspect-[16/9] overflow-hidden relative">
                   <img
                     src={property.coverImage}
