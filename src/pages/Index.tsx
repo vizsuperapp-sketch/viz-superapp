@@ -1,28 +1,18 @@
-import HeroSection from "@/components/HeroSection";
-import NotAgencySection from "@/components/NotAgencySection";
-import ComparisonSection from "@/components/ComparisonSection";
-import HowItWorksSection from "@/components/HowItWorksSection";
-import ManifestoSection from "@/components/ManifestoSection";
-import BenefitsSection from "@/components/BenefitsSection";
-import EcosystemSection from "@/components/EcosystemSection";
-import FeaturedPropertiesSection from "@/components/FeaturedPropertiesSection";
-import FinalCTASection from "@/components/FinalCTASection";
-import FooterSection from "@/components/FooterSection";
+import { HeroSection } from "@/components/HeroSection";
+import { FeaturedPropertiesSection } from "@/components/FeaturedPropertiesSection";
+import { ChatWidget } from "@/components/ChatWidget";
+// ... outros imports que já tenhas
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <main className="min-h-screen bg-[#06080F]">
       <HeroSection />
+      {/* Coloquei aqui logo após o topo para dar o destaque que pediste */}
       <FeaturedPropertiesSection />
-      <NotAgencySection />
-      <ComparisonSection />
-      <HowItWorksSection />
-      <ManifestoSection />
-      <BenefitsSection />
-      <EcosystemSection />
-      <FinalCTASection />
-      <FooterSection />
-    </div>
+
+      {/* As outras secções vêm depois */}
+      <ChatWidget />
+    </main>
   );
 };
 
