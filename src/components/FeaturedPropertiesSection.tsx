@@ -6,7 +6,9 @@ import { MapPin, ArrowRight } from "lucide-react";
 
 const FeaturedPropertiesSection = () => {
   return (
-    <div className="group relative bg-[#0B1120] rounded-[2.5rem] overflow-hidden border border-slate-800 transition-all duration-500 hover:border-cyan-500/50 hover:shadow-[0_0_40px_rgba(6,182,212,0.2)] hover:-translate-y-2">
+    <section className="py-20 md:py-28 bg-background">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
           <Badge variant="secondary" className="mb-4">
             Empreendimentos
           </Badge>
