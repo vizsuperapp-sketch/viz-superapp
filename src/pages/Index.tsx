@@ -1,18 +1,19 @@
 import { HeroSection } from "@/components/HeroSection";
 import { FeaturedPropertiesSection } from "@/components/FeaturedPropertiesSection";
 import { ChatWidget } from "@/components/ChatWidget";
-// ... outros imports que já tenhas
 
 const Index = () => {
   return (
-    <main className="min-h-screen bg-[#06080F]">
+    <div className="min-h-screen bg-[#06080F]">
+      {/* Tentativa de carregar a HeroSection */}
       <HeroSection />
-      {/* Coloquei aqui logo após o topo para dar o destaque que pediste */}
+
+      {/* Secção de Imóveis no topo */}
       <FeaturedPropertiesSection />
 
-      {/* As outras secções vêm depois */}
+      {/* Chat flutuante */}
       <ChatWidget />
-    </main>
+    </div>
   );
 };
 
