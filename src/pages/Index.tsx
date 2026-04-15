@@ -1,28 +1,14 @@
-import HeroSection from "@/components/HeroSection";
-import NotAgencySection from "@/components/NotAgencySection";
-import ComparisonSection from "@/components/ComparisonSection";
-import HowItWorksSection from "@/components/HowItWorksSection";
-import ManifestoSection from "@/components/ManifestoSection";
-import BenefitsSection from "@/components/BenefitsSection";
-import EcosystemSection from "@/components/EcosystemSection";
-import FeaturedPropertiesSection from "@/components/FeaturedPropertiesSection";
-import FinalCTASection from "@/components/FinalCTASection";
-import FooterSection from "@/components/FooterSection";
+import { HeroSection } from "@/components/HeroSection";
+import { FeaturedPropertiesSection } from "@/components/FeaturedPropertiesSection";
+import { ChatWidget } from "@/components/ChatWidget";
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <main className="min-h-screen bg-[#06080F]">
       <HeroSection />
-      <NotAgencySection />
-      <ComparisonSection />
-      <HowItWorksSection />
-      <ManifestoSection />
-      <BenefitsSection />
-      <EcosystemSection />
       <FeaturedPropertiesSection />
-      <FinalCTASection />
-      <FooterSection />
-    </div>
+      <ChatWidget />
+    </main>
   );
 };
 
