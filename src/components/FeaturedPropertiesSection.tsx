@@ -12,9 +12,7 @@ const FeaturedPropertiesSection = () => {
           <Badge variant="secondary" className="mb-4">
             Empreendimentos
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Em Destaque
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Em Destaque</h2>
           <p className="text-muted-foreground mt-3 max-w-lg mx-auto">
             Conheça os empreendimentos que estamos a comercializar
           </p>
@@ -22,11 +20,7 @@ const FeaturedPropertiesSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {properties.map((property) => (
-            <Link
-              key={property.slug}
-              to={`/imoveis/${property.slug}`}
-              className="group block"
-            >
+            <Link key={property.slug} to={`/imoveis/${property.slug}`} cgroup-hover:text-cyan-400>
               <div className="rounded-2xl overflow-hidden border border-border/50 bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
                 <div className="aspect-[16/9] overflow-hidden relative">
                   <img
@@ -49,9 +43,7 @@ const FeaturedPropertiesSection = () => {
                   <p className="text-sm text-muted-foreground mt-1">
                     {property.typology} · {property.areaRange}
                   </p>
-                  <p className="text-primary font-semibold mt-3">
-                    {property.priceRange}
-                  </p>
+                  <p className="text-primary font-semibold mt-3">{property.priceRange}</p>
                 </div>
               </div>
             </Link>
