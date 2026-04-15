@@ -1,72 +1,33 @@
 
 
-## Portal de Imoveis — Adicionar secao de empreendimentos ao site
+## Redesign InteractiveCube — Glassmorphism Style
 
-### Objectivo
-Criar uma nova pagina `/imoveis` (portal de imoveis) e uma seccao na homepage que mostre os 2 empreendimentos (Machado Santos e Horizon) com os dados extraidos dos links fornecidos.
+### Changes — Single file: `src/components/InteractiveCube.tsx`
 
----
+Keep all drag/rotation/auto-rotate logic, face data, and component structure identical. Only change visual styles:
 
-### O que sera criado
+**Cube container area:**
+- Add a light radial gradient background behind the cube (white → light blue) as a self-contained backdrop `div`
+- Ground shadow: radial gradient ellipse beneath cube in teal/cyan tones, blurred
+- Ambient glow: larger radial gradient in cyan behind the cube
 
-**1. Pagina `/imoveis` — Portal de Imoveis**
-- Lista dos empreendimentos em cards com imagem principal, nome, tipologia, preco, area e localidade
-- Ao clicar num empreendimento, abre a pagina de detalhe
+**Cube faces (`CubeFace`):**
+- Background: vibrant green-to-blue gradient (`hsla(163,70%,55%,0.5)` → `hsla(200,80%,55%,0.5)`)
+- Border: 2px solid with cyan glow `hsla(180,80%,70%,0.7)`
+- Box-shadow: strong cyan/teal outer glow (`0 0 20px hsla(180,80%,60%,0.4), 0 0 40px hsla(180,80%,60%,0.2)`)
+- Specular highlight: thick top-half gradient (white 50% opacity → transparent), covering ~35% height
+- Backdrop-filter: `blur(16px) saturate(1.6)`
 
-**2. Pagina `/imoveis/:slug` — Detalhe do Empreendimento**
-- Galeria de imagens (carousel)
-- Descricao completa do empreendimento
-- Tabela de fracoes com tipologia, area, preco, garagem e referencia
-- Botao "Contacte-nos" que abre o formulario de lead
+**Icons & labels:**
+- Icons: 72px, white, with `drop-shadow` glow
+- Labels: 24px, bold, white with text-shadow glow
+- Logo face "VIZ": 80px bold white
 
-**3. Seccao na Homepage — antes do FinalCTASection**
-- Preview dos 2 empreendimentos com link para o portal
-- Titulo "Empreendimentos em Destaque"
+**Edge sparkles:** Keep with adjusted colors to match lighter theme
 
-**4. Rota no App.tsx**
-- `/imoveis` e `/imoveis/:slug`
+**"Arraste para explorar" label:** Change to darker text (`text-slate-500`) to contrast with light background
 
----
+**Hover labels:** Adjust background to semi-transparent white glass pills
 
-### Dados dos empreendimentos (hardcoded inicialmente)
-
-**Machado Santos**
-- Localizacao: Margem Sul (Montijo)
-- Tipologia: T0 - T2
-- Preco: 285.000 EUR - 395.000 EUR
-- Area: 80,02 m2 - 173,11 m2
-- Conclusao: 1o Semestre 2027
-- Imagem principal: `https://static.wixstatic.com/media/a9bb7d_aa24eb9118dd4ded8cb5103109d0e1f8~mv2.jpg/v1/fill/w_1905,h_782,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/img74.jpg`
-- 5 fracoes com dados de area, preco e referencia
-
-**Horizon**
-- Localizacao: Lourinha (Lisboa)
-- Tipologia: T3 - T4
-- Preco: 1.450.000 EUR - 2.300.000 EUR
-- Area: 283,6 m2 - 501,1 m2
-- 15 moradias exclusivas, piscina, mobiladas
-- Imagem principal: `https://static.wixstatic.com/media/a9bb7d_60db3151f85d427fb897ea71a1adec88~mv2.jpg/v1/fill/w_1600,h_657,al_c,q_85,enc_avif,quality_auto/06.jpg`
-- 9 villas com dados de area, preco, garagem e referencia
-
----
-
-### Ficheiros a criar/alterar
-
-| Ficheiro | Accao |
-|----------|-------|
-| `src/data/properties.ts` | Criar — dados estaticos dos 2 empreendimentos |
-| `src/pages/Imoveis.tsx` | Criar — listagem de empreendimentos |
-| `src/pages/ImovelDetalhe.tsx` | Criar — pagina de detalhe com galeria e tabela de fracoes |
-| `src/components/FeaturedPropertiesSection.tsx` | Criar — seccao de destaque para a homepage |
-| `src/pages/Index.tsx` | Alterar — adicionar FeaturedPropertiesSection |
-| `src/App.tsx` | Alterar — adicionar rotas `/imoveis` e `/imoveis/:slug` |
-
----
-
-### Design
-
-- Cards com imagem de capa, badge de localizacao, nome, tipologia e faixa de preco
-- Pagina de detalhe com carousel de imagens usando o componente Carousel existente
-- Tabela de fracoes responsiva
-- Estilo consistente com o resto do site (dark theme, tons de azul/verde)
+**Note:** The cube sits inside the dark-themed HeroSection. The light background will be self-contained within the InteractiveCube wrapper div, creating a striking contrast "window" effect. If this isn't desired, an alternative is to keep the cube's own wrapper transparent and only change face styles — but the request specifically asks for a light background.
 
