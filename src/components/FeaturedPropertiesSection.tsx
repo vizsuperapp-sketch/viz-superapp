@@ -1,75 +1,74 @@
 import { Link } from "react-router-dom";
+import { properties } from "@/data/properties";
 import { Badge } from "@/components/ui/badge";
-import { MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, ArrowRight } from "lucide-react";
 
-const properties = [
-  {
-    slug: "machado-santos",
-    name: "Edifício Machado Santos",
-    region: "Margem Sul",
-    image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200",
-    price: "285.000€ – 395.000€",
-    details: "T0 – T2 · Design Minimalista",
-  },
-  {
-    slug: "horizon-view",
-    name: "Horizon View Residence",
-    region: "Lisboa",
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200",
-    price: "1.450.000€ – 2.300.000€",
-    details: "T3 – T4 · Vista Panorâmica",
-  },
-];
-
-export const FeaturedPropertiesSection = () => {
+const FeaturedPropertiesSection = () => {
   return (
-    <section className="py-24 bg-[#06080F] relative overflow-hidden">
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-16">
-          <Badge className="mb-4 bg-cyan-500/10 text-cyan-400 border-cyan-500/20 px-4 py-1 rounded-full uppercase text-[10px] tracking-widest font-bold">
-            Seleção Premium
+    <section className="py-20 md:py-28 bg-background">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <Badge variant="secondary" className="mb-4">
+            Empreendimentos
           </Badge>
-          <h2 className="text-5xl font-black text-white mb-4">Em Destaque</h2>
-          <div className="h-1.5 w-24 bg-cyan-500 mx-auto rounded-full shadow-[0_0_20px_rgba(34,211,238,0.6)]" />
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+            Em Destaque
+          </h2>
+          <p className="text-muted-foreground mt-3 max-w-lg mx-auto">
+            Conheça os empreendimentos que estamos a comercializar
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {properties.map((property) => (
-            <Link key={property.slug} to={`/imoveis/${property.slug}`} className="group block">
-              <div className="relative bg-[#0B1120] rounded-[3.5rem] overflow-hidden border border-slate-800 transition-all duration-500 hover:border-cyan-500/50 hover:shadow-[0_0_60px_rgba(6,182,212,0.2)] hover:-translate-y-4">
-                <div className="aspect-[16/10] overflow-hidden relative">
+            <Link
+              key={property.slug}
+              to={`/imoveis/${property.slug}`}
+              className="group block"
+            >
+              <div className="rounded-2xl overflow-hidden border border-border/50 bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
+                <div className="aspect-[16/9] overflow-hidden relative">
                   <img
-                    src={property.image}
+                    src={property.coverImage}
                     alt={property.name}
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-transparent to-transparent opacity-90" />
-                  <div className="absolute top-6 left-6">
-                    <Badge className="bg-black/60 backdrop-blur-md text-white border-white/10 px-4 py-1.5 rounded-full flex gap-2 items-center">
-                      <MapPin size={14} className="text-cyan-400" />
-                      <span className="text-[10px] font-black tracking-widest uppercase">{property.region}</span>
+                  <div className="absolute top-4 left-4">
+                    <Badge className="bg-background/80 backdrop-blur-md text-foreground border-border/50">
+                      <MapPin className="h-3 w-3 mr-1" />
+                      {property.region}
                     </Badge>
                   </div>
                 </div>
-                <div className="p-10">
-                  <h3 className="text-3xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">
+                <div className="p-5">
+                  <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
                     {property.name}
                   </h3>
-                  <p className="text-slate-400 text-sm mb-8 font-medium">{property.details}</p>
-                  <div className="flex items-center justify-between border-t border-slate-800/50 pt-8">
-                    <span className="text-cyan-400 font-black text-2xl drop-shadow-[0_0_10px_rgba(34,211,238,0.4)]">
-                      {property.price}
-                    </span>
-                    <div className="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white border border-white/5 transition-all group-hover:bg-cyan-500">
-                      <span className="text-2xl font-light">→</span>
-                    </div>
-                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {property.typology} · {property.areaRange}
+                  </p>
+                  <p className="text-primary font-semibold mt-3">
+                    {property.priceRange}
+                  </p>
                 </div>
               </div>
             </Link>
           ))}
         </div>
+
+        <div className="text-center mt-10">
+          <Link to="/imoveis">
+            <Button variant="outline" size="lg" className="rounded-xl gap-2">
+              Ver todos os empreendimentos
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
       </div>
     </section>
   );
 };
+
+export default FeaturedPropertiesSection;
