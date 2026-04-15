@@ -43,7 +43,15 @@ export const FeaturedPropertiesSection = () => {
               <div className="group relative bg-[#0B1120] rounded-[3rem] overflow-hidden border-2 border-slate-800 transition-all duration-500 hover:border-cyan-500/50 hover:shadow-[0_0_50px_rgba(6,182,212,0.25)] hover:-translate-y-2">
                 {/* Imagem com Zoom */}
                 <div className="aspect-[16/9] overflow-hidden relative">
-                  <img
+                <img 
+  src={property.coverImage || "/placeholder.svg"} 
+  alt={property.name}
+  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+  onError={(e) => {
+    const target = e.target as HTMLImageElement;
+    target.src = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1000&auto=format&fit=crop"; // Imagem de backup elegante
+  }}
+/>
                     src={property.coverImage}
                     alt={property.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
