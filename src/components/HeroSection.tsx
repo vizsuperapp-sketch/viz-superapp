@@ -1,5 +1,5 @@
 import React from "react";
-import { InteractiveCube } from "./InteractiveCube";
+import InteractiveCube from "./InteractiveCube";
 
 export const HeroSection = () => {
   return (
