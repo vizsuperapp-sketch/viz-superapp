@@ -1,6 +1,6 @@
 import { HeroSection } from "@/components/HeroSection";
-import { FeaturedPropertiesSection } from "@/components/FeaturedPropertiesSection";
-import { ChatWidget } from "@/components/ChatWidget";
+import FeaturedPropertiesSection from "@/components/FeaturedPropertiesSection";
+import ChatWidget from "@/components/ChatWidget";
 
 const Index = () => {
   return (
