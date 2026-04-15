@@ -20,7 +20,7 @@ const Index = () => {
       <ManifestoSection />
       <BenefitsSection />
       <EcosystemSection />
-      <FeaturedPropertiesSection />
+
       <FinalCTASection />
       <FooterSection />
     </div>
