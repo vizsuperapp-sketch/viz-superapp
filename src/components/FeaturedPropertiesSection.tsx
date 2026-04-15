@@ -6,9 +6,9 @@ import { MapPin, ArrowRight } from "lucide-react";
 
 const FeaturedPropertiesSection = () => {
   return (
-    <section className="py-20 md:py-28 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+    <section className="py-24 bg-gradient-to-b from-[#06080F] to-[#0A1120] relative overflow-hidden">
+  {/* Luz ambiente de fundo (Glow) */}
+  <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
           <Badge variant="secondary" className="mb-4">
             Empreendimentos
           </Badge>
