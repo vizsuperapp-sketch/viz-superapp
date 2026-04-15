@@ -1,143 +1,61 @@
-import { useState } from "react";
-import vizLogoCube from "@/assets/viz-logo-cube.png";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ChevronRight, Play, ShieldCheck, Lock, Users, UserCircle } from "lucide-react";
-import InteractiveCube from "@/components/InteractiveCube";
-import LeadFormModal from "@/components/LeadFormModal";
-import { useAuth } from "@/contexts/AuthContext";
+import React from "react";
+import { InteractiveCube } from "./InteractiveCube";
 
-const HeroSection = () => {
-  const [formOpen, setFormOpen] = useState(false);
-  const { user } = useAuth();
-  const navigate = useNavigate();
-
-  const scrollToHowItWorks = () => {
-    document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
-  };
-
+export const HeroSection = () => {
   return (
-    <section className="relative min-h-screen flex items-center px-6 overflow-hidden">
-      {/* Ambient background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className="absolute w-[140%] h-[140%] -top-[20%] -left-[20%]"
-          style={{
-            background: `
-              radial-gradient(ellipse 50% 40% at 30% 50%, hsla(211, 80%, 55%, 0.12) 0%, transparent 50%),
-              radial-gradient(ellipse 40% 35% at 70% 40%, hsla(163, 40%, 55%, 0.08) 0%, transparent 50%),
-              radial-gradient(ellipse 60% 50% at 50% 80%, hsla(211, 60%, 45%, 0.06) 0%, transparent 50%)
-            `,
-            animation: "ambient-drift 25s ease-in-out infinite alternate",
-          }}
-        />
+    <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden bg-[#06080F]">
+      {/* Grelha 3D de Fundo */}
+      <div
+        className="absolute inset-0 z-0 opacity-20"
+        style={{
+          backgroundImage:
+            "linear-gradient(#1e293b 1px, transparent 1px), linear-gradient(90deg, #1e293b 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      ></div>
+
+      {/* Luzes de Profundidade Neon */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-cyan-500/15 rounded-full blur-[140px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[140px]" />
       </div>
 
-      {/* Top nav */}
-      <div className="absolute top-4 right-4 z-20">
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-full border-border/50 text-muted-foreground hover:text-foreground"
-          onClick={() => navigate(user ? "/documentos" : "/auth")}
-        >
-          <UserCircle className="h-4 w-4 mr-2" />
-          {user ? "Os meus documentos" : "Área de Cliente"}
-        </Button>
-      </div>
-
-      {/* Main grid */}
-      <div className="container max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-8 items-center relative z-10">
-        {/* Left — Text */}
-        <div className="flex flex-col items-start">
-          {/* Logo pill */}
-          <div
-            className="mb-8 opacity-0 animate-fade-up"
-            style={{ animationDelay: "0ms" }}
-          >
-            <img src={vizLogoCube} alt="VIZ" className="w-12 h-12 object-contain" />
+      <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+        <div className="text-left space-y-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-[10px] font-black tracking-[0.3em] uppercase">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            </span>
+            Protocolo 0% Comissões Ativo
           </div>
 
-          <h1
-            className="text-5xl font-bold leading-[1.05] tracking-tight mb-5 opacity-0 animate-fade-up"
-            style={{ animationDelay: "100ms", textWrap: "balance" }}
-          >
-            SuperApp da casa<br />
-            Comprar ou vender , <span className="text-gradient">sem comissões.</span>
+          <h1 className="text-7xl md:text-9xl font-black text-white leading-[0.85] tracking-tighter">
+            VIZ
+            <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-blue-500 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">
+              REVOLUTION
+            </span>
           </h1>
 
-          <p
-            className="text-base md:text-lg mb-3 opacity-0 animate-fade-up text-muted-foreground max-w-md"
-            style={{ animationDelay: "200ms", textWrap: "balance" }}
-          >
-            A VIZ liga comprador e vendedor diretamente, com tecnologia, transparência e zero comissão.
+          <p className="text-slate-400 text-xl max-w-lg leading-relaxed font-medium">
+            Desintermediamos o mercado. Conectamos compradores e vendedores diretamente através de inteligência visual.
+            Sem taxas. Sem barreiras.
           </p>
 
-          <p
-            className="text-sm mb-8 opacity-0 animate-fade-up max-w-md"
-            style={{ animationDelay: "250ms", color: "hsl(var(--muted-foreground))", opacity: 0.7 }}
-          >
-            Não somos uma imobiliária. Somos a nova infraestrutura da transação imobiliária.
-          </p>
-
-          {/* CTA buttons */}
-          <div
-            className="flex flex-col sm:flex-row items-start gap-3 mb-8 opacity-0 animate-fade-up"
-            style={{ animationDelay: "350ms" }}
-          >
-            <Button variant="hero" size="xl" onClick={() => setFormOpen(true)}>
-              Começar agora
-              <ChevronRight className="ml-1" />
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-primary/30 text-foreground hover:bg-primary/10"
-              onClick={() => navigate("/vender")}
-            >
-              Quero Vender
-            </Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              className="text-muted-foreground hover:text-foreground gap-2"
-              onClick={scrollToHowItWorks}
-            >
-              <Play size={16} className="text-primary" />
-              Ver como funciona
-            </Button>
-          </div>
-
-          {/* Trust micro-signals */}
-          <div
-            className="flex items-center gap-5 opacity-0 animate-fade-up"
-            style={{ animationDelay: "450ms" }}
-          >
-            {[
-              { icon: ShieldCheck, text: "Dados verificados" },
-              { icon: Lock, text: "Processo seguro" },
-              { icon: Users, text: "Apoio em cada passo" },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-1.5">
-                <Icon size={13} className="text-primary/50" />
-                <span className="text-[11px] text-muted-foreground/50">{text}</span>
-              </div>
-            ))}
+          <div className="flex flex-wrap gap-6">
+            <button className="group relative px-10 py-5 bg-cyan-500 text-black font-black rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(6,182,212,0.4)]">
+              INICIAR MATCHMAKING
+              <div className="absolute inset-0 rounded-2xl border-2 border-white/20 scale-110 opacity-0 group-hover:opacity-100 transition-all"></div>
+            </button>
           </div>
         </div>
 
-        {/* Right — Cube */}
-        <div
-          className="flex items-center justify-center opacity-0 animate-fade-up"
-          style={{ animationDelay: "300ms" }}
-        >
+        <div className="relative flex justify-center items-center h-[600px]">
+          <div className="absolute w-[450px] h-[450px] bg-cyan-500/20 rounded-full blur-[120px]" />
           <InteractiveCube />
         </div>
       </div>
-
-      <LeadFormModal open={formOpen} onOpenChange={setFormOpen} />
     </section>
   );
 };
-
-export default HeroSection;
