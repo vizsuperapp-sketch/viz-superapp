@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Loader2, LogOut } from "lucide-react";
+import { ArrowLeft, Loader2, LogOut, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +14,8 @@ import AdminChatTab from "@/components/admin/AdminChatTab";
 const Admin = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [roleChecked, setRoleChecked] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -28,9 +30,32 @@ const Admin = () => {
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (!session) {
+        setIsAdmin(false);
+        setRoleChecked(false);
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  // Check admin role when session changes
+  useEffect(() => {
+    if (!session?.user) {
+      setRoleChecked(true);
+      return;
+    }
+    setRoleChecked(false);
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then(({ data }) => {
+        setIsAdmin(!!data);
+        setRoleChecked(true);
+      });
+  }, [session?.user?.id]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +78,7 @@ const Admin = () => {
     setActiveTab("documents");
   };
 
-  if (authLoading) {
+  if (authLoading || !roleChecked) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -76,6 +101,22 @@ const Admin = () => {
           </form>
           <div className="mt-4 text-center">
             <Link to="/"><Button variant="ghost" size="sm">← Voltar ao site</Button></Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <ShieldAlert className="h-12 w-12 text-destructive mx-auto" />
+          <h1 className="text-xl font-bold">Acesso restrito</h1>
+          <p className="text-muted-foreground">Não tens permissão para aceder a este painel.</p>
+          <div className="flex gap-3 justify-center">
+            <Link to="/"><Button variant="outline">Voltar ao site</Button></Link>
+            <Button variant="ghost" onClick={handleLogout}>Terminar sessão</Button>
           </div>
         </div>
       </div>
