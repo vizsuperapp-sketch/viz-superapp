@@ -7,8 +7,29 @@ import ChatMessages, { type Msg } from "@/components/chat/ChatMessages";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-// Dados dos imóveis
+// Dados dos imóveis - VistaBella em 1º lugar com vídeo 360
 const imoveis = [
+  {
+    name: "VistaBella Oeiras",
+    region: "Oeiras",
+    location: "Oeiras",
+    priceRange: "690 000 €",
+    areaRange: "122 m²",
+    typology: "T2 com 2 Suítes",
+    completion: "Setembro 2027",
+    badge: "NOVO",
+    hasVideo360: true,
+    highlights: [
+      "Varanda ampla 26,87m²",
+      "Jardim privativo 9m²",
+      "2 estacionamentos",
+      "Piscina e SPA",
+      "Ginásio e padel",
+    ],
+    description:
+      "Elegante apartamento T2 com duas suítes em VistaBella Oeiras. Excelente distribuição de espaços, varanda ampla, jardim privativo e zona exterior privativa. Empreendimento sustentável com infraestruturas premium.",
+    images: 9,
+  },
   {
     name: "Machado Santos",
     region: "Margem Sul",
@@ -33,25 +54,6 @@ const imoveis = [
       "Situado junto à Praia da Peralta com arquitetura contemporânea e janelas panorâmicas para o Atlântico.",
     images: 6,
   },
-  {
-    name: "VistaBella Oeiras",
-    region: "Oeiras",
-    location: "Oeiras",
-    priceRange: "690 000 €",
-    areaRange: "122 m²",
-    typology: "T2 com 2 Suítes",
-    completion: "Setembro 2027",
-    highlights: [
-      "Varanda ampla 26,87m²",
-      "Jardim privativo 9m²",
-      "2 estacionamentos",
-      "Piscina e SPA",
-      "Ginásio e padel",
-    ],
-    description:
-      "Elegante apartamento T2 com duas suítes em VistaBella Oeiras. Excelente distribuição de espaços, varanda ampla, jardim privativo e zona exterior privativa.",
-    images: 9,
-  },
 ];
 
 // ✅ FUNÇÃO PRINCIPAL - CONSIDERA O INTERESSE DO CLIENTE
@@ -61,12 +63,22 @@ function getPropertyMessage(userMessage: string, clientInterest: string): string
 
   // 🏠 SE CLIENTE QUER COMPRAR OU INVESTIR
   if (interest.includes("comprar") || interest.includes("investir") || interest.includes("propriedade para compra")) {
+    // Pergunta sobre VistaBella Oeiras
+    if (
+      lower.includes("vistabella") ||
+      lower.includes("oeiras") ||
+      (lower.includes("t2") && lower.includes("oeiras"))
+    ) {
+      const p = imoveis[0];
+      return `📍 **${p.name}** ${p.badge ? `🌟 ${p.badge}` : ""}\n\n💰 Preço: ${p.priceRange}\n📏 Área: ${p.areaRange}\n🏠 Tipo: ${p.typology}\n📅 Conclusão: ${p.completion}\n\n✨ Destaques:\n• ${p.highlights?.join("\n• ")}\n\n${p.description}\n\n🏆 OPORTUNIDADE PREMIUM em DESTAQUE!\n${p.hasVideo360 ? "\n🎥 NOVO! Tour 360° disponível no site para explorar o empreendimento virtualmente!\n" : ""}\n🖼️ Tenho ${p.images} fotos incríveis! Quer agendar uma visita? 📸`;
+    }
+
     // Pergunta sobre Machado Santos
     if (
       lower.includes("machado") ||
-      (lower.includes("montijo") && !lower.includes("horizon") && !lower.includes("vistabella"))
+      (lower.includes("montijo") && !lower.includes("vistabella") && !lower.includes("horizon"))
     ) {
-      const p = imoveis[0];
+      const p = imoveis[1];
       return `📍 **${p.name}** - ${p.region}\n\n💰 Preço: ${p.priceRange}\n📏 Área: ${p.areaRange}\n🏠 Tipo: ${p.typology}\n📅 Conclusão: ${p.completion}\n\n${p.description}\n\n✨ Ótimo para investimento! 🎯\n\n🖼️ Tenho ${p.images} fotos! Quer agendar uma visita?`;
     }
 
@@ -75,18 +87,8 @@ function getPropertyMessage(userMessage: string, clientInterest: string): string
       lower.includes("horizon") ||
       (lower.includes("lourinhã") && !lower.includes("machado") && !lower.includes("vistabella"))
     ) {
-      const p = imoveis[1];
-      return `📍 **${p.name}** - ${p.region}\n\n💰 Preço: ${p.priceRange}\n📏 Área: ${p.areaRange}\n🏠 Tipo: ${p.typology}\n\n✨ Destaques:\n• ${p.highlights?.join("\n• ")}\n\n${p.description}\n\n🌟 Oportunidade Premium! 💎\n\n🖼️ Tenho ${p.images} fotos fantásticas! Quer saber mais?`;
-    }
-
-    // Pergunta sobre VistaBella Oeiras
-    if (
-      lower.includes("vistabella") ||
-      lower.includes("oeiras") ||
-      (lower.includes("t2") && lower.includes("oeiras"))
-    ) {
       const p = imoveis[2];
-      return `📍 **${p.name}**\n\n💰 Preço: ${p.priceRange}\n📏 Área: ${p.areaRange}\n🏠 Tipo: ${p.typology}\n📅 Conclusão: ${p.completion}\n\n✨ Destaques:\n• ${p.highlights?.join("\n• ")}\n\n${p.description}\n\n🌟 Localização estratégica em Oeiras! 📍\n\n🖼️ Tenho ${p.images} fotos incríveis! Quer agendar uma visita?`;
+      return `📍 **${p.name}** - ${p.region}\n\n💰 Preço: ${p.priceRange}\n📏 Área: ${p.areaRange}\n🏠 Tipo: ${p.typology}\n\n✨ Destaques:\n• ${p.highlights?.join("\n• ")}\n\n${p.description}\n\n🌟 Oportunidade Premium! 💎\n\n🖼️ Tenho ${p.images} fotos fantásticas! Quer saber mais?`;
     }
 
     // Pergunta genérica sobre imóveis para comprar
@@ -98,12 +100,23 @@ function getPropertyMessage(userMessage: string, clientInterest: string): string
       lower.includes("opções") ||
       lower.includes("alternativas")
     ) {
-      return `Perfeito! Temos 3 oportunidades incríveis para ti:\n\n🏢 **Machado Santos** (Montijo) - €285k-€395k\n   ✓ Apartamentos T0-T2\n   ✓ Conclusão: 1º Semestre 2027\n\n🏖️ **Horizon** (Lourinhã) - €1.45M-€2.3M\n   ✓ Moradias T3-T4\n   ✓ Junto à Praia da Peralta\n\n🏡 **VistaBella Oeiras** - €690k\n   ✓ Apartamento T2 Premium\n   ✓ Varanda + Jardim Privativo\n\nQual te interessa mais? 🔍`;
+      return `Perfeito! Temos 3 oportunidades incríveis para ti:\n\n🏆 **VistaBella Oeiras** - €690k ⭐ NOVO!\n   ✓ Apartamento T2 Premium\n   ✓ Varanda + Jardim Privativo\n   ✓ 🎥 Tour 360° disponível\n   ✓ Setembro 2027\n\n🏢 **Machado Santos** (Montijo) - €285k-€395k\n   ✓ Apartamentos T0-T2\n   ✓ Conclusão: 1º Semestre 2027\n\n🏖️ **Horizon** (Lourinhã) - €1.45M-€2.3M\n   ✓ Moradias T3-T4\n   ✓ Junto à Praia da Peralta\n\nQual te interessa mais? 🔍`;
     }
 
     // Pergunta sobre preço ou financiamento
     if (lower.includes("preço") || lower.includes("quanto") || lower.includes("custa") || lower.includes("pagar")) {
-      return `Aqui estão as faixas de preço:\n\n💰 **Machado Santos** - €285.000 - €395.000\n💰 **Horizon** - €1.450.000 - €2.300.000\n💰 **VistaBella Oeiras** - €690.000\n\nPodes obter **financiamento imobiliário** com as melhores taxas! 🏦\n\nQuer que te ajude com uma simulação de crédito?`;
+      return `Aqui estão as faixas de preço:\n\n💰 **VistaBella Oeiras** - €690.000 ⭐ DESTAQUE\n💰 **Machado Santos** - €285.000 - €395.000\n💰 **Horizon** - €1.450.000 - €2.300.000\n\nPodes obter **financiamento imobiliário** com as melhores taxas! 🏦\n\nQuer que te ajude com uma simulação de crédito?`;
+    }
+
+    // Pergunta sobre vídeo 360
+    if (
+      lower.includes("vídeo") ||
+      lower.includes("video") ||
+      lower.includes("360") ||
+      lower.includes("tour") ||
+      lower.includes("virtual")
+    ) {
+      return `🎥 Excelente pergunta!\n\n**VistaBella Oeiras** tem um **Tour 360° completo** no site!\n\nPodes explorar virtualmente:\n✓ O empreendimento inteiro\n✓ As áreas comuns\n✓ As zonas de lazer\n✓ Os espaços exteriores\n\nÉ como estar lá de verdade! Muito útil para ter uma ideia completa antes de agendar uma visita presencial. 🌐\n\nQuer que te ajude com mais alguma coisa sobre VistaBella?`;
     }
   }
 
@@ -287,7 +300,7 @@ export default function ChatWidget() {
       const interest = data.interest.toLowerCase();
 
       if (interest.includes("comprar") || interest.includes("investir")) {
-        welcomeText = `Olá ${data.name}! 👋 Bem-vindo à VIZ!\n\n🏠 Vejo que queres **comprar ou investir** em imóvel!\n\nTenho 3 empreendimentos incríveis para ti:\n\n🏢 **Machado Santos** - €285k-€395k (Montijo)\n🏖️ **Horizon** - €1.45M-€2.3M (Lourinhã)\n🏡 **VistaBella Oeiras** - €690k (Oeiras)\n\nQuer saber mais sobre algum deles? 🔍`;
+        welcomeText = `Olá ${data.name}! 👋 Bem-vindo à VIZ!\n\n🏠 Vejo que queres **comprar ou investir** em imóvel!\n\nTenho 3 empreendimentos incríveis para ti:\n\n🏆 **VistaBella Oeiras** - €690k ⭐ NOVO!\n   Apartamento T2 Premium em Oeiras\n   🎥 Tour 360° disponível\n\n🏢 **Machado Santos** - €285k-€395k (Montijo)\n🏖️ **Horizon** - €1.45M-€2.3M (Lourinhã)\n\nQuer saber mais sobre algum deles? 🔍`;
       } else if (interest.includes("vender")) {
         welcomeText = `Olá ${data.name}! 👋 Bem-vindo à VIZ!\n\n🏡 Vejo que queres **vender o teu imóvel**!\n\n🎉 Excelente notícia: **0% COMISSÃO** na VIZ!\n\nDiz-me os detalhes do teu imóvel e criaremos um anúncio profissional em 24h! 📸`;
       } else if (interest.includes("financiamento") || interest.includes("crédito")) {
