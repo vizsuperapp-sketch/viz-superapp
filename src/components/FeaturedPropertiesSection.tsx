@@ -79,8 +79,8 @@ const FeaturedPropertiesSection = () => {
                   <iframe
                     width="100%"
                     height="100%"
-                    src="https://www.youtube.com/embed/FQedPU22iec?autoplay=1&fs=1&modestbranding=1"
-                    title="Tour 360 VistaBella Oeiras"
+                    src="https://www.youtube.com/embed/Go_zTwaMz1I?autoplay=1&fs=1&modestbranding=1"
+                    title="Tour VistaBella Oeiras"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
