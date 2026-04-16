@@ -216,21 +216,21 @@ const FeaturedPropertiesSection = () => {
       </div>
 
       <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-        .animate-fade-in {
-          animation: fadeIn 0.8s ease-out;
-        }
-      `}</style>
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out;
+  }
+`}</style>
     </section>
   );
 };
