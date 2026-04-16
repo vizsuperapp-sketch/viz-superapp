@@ -17,12 +17,16 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailConfirmationSent, setEmailConfirmationSent] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, session } = useAuth();
 
+  // ✅ FIX: Só redireciona se user existe E email foi confirmado
   useEffect(() => {
-    if (user && session) navigate("/documentos", { replace: true });
+    if (user && session && user.email_confirmed_at) {
+      navigate("/documentos", { replace: true });
+    }
   }, [user, session, navigate]);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -33,30 +37,51 @@ const Auth = () => {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate("/documentos");
+
+        // ✅ Só redireciona se login foi bem-sucedido
+        navigate("/documentos", { replace: true });
       } else {
+        // ✅ SIGNUP: Limpa formulário e mostra mensagem de confirmação
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: { full_name: fullName },
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: `${window.location.origin}/auth`,
           },
         });
+
         if (error) throw error;
+
+        // ✅ FIX: Mostra mensagem e LIMPA campos
+        setEmailConfirmationSent(true);
+        setEmail("");
+        setPassword("");
+        setFullName("");
+
         toast({
-          title: "Conta criada!",
-          description: "Verifique o seu email para confirmar o registo.",
+          title: "Conta criada com sucesso! ✅",
+          description: "Verifique o seu email para confirmar o registo. Depois, faça login.",
         });
+
+        // Volta ao login após 3 segundos
+        setTimeout(() => {
+          setIsLogin(true);
+          setEmailConfirmationSent(false);
+        }, 3000);
       }
     } catch (error: any) {
       const msg = error.message || "";
-      const translated =
-        /weak|pwned|hibp/i.test(msg) ? "A password é demasiado fraca. Escolha outra." :
-        /already registered|already been registered/i.test(msg) ? "Este email já está registado." :
-        /invalid login credentials/i.test(msg) ? "Email ou password incorrectos." :
-        /email not confirmed/i.test(msg) ? "Confirme o seu email antes de iniciar sessão." :
-        msg || "Ocorreu um erro. Tente novamente.";
+      const translated = /weak|pwned|hibp/i.test(msg)
+        ? "A password é demasiado fraca. Escolha outra."
+        : /already registered|already been registered/i.test(msg)
+          ? "Este email já está registado."
+          : /invalid login credentials/i.test(msg)
+            ? "Email ou password incorrectos."
+            : /email not confirmed/i.test(msg)
+              ? "Confirme o seu email antes de iniciar sessão."
+              : msg || "Ocorreu um erro. Tente novamente.";
+
       toast({
         title: "Erro",
         description: translated,
@@ -71,8 +96,9 @@ const Auth = () => {
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: `${window.location.origin}/auth`,
       });
+
       if (result.error) {
         toast({
           title: "Erro",
@@ -80,8 +106,13 @@ const Auth = () => {
           variant: "destructive",
         });
       }
+
       if (result.redirected) return;
-      navigate("/documentos");
+
+      // ✅ Aguarda um pouco para session ser atualizada
+      setTimeout(() => {
+        navigate("/documentos", { replace: true });
+      }, 500);
     } catch {
       toast({
         title: "Erro",
@@ -108,11 +139,7 @@ const Auth = () => {
       </div>
 
       <div className="w-full max-w-md relative z-10">
-        <Button
-          variant="ghost"
-          className="mb-6 text-muted-foreground"
-          onClick={() => navigate("/")}
-        >
+        <Button variant="ghost" className="mb-6 text-muted-foreground" onClick={() => navigate("/")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar ao site
         </Button>
@@ -126,12 +153,20 @@ const Auth = () => {
               {isLogin ? "Iniciar sessão" : "Criar conta"}
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              {isLogin
-                ? "Aceda à sua área de documentos"
-                : "Registe-se para submeter os seus documentos"}
+              {isLogin ? "Aceda à sua área de documentos" : "Registe-se para submeter os seus documentos"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* ✅ FIX: Mostra mensagem após signup bem-sucedido */}
+            {emailConfirmationSent && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm font-medium text-green-800">✅ Verifique o seu email para confirmar o registo!</p>
+                <p className="text-xs text-green-700 mt-1">
+                  Após confirmação, pode fazer login com o seu email e password.
+                </p>
+              </div>
+            )}
+
             <Button
               variant="outline"
               className="w-full h-11 text-foreground"
@@ -171,7 +206,9 @@ const Auth = () => {
             <form onSubmit={handleEmailAuth} className="space-y-4">
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-foreground">Nome completo</Label>
+                  <Label htmlFor="fullName" className="text-foreground">
+                    Nome completo
+                  </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -187,7 +224,9 @@ const Auth = () => {
                 </div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground">Email</Label>
+                <Label htmlFor="email" className="text-foreground">
+                  Email
+                </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -202,7 +241,9 @@ const Auth = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground">Password</Label>
+                <Label htmlFor="password" className="text-foreground">
+                  Password
+                </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
