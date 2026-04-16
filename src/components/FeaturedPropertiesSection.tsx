@@ -8,7 +8,7 @@ import { useState, useEffect, useRef } from "react";
 const FeaturedPropertiesSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
-  const [showVideo, setShowVideo] = useState(true); // ✅ VÍDEO ABERTO POR PADRÃO
+  const [showVideo, setShowVideo] = useState(true);
   const autoPlayRef = useRef<NodeJS.Timeout>();
 
   const displayProperties = properties.slice(0, 4);
@@ -61,20 +61,18 @@ const FeaturedPropertiesSection = () => {
         {displayProperties.length > 0 && activeProperty && (
           <div className="max-w-6xl mx-auto">
             {/* ============================================ */}
-            {/* VÍDEO 360° - DESTAQUE PRINCIPAL (ABERTO) */}
+            {/* VÍDEO 360° - VISTABELLA APENAS */}
             {/* ============================================ */}
             {isVistaBella && activeProperty.video360 && showVideo && (
-              <div className="mb-12 animate-in fade-in duration-800">
-                <div className="relative h-[400px] md:h-[600px] rounded-3xl overflow-hidden border-2 border-primary/50 shadow-2xl shadow-primary/30">
-                  <div className="absolute top-4 right-4 z-10">
-                    <button
-                      onClick={() => setShowVideo(false)}
-                      className="p-2 rounded-full bg-black/50 hover:bg-black/80 text-white transition-all"
-                      aria-label="Fechar vídeo"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
+              <div className="mb-8 animate-in fade-in duration-800">
+                <div className="relative h-[250px] sm:h-[350px] md:h-[450px] rounded-3xl overflow-hidden border-2 border-primary/50 shadow-2xl shadow-primary/30">
+                  <button
+                    onClick={() => setShowVideo(false)}
+                    className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/70 hover:bg-black/90 text-white transition-all"
+                    aria-label="Fechar vídeo"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
 
                   <iframe
                     width="100%"
@@ -87,141 +85,171 @@ const FeaturedPropertiesSection = () => {
                     className="absolute inset-0"
                   />
                 </div>
-                <p className="text-center text-sm text-muted-foreground mt-3">
-                  🎥 Tour 360° em Vídeo - Explore o empreendimento virtualmente
-                </p>
               </div>
             )}
 
             {/* ============================================ */}
-            {/* INFORMAÇÕES COMPLETAS DO IMÓVEL */}
+            {/* INFORMAÇÕES DO IMÓVEL - SEMPRE VISÍVEL */}
             {/* ============================================ */}
-            <div className="space-y-8">
+            <div className="space-y-6 mb-12">
               {/* HEADER COM BADGES E TÍTULO */}
               <div className="space-y-4">
-                <div className="flex flex-wrap items-center gap-3">
-                  <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm px-3 py-1">
-                    <MapPin className="h-4 w-4 mr-2" />
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm px-2 sm:px-3 py-1 text-xs sm:text-sm">
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     {activeProperty.region}
                   </Badge>
                   {activeProperty.badge && (
-                    <Badge className="bg-gradient-to-r from-primary to-cyan-500 text-white border-none px-3 py-1">
+                    <Badge className="bg-gradient-to-r from-primary to-cyan-500 text-white border-none px-2 sm:px-3 py-1 text-xs sm:text-sm">
                       ⭐ {activeProperty.badge}
                     </Badge>
                   )}
                 </div>
 
                 <div>
-                  <h3 className="text-4xl md:text-5xl font-bold text-foreground mb-2">{activeProperty.name}</h3>
-                  <p className="text-lg text-muted-foreground">{activeProperty.typology}</p>
+                  <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">{activeProperty.name}</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground mt-1">{activeProperty.typology}</p>
                 </div>
               </div>
 
-              {/* PREÇO E ÁREA EM CARDS */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-xl p-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">Preço</p>
-                  <p className="text-2xl font-bold text-emerald-400">{activeProperty.priceRange}</p>
+              {/* CARDS COM INFORMAÇÕES */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-lg p-3 sm:p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Preço</p>
+                  <p className="text-lg sm:text-2xl font-bold text-emerald-400">{activeProperty.priceRange}</p>
                 </div>
 
-                <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-xl p-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">Área</p>
-                  <p className="text-2xl font-bold text-blue-400">{activeProperty.areaRange}</p>
+                <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-lg p-3 sm:p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Área</p>
+                  <p className="text-lg sm:text-2xl font-bold text-blue-400">{activeProperty.areaRange}</p>
                 </div>
 
                 {activeProperty.completion && (
-                  <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-xl p-4">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">Conclusão</p>
-                    <p className="text-sm font-bold text-primary">{activeProperty.completion}</p>
+                  <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-lg p-3 sm:p-4">
+                    <p className="text-xs text-muted-foreground mb-1">Conclusão</p>
+                    <p className="text-xs sm:text-sm font-bold text-primary">{activeProperty.completion}</p>
                   </div>
                 )}
 
-                <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-xl p-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">Imagens</p>
-                  <p className="text-2xl font-bold text-cyan-400">{activeProperty.images.length}</p>
+                <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-lg p-3 sm:p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Imagens</p>
+                  <p className="text-lg sm:text-2xl font-bold text-cyan-400">{activeProperty.images.length}</p>
                 </div>
               </div>
 
-              {/* DESTAQUES */}
-              {activeProperty.highlights && activeProperty.highlights.length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="text-lg font-semibold text-foreground">✨ Destaques</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {activeProperty.highlights.map((highlight, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/50"
-                      >
-                        <span className="text-primary font-bold mt-0.5">✓</span>
-                        <span className="text-sm text-muted-foreground">{highlight}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* BOTÕES */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link to={`/imoveis/${activeProperty.slug}`} className="flex-1">
+                  <Button className="w-full bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90 text-white rounded-lg gap-2 h-11 sm:h-12 text-sm sm:text-base">
+                    Ver Detalhes Completos <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
 
-              {/* DESCRIÇÃO COMPLETA */}
-              <div className="space-y-3">
-                <h4 className="text-lg font-semibold text-foreground">📍 Sobre o Empreendimento</h4>
-                <div className="bg-muted/20 border border-border/50 rounded-xl p-6 space-y-4">
-                  {activeProperty.description.split("\n\n").map((paragraph, idx) => (
-                    <p
-                      key={idx}
-                      className="text-sm md:text-base text-muted-foreground leading-relaxed whitespace-pre-wrap"
-                    >
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
+                {isVistaBella && activeProperty.video360 && (
+                  <Button
+                    onClick={() => setShowVideo(!showVideo)}
+                    variant="outline"
+                    className="flex-1 rounded-lg h-11 sm:h-12 text-sm sm:text-base"
+                  >
+                    {showVideo ? "🎬 Fechar Vídeo" : "🎥 Abrir Vídeo 360°"}
+                  </Button>
+                )}
               </div>
-
-              {/* BOTÃO CTA */}
-              <Link to={`/imoveis/${activeProperty.slug}`} className="w-full md:w-auto">
-                <Button className="w-full md:w-auto bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90 text-white rounded-xl gap-2 h-12 px-8 text-base">
-                  Ver Detalhes Completos <ArrowRight className="h-5 w-5" />
-                </Button>
-              </Link>
             </div>
 
             {/* ============================================ */}
-            {/* CAROUSEL DE NAVEGAÇÃO */}
+            {/* DESTAQUES */}
             {/* ============================================ */}
-            <div className="mt-12 pt-8 border-t border-border/30 space-y-6">
-              <h4 className="text-lg font-semibold text-foreground">Outros Empreendimentos</h4>
-
-              {/* GALLERY PREVIEW */}
-              <div className="relative h-[250px] md:h-[300px] rounded-2xl overflow-hidden group">
-                <img
-                  src={activeProperty.coverImage}
-                  alt={activeProperty.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-
-                <div className="absolute inset-0 flex flex-col justify-end p-6">
-                  <h5 className="text-xl font-bold text-white mb-2">{activeProperty.name}</h5>
-                  <p className="text-sm text-white/80">
-                    {activeProperty.typology} • {activeProperty.priceRange}
-                  </p>
+            {activeProperty.highlights && activeProperty.highlights.length > 0 && (
+              <div className="space-y-4 mb-12">
+                <h4 className="text-lg sm:text-xl font-semibold text-foreground">✨ Destaques</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  {activeProperty.highlights.map((highlight, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/30 border border-border/50"
+                    >
+                      <span className="text-primary font-bold mt-0.5 flex-shrink-0">✓</span>
+                      <span className="text-xs sm:text-sm text-muted-foreground">{highlight}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
+            )}
 
-              {/* CONTROLES */}
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-3">
+            {/* ============================================ */}
+            {/* DESCRIÇÃO COMPLETA */}
+            {/* ============================================ */}
+            <div className="space-y-4 mb-12">
+              <h4 className="text-lg sm:text-xl font-semibold text-foreground">📍 Sobre o Empreendimento</h4>
+              <div className="bg-muted/20 border border-border/50 rounded-xl p-4 sm:p-6 space-y-4">
+                {activeProperty.description.split("\n\n").map((paragraph, idx) => (
+                  <p key={idx} className="text-xs sm:text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </div>
+
+            {/* ============================================ */}
+            {/* CAROUSEL DE OUTROS IMÓVEIS */}
+            {/* ============================================ */}
+            <div className="mt-12 pt-8 border-t border-border/30 space-y-6">
+              <h4 className="text-lg sm:text-xl font-semibold text-foreground">Outros Empreendimentos</h4>
+
+              {/* GRID DE IMÓVEIS COM IMAGENS REAIS */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+                {displayProperties.map((prop, idx) => {
+                  // Usa a primeira imagem do array ou a cover image
+                  const imgSrc = prop.images && prop.images.length > 0 ? prop.images[0] : prop.coverImage;
+
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => handleDotClick(idx)}
+                      className={`cursor-pointer relative h-[140px] sm:h-[170px] rounded-lg overflow-hidden group border-2 transition-all duration-300 ${
+                        idx === activeIndex
+                          ? "border-primary/80 ring-2 ring-primary/50"
+                          : "border-border/50 hover:border-primary/50"
+                      }`}
+                    >
+                      <img
+                        src={imgSrc}
+                        alt={prop.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+
+                      <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3">
+                        <h5 className="text-xs sm:text-sm font-bold text-white truncate">{prop.name}</h5>
+                        <p className="text-xs text-white/80 truncate">{prop.priceRange}</p>
+                      </div>
+
+                      {idx === activeIndex && (
+                        <div className="absolute inset-0 border-2 border-primary rounded-lg pointer-events-none" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* CONTROLES DO CAROUSEL */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={handlePrev}
-                    className="p-3 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-foreground transition-all duration-300 hover:border-primary/30"
+                    className="p-2 sm:p-3 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-foreground transition-all duration-300"
                     aria-label="Anterior"
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                   <button
                     onClick={handleNext}
-                    className="p-3 rounded-full bg-gradient-to-r from-primary to-cyan-500 text-white hover:shadow-lg hover:shadow-primary/50 transition-all duration-300"
+                    className="p-2 sm:p-3 rounded-full bg-gradient-to-r from-primary to-cyan-500 text-white hover:shadow-lg hover:shadow-primary/50 transition-all duration-300"
                     aria-label="Próximo"
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
 
@@ -230,20 +258,20 @@ const FeaturedPropertiesSection = () => {
                     <button
                       key={index}
                       onClick={() => handleDotClick(index)}
-                      className={`h-2 rounded-full transition-all duration-300 ${index === activeIndex ? "w-8 bg-gradient-to-r from-primary to-cyan-500" : "w-2 bg-muted/50 hover:bg-muted"}`}
-                      aria-label={`Ir para ${index + 1}`}
+                      className={`h-2 rounded-full transition-all duration-300 ${index === activeIndex ? "w-6 sm:w-8 bg-gradient-to-r from-primary to-cyan-500" : "w-2 bg-muted/50 hover:bg-muted"}`}
+                      aria-label={`Ir para imóvel ${index + 1}`}
                     />
                   ))}
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="text-sm font-medium text-muted-foreground">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="text-xs sm:text-sm font-medium text-muted-foreground">
                     <span className="text-primary font-bold">{activeIndex + 1}</span> / {displayProperties.length}
                   </div>
                   <button
                     onClick={() => setIsAutoPlay(!isAutoPlay)}
-                    className={`p-3 rounded-full transition-all duration-300 ${isAutoPlay ? "bg-gradient-to-r from-primary to-cyan-500 text-white" : "bg-muted/50 text-foreground border border-border/50 hover:border-primary/30"}`}
-                    aria-label={isAutoPlay ? "Pausar" : "Retomar"}
+                    className={`p-2 sm:p-3 rounded-full transition-all duration-300 ${isAutoPlay ? "bg-gradient-to-r from-primary to-cyan-500 text-white" : "bg-muted/50 text-foreground border border-border/50 hover:border-primary/30"}`}
+                    aria-label={isAutoPlay ? "Pausar autoplay" : "Retomar autoplay"}
                   >
                     <Zap className="w-4 h-4" />
                   </button>
@@ -251,13 +279,13 @@ const FeaturedPropertiesSection = () => {
               </div>
             </div>
 
-            {/* VER TODOS */}
+            {/* VER TODOS OS IMÓVEIS */}
             <div className="text-center mt-12">
               <Link to="/imoveis">
                 <Button
                   variant="outline"
                   size="lg"
-                  className="rounded-xl gap-2 px-8 border-border/50 hover:border-primary/30 hover:bg-muted/50"
+                  className="rounded-xl gap-2 px-4 sm:px-8 border-border/50 hover:border-primary/30 hover:bg-muted/50 text-sm sm:text-base"
                 >
                   Ver todos os {properties.length} empreendimentos <ArrowRight className="h-4 w-4" />
                 </Button>
