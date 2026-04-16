@@ -2,13 +2,13 @@ import { Link } from "react-router-dom";
 import { properties } from "@/data/properties";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, ArrowRight, ChevronLeft, ChevronRight, Zap, Play } from "lucide-react";
+import { MapPin, ArrowRight, ChevronLeft, ChevronRight, Zap, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 const FeaturedPropertiesSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
-  const [showVideo, setShowVideo] = useState(false);
+  const [showVideo, setShowVideo] = useState(true); // ✅ VÍDEO ABERTO POR PADRÃO
   const autoPlayRef = useRef<NodeJS.Timeout>();
 
   const displayProperties = properties.slice(0, 4);
@@ -60,184 +60,211 @@ const FeaturedPropertiesSection = () => {
 
         {displayProperties.length > 0 && activeProperty && (
           <div className="max-w-6xl mx-auto">
-            {/* VÍDEO 360° EM DESTAQUE PARA VistaBella */}
-            {isVistaBella && activeProperty.video360 && (
-              <div className="mb-8 animate-in fade-in duration-800">
-                <div className="relative h-[400px] md:h-[550px] rounded-3xl overflow-hidden group bg-black/90 border-2 border-primary/30">
-                  {!showVideo ? (
-                    <div className="relative h-full w-full">
-                      <div
-                        className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                        style={{
-                          backgroundImage: `url('https://images.unsplash.com/photo-1512917774080-9b274c3f592b?w=1200&h=800&fit=crop')`,
-                        }}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-                      </div>
-
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                        <div
-                          className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-primary to-cyan-500 shadow-lg shadow-primary/50 cursor-pointer hover:scale-110 transition-transform"
-                          onClick={() => setShowVideo(true)}
-                        >
-                          <Play className="h-8 w-8 text-white fill-white" />
-                        </div>
-                        <p className="text-white text-center font-semibold">🎥 Tour 360° em Vídeo</p>
-                        <p className="text-white/80 text-sm text-center max-w-xs">
-                          Explore o empreendimento virtualmente
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      src={activeProperty.video360}
-                      title="Tour 360 VistaBella Oeiras"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="absolute inset-0"
-                    />
-                  )}
-                </div>
-                {showVideo && (
-                  <div className="mt-4 flex justify-center">
-                    <Button onClick={() => setShowVideo(false)} variant="outline" className="rounded-xl">
-                      Voltar às Fotos
-                    </Button>
+            {/* ============================================ */}
+            {/* VÍDEO 360° - DESTAQUE PRINCIPAL (ABERTO) */}
+            {/* ============================================ */}
+            {isVistaBella && activeProperty.video360 && showVideo && (
+              <div className="mb-12 animate-in fade-in duration-800">
+                <div className="relative h-[400px] md:h-[600px] rounded-3xl overflow-hidden border-2 border-primary/50 shadow-2xl shadow-primary/30">
+                  <div className="absolute top-4 right-4 z-10">
+                    <button
+                      onClick={() => setShowVideo(false)}
+                      className="p-2 rounded-full bg-black/50 hover:bg-black/80 text-white transition-all"
+                      aria-label="Fechar vídeo"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
                   </div>
-                )}
+
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={`${activeProperty.video360}?autoplay=1&fs=1&modestbranding=1`}
+                    title="Tour 360 VistaBella Oeiras"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="absolute inset-0"
+                  />
+                </div>
+                <p className="text-center text-sm text-muted-foreground mt-3">
+                  🎥 Tour 360° em Vídeo - Explore o empreendimento virtualmente
+                </p>
               </div>
             )}
 
-            {/* CAROUSEL PRINCIPAL DE IMAGENS */}
-            <div className="relative mb-12">
-              <div className="relative h-[400px] md:h-[500px] rounded-3xl overflow-hidden group">
-                <div className="absolute inset-0">
-                  <img
-                    src={activeProperty.coverImage}
-                    alt={activeProperty.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-80" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-background/50 to-transparent opacity-80" />
+            {/* ============================================ */}
+            {/* INFORMAÇÕES COMPLETAS DO IMÓVEL */}
+            {/* ============================================ */}
+            <div className="space-y-8">
+              {/* HEADER COM BADGES E TÍTULO */}
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm px-3 py-1">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    {activeProperty.region}
+                  </Badge>
+                  {activeProperty.badge && (
+                    <Badge className="bg-gradient-to-r from-primary to-cyan-500 text-white border-none px-3 py-1">
+                      ⭐ {activeProperty.badge}
+                    </Badge>
+                  )}
                 </div>
 
-                <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
-                  <div className="space-y-6 mb-8">
-                    <div className="w-fit flex items-center gap-2">
-                      <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
-                        <MapPin className="h-4 w-4 mr-2" />
-                        {activeProperty.region}
-                      </Badge>
-                      {activeProperty.badge && (
-                        <Badge className="bg-gradient-to-r from-primary to-cyan-500 text-white border-none">
-                          ⭐ {activeProperty.badge}
-                        </Badge>
-                      )}
-                    </div>
+                <div>
+                  <h3 className="text-4xl md:text-5xl font-bold text-foreground mb-2">{activeProperty.name}</h3>
+                  <p className="text-lg text-muted-foreground">{activeProperty.typology}</p>
+                </div>
+              </div>
 
-                    <div>
-                      <h3 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
-                        {activeProperty.name}
-                      </h3>
-                      <p className="text-lg text-white/80">{activeProperty.typology}</p>
-                    </div>
+              {/* PREÇO E ÁREA EM CARDS */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-xl p-4">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Preço</p>
+                  <p className="text-2xl font-bold text-emerald-400">{activeProperty.priceRange}</p>
+                </div>
 
-                    <div className="grid grid-cols-2 gap-4 pt-4">
-                      <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4">
-                        <p className="text-xs font-medium text-white/60 mb-1">Preço</p>
-                        <p className="text-lg md:text-xl font-bold text-emerald-400">{activeProperty.priceRange}</p>
+                <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-xl p-4">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Área</p>
+                  <p className="text-2xl font-bold text-blue-400">{activeProperty.areaRange}</p>
+                </div>
+
+                {activeProperty.completion && (
+                  <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-xl p-4">
+                    <p className="text-xs font-medium text-muted-foreground mb-2">Conclusão</p>
+                    <p className="text-sm font-bold text-primary">{activeProperty.completion}</p>
+                  </div>
+                )}
+
+                <div className="backdrop-blur-xl bg-gradient-to-br from-primary/10 to-cyan-500/10 border border-primary/20 rounded-xl p-4">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Imagens</p>
+                  <p className="text-2xl font-bold text-cyan-400">{activeProperty.images.length}</p>
+                </div>
+              </div>
+
+              {/* DESTAQUES */}
+              {activeProperty.highlights && activeProperty.highlights.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-lg font-semibold text-foreground">✨ Destaques</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {activeProperty.highlights.map((highlight, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/50"
+                      >
+                        <span className="text-primary font-bold mt-0.5">✓</span>
+                        <span className="text-sm text-muted-foreground">{highlight}</span>
                       </div>
-
-                      <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4">
-                        <p className="text-xs font-medium text-white/60 mb-1">Área</p>
-                        <p className="text-lg md:text-xl font-bold text-blue-400">{activeProperty.areaRange}</p>
-                      </div>
-                    </div>
-
-                    <Link to={`/imoveis/${activeProperty.slug}`} className="w-fit">
-                      <Button className="bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90 text-white rounded-xl gap-2 h-12 px-8">
-                        Ver Detalhes <ArrowRight className="h-5 w-5" />
-                      </Button>
-                    </Link>
+                    ))}
                   </div>
                 </div>
+              )}
 
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform -skew-x-12" />
-              </div>
-            </div>
-
-            {/* CONTROLES DO CAROUSEL */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handlePrev}
-                  className="p-3 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-foreground transition-all duration-300 hover:border-primary/30"
-                  aria-label="Previous property"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="p-3 rounded-full bg-gradient-to-r from-primary to-cyan-500 text-white hover:shadow-lg hover:shadow-primary/50 transition-all duration-300"
-                  aria-label="Next property"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="flex gap-2">
-                {displayProperties.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleDotClick(index)}
-                    className={`h-2 rounded-full transition-all duration-300 ${index === activeIndex ? "w-8 bg-gradient-to-r from-primary to-cyan-500" : "w-2 bg-muted/50 hover:bg-muted"}`}
-                    aria-label={`Go to property ${index + 1}`}
-                  />
-                ))}
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="text-sm font-medium text-muted-foreground">
-                  <span className="text-primary font-bold">{activeIndex + 1}</span> / {displayProperties.length}
+              {/* DESCRIÇÃO COMPLETA */}
+              <div className="space-y-3">
+                <h4 className="text-lg font-semibold text-foreground">📍 Sobre o Empreendimento</h4>
+                <div className="bg-muted/20 border border-border/50 rounded-xl p-6 space-y-4">
+                  {activeProperty.description.split("\n\n").map((paragraph, idx) => (
+                    <p
+                      key={idx}
+                      className="text-sm md:text-base text-muted-foreground leading-relaxed whitespace-pre-wrap"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
                 </div>
-                <button
-                  onClick={() => setIsAutoPlay(!isAutoPlay)}
-                  className={`p-3 rounded-full transition-all duration-300 ${isAutoPlay ? "bg-gradient-to-r from-primary to-cyan-500 text-white" : "bg-muted/50 text-foreground border border-border/50 hover:border-primary/30"}`}
-                  aria-label={isAutoPlay ? "Pause autoplay" : "Resume autoplay"}
-                >
-                  <Zap className="w-4 h-4" />
-                </button>
+              </div>
+
+              {/* BOTÃO CTA */}
+              <Link to={`/imoveis/${activeProperty.slug}`} className="w-full md:w-auto">
+                <Button className="w-full md:w-auto bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90 text-white rounded-xl gap-2 h-12 px-8 text-base">
+                  Ver Detalhes Completos <ArrowRight className="h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* ============================================ */}
+            {/* CAROUSEL DE NAVEGAÇÃO */}
+            {/* ============================================ */}
+            <div className="mt-12 pt-8 border-t border-border/30 space-y-6">
+              <h4 className="text-lg font-semibold text-foreground">Outros Empreendimentos</h4>
+
+              {/* GALLERY PREVIEW */}
+              <div className="relative h-[250px] md:h-[300px] rounded-2xl overflow-hidden group">
+                <img
+                  src={activeProperty.coverImage}
+                  alt={activeProperty.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+
+                <div className="absolute inset-0 flex flex-col justify-end p-6">
+                  <h5 className="text-xl font-bold text-white mb-2">{activeProperty.name}</h5>
+                  <p className="text-sm text-white/80">
+                    {activeProperty.typology} • {activeProperty.priceRange}
+                  </p>
+                </div>
+              </div>
+
+              {/* CONTROLES */}
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handlePrev}
+                    className="p-3 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-foreground transition-all duration-300 hover:border-primary/30"
+                    aria-label="Anterior"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="p-3 rounded-full bg-gradient-to-r from-primary to-cyan-500 text-white hover:shadow-lg hover:shadow-primary/50 transition-all duration-300"
+                    aria-label="Próximo"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="flex gap-2">
+                  {displayProperties.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleDotClick(index)}
+                      className={`h-2 rounded-full transition-all duration-300 ${index === activeIndex ? "w-8 bg-gradient-to-r from-primary to-cyan-500" : "w-2 bg-muted/50 hover:bg-muted"}`}
+                      aria-label={`Ir para ${index + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="text-sm font-medium text-muted-foreground">
+                    <span className="text-primary font-bold">{activeIndex + 1}</span> / {displayProperties.length}
+                  </div>
+                  <button
+                    onClick={() => setIsAutoPlay(!isAutoPlay)}
+                    className={`p-3 rounded-full transition-all duration-300 ${isAutoPlay ? "bg-gradient-to-r from-primary to-cyan-500 text-white" : "bg-muted/50 text-foreground border border-border/50 hover:border-primary/30"}`}
+                    aria-label={isAutoPlay ? "Pausar" : "Retomar"}
+                  >
+                    <Zap className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="mt-10 flex flex-wrap gap-2 justify-center">
-              <div className="px-3 py-1.5 rounded-full bg-muted/50 border border-border/50 text-xs text-muted-foreground backdrop-blur-sm">
-                ✨ Carousel Interativo
-              </div>
-              <div className="px-3 py-1.5 rounded-full bg-muted/50 border border-border/50 text-xs text-muted-foreground backdrop-blur-sm">
-                🎥 Tour 360° com Vídeo
-              </div>
-              <div className="px-3 py-1.5 rounded-full bg-muted/50 border border-border/50 text-xs text-muted-foreground backdrop-blur-sm">
-                💫 Design Premium
-              </div>
+            {/* VER TODOS */}
+            <div className="text-center mt-12">
+              <Link to="/imoveis">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="rounded-xl gap-2 px-8 border-border/50 hover:border-primary/30 hover:bg-muted/50"
+                >
+                  Ver todos os {properties.length} empreendimentos <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         )}
-
-        <div className="text-center mt-16">
-          <Link to="/imoveis">
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-xl gap-2 px-8 border-border/50 hover:border-primary/30 hover:bg-muted/50"
-            >
-              Ver todos os {properties.length} empreendimentos <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
       </div>
     </section>
   );
