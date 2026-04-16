@@ -1,33 +1,25 @@
 
 
-## Redesign InteractiveCube — Glassmorphism Style
+## Criar ProtectedRoute — Correção de Pasta
 
-### Changes — Single file: `src/components/InteractiveCube.tsx`
+### Situação
+O projeto usa `src/components/` (inglês). O utilizador pediu `src/componentes/` (português) mas essa pasta não existe.
 
-Keep all drag/rotation/auto-rotate logic, face data, and component structure identical. Only change visual styles:
+### Opções
 
-**Cube container area:**
-- Add a light radial gradient background behind the cube (white → light blue) as a self-contained backdrop `div`
-- Ground shadow: radial gradient ellipse beneath cube in teal/cyan tones, blurred
-- Ambient glow: larger radial gradient in cyan behind the cube
+**Opção A — Usar pasta existente (recomendado)**
+Criar em `src/components/ProtectedRoute.tsx` — consistente com todo o projeto.
 
-**Cube faces (`CubeFace`):**
-- Background: vibrant green-to-blue gradient (`hsla(163,70%,55%,0.5)` → `hsla(200,80%,55%,0.5)`)
-- Border: 2px solid with cyan glow `hsla(180,80%,70%,0.7)`
-- Box-shadow: strong cyan/teal outer glow (`0 0 20px hsla(180,80%,60%,0.4), 0 0 40px hsla(180,80%,60%,0.2)`)
-- Specular highlight: thick top-half gradient (white 50% opacity → transparent), covering ~35% height
-- Backdrop-filter: `blur(16px) saturate(1.6)`
+**Opção B — Criar pasta nova em português**
+Criar `src/componentes/ProtectedRoute.tsx` — requer atualizar todas as importações do projeto futuramente para manter consistência.
 
-**Icons & labels:**
-- Icons: 72px, white, with `drop-shadow` glow
-- Labels: 24px, bold, white with text-shadow glow
-- Logo face "VIZ": 80px bold white
+### Recomendação
+Usar **Opção A** (`src/components/ProtectedRoute.tsx`) — mantém consistência com a estrutura existente. O código do componente estará 100% funcional e integrado.
 
-**Edge sparkles:** Keep with adjusted colors to match lighter theme
-
-**"Arraste para explorar" label:** Change to darker text (`text-slate-500`) to contrast with light background
-
-**Hover labels:** Adjust background to semi-transparent white glass pills
-
-**Note:** The cube sits inside the dark-themed HeroSection. The light background will be self-contained within the InteractiveCube wrapper div, creating a striking contrast "window" effect. If this isn't desired, an alternative is to keep the cube's own wrapper transparent and only change face styles — but the request specifically asks for a light background.
+### Implementação (Opção A)
+Criar `src/components/ProtectedRoute.tsx` com:
+- Import correto: `@/contexts/AuthContext`
+- Estados: loading (spinner), unauthenticated (redirect /auth), email não confirmado (mensagem completa)
+- Prop `requiredEmailConfirmed` (default: true)
+- JSX formatado corretamente (o código partilhado tinha formatação corrompida)
 
