@@ -22,9 +22,58 @@ export interface Property {
   coverImage: string;
   images: string[];
   fractions: PropertyFraction[];
+  badge?: string;
+  video360?: string;
 }
 
 export const properties: Property[] = [
+  {
+    slug: "vistabella-oeiras",
+    name: "VistaBella Oeiras",
+    location: "Oeiras",
+    region: "Oeiras",
+    typology: "T2",
+    priceRange: "690 000 €",
+    areaRange: "122 m²",
+    completion: "Setembro 2027",
+    badge: "NOVO",
+    video360: "https://www.youtube.com/embed/FQedPU22iec",
+    highlights: [
+      "T2 com 2 Suítes",
+      "Varanda ampla com 26,87m²",
+      "Jardim privativo com 9m²",
+      "2 lugares de estacionamento",
+      "Piscina exterior e SPA",
+      "Ginásio e campo de padel",
+      "Área gourmet completa",
+      "Empreendimento sustentável",
+    ],
+    description:
+      "VistaBella Oeiras é um empreendimento residencial de excelência localizado numa das zonas mais valorizadas de Oeiras. Este elegante apartamento T2 com duas suítes oferece 122 m² de conforto e sofisticação.\n\n🌟 Características Principais:\n• Tipologia T2 com 2 suítes\n• 122m² de área total\n• Varanda ampla com 26,87m² - ideal para momentos de lazer\n• Jardim privativo com 9m² - seu próprio espaço verde\n• Sala e cozinha em conceito moderno\n• Arrecadação de apoio\n• 2 lugares de estacionamento privado\n\n🏊 Infraestruturas Premium do Condomínio:\n• Piscina exterior para adultos\n• Piscina infantil\n• Ginásio totalmente equipado com equipamentos de última geração\n• SPA completo (sauna, jacuzzi, área de relaxamento)\n• Área gourmet/zona de convívio\n• Campo de padel regulamentado\n• Parque infantil seguro\n• Espaços verdes e percursos pedonais\n• Zona de pet place (espaço dedicado a animais)\n\n📍 Localização Estratégica em Oeiras:\n• 3 minutos de Lagoas Park (centro comercial premium)\n• 4 minutos de Hospital da Luz Oeiras\n• 5 minutos de Parque dos Poetas\n• 10 minutos das praias de Oeiras\n• Proximidade de escolas internacionais prestigiadas\n• Fácil acesso a Lisboa (15 minutos)\n\n✅ Construção com Elevados Padrões:\n✅ Arquitetura moderna e sustentável\n✅ Eficiência energética excepcional\n✅ Materiais premium em toda a construção\n✅ Excelente isolamento térmico e acústico\n\n💡 Oportunidade Ideal Para:\n✓ Habitação própria de qualidade\n✓ Investimento com forte valorização futura\n✓ Zona em constante desenvolvimento urbano\n✓ Procura elevada por imóveis premium em Oeiras\n\n🎥 Explore em 360°!\nVeja o empreendimento em tour virtual 360°",
+    coverImage: "https://images.unsplash.com/photo-1512917774080-9b274c3f592b?w=1200&h=800&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1512917774080-9b274c3f592b?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1540932239986-310128078ceb?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1560126197-b8a5a6b7e9f5?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1469022563149-aa64dbd37717?w=1440&h=811&fit=crop",
+    ],
+    fractions: [
+      {
+        fraction: "Apartamento T2 com 2 Suítes",
+        typology: "T2",
+        area: "122 m²",
+        price: "690 000 €",
+        garage: "2 lugares",
+        reference: "86818572",
+        status: "available",
+      },
+    ],
+  },
   {
     slug: "machado-santos",
     name: "Machado Santos",
@@ -188,50 +237,6 @@ export const properties: Property[] = [
         price: "1 700 000 €",
         garage: "39,3 m²",
         reference: "86815252",
-        status: "available",
-      },
-    ],
-  },
-  {
-    slug: "vistabella-oeiras",
-    name: "VistaBella Oeiras",
-    location: "Oeiras",
-    region: "Oeiras",
-    typology: "T2",
-    priceRange: "690 000 €",
-    areaRange: "122 m²",
-    completion: "Setembro 2027",
-    highlights: [
-      "T2 com 2 Suítes",
-      "Varanda ampla com 26,87m²",
-      "Jardim privativo com 9m²",
-      "2 lugares de estacionamento",
-      "Piscina exterior e SPA",
-      "Ginásio e campo de padel",
-      "Área gourmet",
-    ],
-    description:
-      "Apresentamos este elegante apartamento T2 com duas suítes, inserido no moderno empreendimento VistaBella Oeiras, um projeto residencial pensado para proporcionar conforto, qualidade de vida e contacto com a natureza, numa das zonas mais valorizadas de Oeiras.\n\nCom 122 m² de área total, este apartamento destaca-se pela excelente distribuição de espaços, áreas generosas e zona exterior privativa, ideal para momentos de lazer e convívio.\n\n🌟 Características:\n• Tipologia T2 com 2 suítes\n• 122m² de área total\n• Varanda ampla com 26,87m²\n• Jardim privativo com 9m²\n• Sala e cozinha em conceito moderno\n• Arrecadação\n• 2 lugares de estacionamento\n\n🏊 Áreas Comuns do Condomínio:\n• Piscina exterior para adultos\n• Piscina infantil\n• Ginásio totalmente equipado\n• SPA\n• Área gourmet\n• Campo de padel\n• Parque infantil\n• Espaços verdes\n\n📍 Localização Privilegiada:\n• 3 minutos de Lagoas Park\n• 4 minutos de Hospital da Luz\n• 5 minutos de Parque dos Poetas\n• 10 minutos das praias de Oeiras\n• Próximo de escolas internacionais\n\n✅ Excelente opção para habitação própria ou investimento\n✅ Zona com forte valorização imobiliária\n✅ Construção com elevados padrões de eficiência energética",
-    coverImage: "https://images.unsplash.com/photo-1512917774080-9b274c3f592b?w=1200&h=800&fit=crop",
-    images: [
-      "https://images.unsplash.com/photo-1512917774080-9b274c3f592b?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1540932239986-310128078ceb?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1560126197-b8a5a6b7e9f5?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1469022563149-aa64dbd37717?w=1440&h=811&fit=crop",
-    ],
-    fractions: [
-      {
-        fraction: "Apartamento T2",
-        typology: "T2",
-        area: "122 m²",
-        price: "690 000 €",
-        garage: "2 lugares",
-        reference: "86818572",
         status: "available",
       },
     ],
