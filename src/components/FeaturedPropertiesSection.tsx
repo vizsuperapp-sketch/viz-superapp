@@ -229,5 +229,10 @@ const FeaturedPropertiesSection = () => {
 
   .animate-fade-in {
     animation: fadeIn 0.8s ease-out;
-  }
+  `}</style>
+      </section>
+    );
+  };
+
+  export default FeaturedPropertiesSection;
 `}</style>
