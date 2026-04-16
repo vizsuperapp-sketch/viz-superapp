@@ -37,7 +37,7 @@ export const properties: Property[] = [
     areaRange: "122 m²",
     completion: "Setembro 2027",
     badge: "NOVO",
-    video360: "https://www.youtube.com/embed/FQedPU22iec",
+    video360: "https://www.youtube.com/embed/Go_zTwaMz1I",
     highlights: [
       "T2 com 2 Suítes",
       "Varanda ampla com 26,87m²",
@@ -49,18 +49,18 @@ export const properties: Property[] = [
       "Empreendimento sustentável",
     ],
     description:
-      "VistaBella Oeiras é um empreendimento residencial de excelência localizado numa das zonas mais valorizadas de Oeiras. Este elegante apartamento T2 com duas suítes oferece 122 m² de conforto e sofisticação.\n\n🌟 Características Principais:\n• Tipologia T2 com 2 suítes\n• 122m² de área total\n• Varanda ampla com 26,87m² - ideal para momentos de lazer\n• Jardim privativo com 9m² - seu próprio espaço verde\n• Sala e cozinha em conceito moderno\n• Arrecadação de apoio\n• 2 lugares de estacionamento privado\n\n🏊 Infraestruturas Premium do Condomínio:\n• Piscina exterior para adultos\n• Piscina infantil\n• Ginásio totalmente equipado com equipamentos de última geração\n• SPA completo (sauna, jacuzzi, área de relaxamento)\n• Área gourmet/zona de convívio\n• Campo de padel regulamentado\n• Parque infantil seguro\n• Espaços verdes e percursos pedonais\n• Zona de pet place (espaço dedicado a animais)\n\n📍 Localização Estratégica em Oeiras:\n• 3 minutos de Lagoas Park (centro comercial premium)\n• 4 minutos de Hospital da Luz Oeiras\n• 5 minutos de Parque dos Poetas\n• 10 minutos das praias de Oeiras\n• Proximidade de escolas internacionais prestigiadas\n• Fácil acesso a Lisboa (15 minutos)\n\n✅ Construção com Elevados Padrões:\n✅ Arquitetura moderna e sustentável\n✅ Eficiência energética excepcional\n✅ Materiais premium em toda a construção\n✅ Excelente isolamento térmico e acústico\n\n💡 Oportunidade Ideal Para:\n✓ Habitação própria de qualidade\n✓ Investimento com forte valorização futura\n✓ Zona em constante desenvolvimento urbano\n✓ Procura elevada por imóveis premium em Oeiras\n\n🎥 Explore em 360°!\nVeja o empreendimento em tour virtual 360°",
-    coverImage: "https://images.unsplash.com/photo-1512917774080-9b274c3f592b?w=1200&h=800&fit=crop",
+      "VistaBella Oeiras é um empreendimento residencial de excelência localizado numa das zonas mais valorizadas de Oeiras. Este elegante apartamento T2 com duas suítes oferece 122 m² de conforto e sofisticação.\n\n🌟 Características Principais:\n• Tipologia T2 com 2 suítes\n• 122m² de área total\n• Varanda ampla com 26,87m² - ideal para momentos de lazer\n• Jardim privativo com 9m² - seu próprio espaço verde\n• Sala e cozinha em conceito moderno\n• Arrecadação de apoio\n• 2 lugares de estacionamento privado\n\n🏊 Infraestruturas Premium do Condomínio:\n• Piscina exterior para adultos\n• Piscina infantil\n• Ginásio totalmente equipado com equipamentos de última geração\n• SPA completo (sauna, jacuzzi, área de relaxamento)\n• Área gourmet/zona de convívio\n• Campo de padel regulamentado\n• Parque infantil seguro\n• Espaços verdes e percursos pedonais\n• Zona de pet place (espaço dedicado a animais)\n\n📍 Localização Estratégica em Oeiras:\n• 3 minutos de Lagoas Park (centro comercial premium)\n• 4 minutos de Hospital da Luz Oeiras\n• 5 minutos de Parque dos Poetas\n• 10 minutos das praias de Oeiras\n• Proximidade de escolas internacionais prestigiadas\n• Fácil acesso a Lisboa (15 minutos)\n\n✅ Construção com Elevados Padrões:\n✅ Arquitetura moderna e sustentável\n✅ Eficiência energética excepcional\n✅ Materiais premium em toda a construção\n✅ Excelente isolamento térmico e acústico\n\n💡 Oportunidade Ideal Para:\n✓ Habitação própria de qualidade\n✓ Investimento com forte valorização futura\n✓ Zona em constante desenvolvimento urbano\n✓ Procura elevada por imóveis premium em Oeiras\n\n🎥 Explore em Vídeo!\nVeja o empreendimento em tour virtual completo",
+    coverImage: "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=1200&h=800&fit=crop",
     images: [
-      "https://images.unsplash.com/photo-1512917774080-9b274c3f592b?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1540932239986-310128078ceb?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=1440&h=811&fit=crop",
       "https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1560126197-b8a5a6b7e9f5?w=1440&h=811&fit=crop",
-      "https://images.unsplash.com/photo-1469022563149-aa64dbd37717?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1512917774080-9b274c3f592b?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1440&h=811&fit=crop",
+      "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=1440&h=811&fit=crop",
     ],
     fractions: [
       {
