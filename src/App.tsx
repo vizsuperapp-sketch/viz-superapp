@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index.tsx";
 import SuccessPostSale from "./pages/SuccessPostSale.tsx";
 import Admin from "./pages/Admin.tsx";
@@ -25,15 +26,50 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Rotas Públicas (acessíveis sem login) */}
             <Route path="/" element={<Index />} />
-            <Route path="/sucesso" element={<SuccessPostSale />} />
-            <Route path="/admin" element={<Admin />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/documentos" element={<Documentos />} />
-            <Route path="/vender" element={<Vender />} />
             <Route path="/imoveis" element={<Imoveis />} />
             <Route path="/imoveis/:slug" element={<ImovelDetalhe />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+            {/* Rotas Protegidas (exigem login e email confirmado) */}
+            <Route
+              path="/sucesso"
+              element={
+                <ProtectedRoute>
+                  <SuccessPostSale />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredEmailConfirmed={true}>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/documentos"
+              element={
+                <ProtectedRoute>
+                  <Documentos />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/vender"
+              element={
+                <ProtectedRoute>
+                  <Vender />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rota para página não encontrada (sempre pública) */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
