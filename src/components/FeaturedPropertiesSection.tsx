@@ -231,8 +231,3 @@ const FeaturedPropertiesSection = () => {
     animation: fadeIn 0.8s ease-out;
   }
 `}</style>
-    </section>
-  );
-};
-
-export default FeaturedPropertiesSection;
