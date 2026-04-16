@@ -53,14 +53,14 @@ export const properties: Property[] = [
     coverImage: "https://www.vistabellaoeiras.com/images/intro.jpg",
     images: [
       "https://www.vistabellaoeiras.com/images/intro.jpg",
-      "https://www.vistabellaoeiras.com/images/gallery/diferenciais/vista-geral.jpg",
-      "https://www.vistabellaoeiras.com/images/gallery/diferenciais/piscina.jpg",
-      "https://www.vistabellaoeiras.com/images/gallery/diferenciais/spa.jpg",
-      "https://www.vistabellaoeiras.com/images/gallery/diferenciais/ginasio.jpg",
-      "https://www.vistabellaoeiras.com/images/gallery/diferenciais/area-gourmet.jpg",
-      "https://www.vistabellaoeiras.com/images/gallery/diferenciais/parque-infantil.jpg",
-      "https://www.vistabellaoeiras.com/images/gallery/diferenciais/areas-verdes.jpg",
-      "https://www.vistabellaoeiras.com/images/gallery/panorama/pan-sala-estar.jpg",
+      "https://www.vistabellaoeiras.com/images/mapa-03empreendimentos.jpg",
+      "https://www.vistabellaoeiras.com/images/gallery/panorama/pan-varanda-gourmet.jpg",
+      "https://www.vistabellaoeiras.com/images/gallery/panorama/pan-suite-master.jpg",
+      "https://www.vistabellaoeiras.com/images/gallery/panorama/pan-suite.jpg",
+      "https://www.vistabellaoeiras.com/images/gallery/panorama/pan-varanda.jpg",
+      "https://www.vistabellaoeiras.com/images/gallery/boulevard/bou-piscina.jpg",
+      "https://www.vistabellaoeiras.com/images/gallery/boulevard/bou-suite-master.jpg",
+      "https://www.vistabellaoeiras.com/images/gallery/mirador/mir-suite.jpg",
     ],
     fractions: [
       {
