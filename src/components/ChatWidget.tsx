@@ -2,77 +2,146 @@ import { useState, useCallback } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { properties } from "@/data/properties";
 import ChatPreForm, { type ChatLead } from "@/components/chat/ChatPreForm";
 import ChatMessages, { type Msg } from "@/components/chat/ChatMessages";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-// 🏠 FUNÇÕES PARA BUSCAR IMÓVEIS
-function searchProperties(query: string) {
-  const q = query.toLowerCase();
-  return properties.filter(
-    (p) =>
-      p.name.toLowerCase().includes(q) ||
-      p.region.toLowerCase().includes(q) ||
-      p.location.toLowerCase().includes(q) ||
-      p.typology.toLowerCase().includes(q),
-  );
-}
+// Dados dos imóveis
+const imoveis = [
+  {
+    name: "Machado Santos",
+    region: "Margem Sul",
+    location: "Montijo",
+    priceRange: "285 000 € – 395 000 €",
+    areaRange: "80,02 m² – 173,11 m²",
+    typology: "T0 – T2",
+    completion: "1º Semestre 2027",
+    description: "Machado Santos é um novo empreendimento residencial no coração do Montijo com fácil acesso à Lisboa.",
+    images: 6,
+  },
+  {
+    name: "Horizon",
+    region: "Lisboa",
+    location: "Lourinhã",
+    priceRange: "1 450 000 € – 2 300 000 €",
+    areaRange: "283,6 m² – 501,1 m²",
+    typology: "T3 – T4",
+    completion: "A definir",
+    highlights: ["15 moradias exclusivas", "Piscina privativa", "Junto à Praia da Peralta", "Totalmente mobiladas"],
+    description:
+      "Situado junto à Praia da Peralta com arquitetura contemporânea e janelas panorâmicas para o Atlântico.",
+    images: 6,
+  },
+];
 
-function getPropertyMessage(userMessage: string): string | null {
+// ✅ FUNÇÃO PRINCIPAL - CONSIDERA O INTERESSE DO CLIENTE
+function getPropertyMessage(userMessage: string, clientInterest: string): string | null {
   const lower = userMessage.toLowerCase();
+  const interest = clientInterest.toLowerCase();
 
-  // Pergunta sobre Machado Santos
-  if (lower.includes("machado") || (lower.includes("montijo") && !lower.includes("horizon"))) {
-    const prop = properties[0]; // Machado Santos
-    return `📍 **${prop.name}** - ${prop.region}\n\n💰 Preço: ${prop.priceRange}\n📏 Área: ${prop.areaRange}\n🏠 Tipo: ${prop.typology}\n📅 Conclusão: ${prop.completion}\n\n${prop.description}\n\n🖼️ Tenho ${prop.images.length} fotos para mostrar! Quer ver?`;
-  }
+  // 🏠 SE CLIENTE QUER COMPRAR OU INVESTIR
+  if (interest.includes("comprar") || interest.includes("investir") || interest.includes("propriedade para compra")) {
+    // Pergunta sobre Machado Santos
+    if (lower.includes("machado") || (lower.includes("montijo") && !lower.includes("horizon"))) {
+      const p = imoveis[0];
+      return `📍 **${p.name}** - ${p.region}\n\n💰 Preço: ${p.priceRange}\n📏 Área: ${p.areaRange}\n🏠 Tipo: ${p.typology}\n📅 Conclusão: ${p.completion}\n\n${p.description}\n\n✨ Ótimo para investimento! 🎯\n\n🖼️ Tenho ${p.images} fotos! Quer agendar uma visita?`;
+    }
 
-  // Pergunta sobre Horizon
-  if (lower.includes("horizon") || (lower.includes("lourinhã") && !lower.includes("machado"))) {
-    const prop = properties[1]; // Horizon
-    return `📍 **${prop.name}** - ${prop.region}\n\n💰 Preço: ${prop.priceRange}\n📏 Área: ${prop.areaRange}\n🏠 Tipo: ${prop.typology}\n📅 Conclusão: ${prop.completion}\n\n✨ Destaques:\n${prop.highlights?.map((h) => `• ${h}`).join("\n")}\n\n${prop.description}\n\n🖼️ Tenho ${prop.images.length} fotos fantásticas para mostrar!`;
-  }
+    // Pergunta sobre Horizon
+    if (lower.includes("horizon") || (lower.includes("lourinhã") && !lower.includes("machado"))) {
+      const p = imoveis[1];
+      return `📍 **${p.name}** - ${p.region}\n\n💰 Preço: ${p.priceRange}\n📏 Área: ${p.areaRange}\n🏠 Tipo: ${p.typology}\n\n✨ Destaques:\n• ${p.highlights?.join("\n• ")}\n\n${p.description}\n\n🌟 Oportunidade Premium! 💎\n\n🖼️ Tenho ${p.images} fotos fantásticas! Quer saber mais?`;
+    }
 
-  // Pergunta sobre Lisboa
-  if (lower.includes("lisboa")) {
-    return `Em Lisboa, temos o **Horizon** na Lourinhã! 🏖️\n\n💰 €1.450.000 - €2.300.000\n🏠 T3 - T4\n📏 283m² - 501m²\n\nMoradias exclusivas junto à Praia da Peralta com piscina privativa!\n\nQuer mais detalhes?`;
-  }
+    // Pergunta genérica sobre imóveis para comprar
+    if (
+      lower.includes("imóvel") ||
+      lower.includes("casa") ||
+      lower.includes("apartamento") ||
+      lower.includes("moradia") ||
+      lower.includes("opções") ||
+      lower.includes("alternativas")
+    ) {
+      return `Perfeito! Temos 2 oportunidades incríveis para ti:\n\n🏢 **Machado Santos** (Montijo) - €285k-€395k\n   ✓ Apartamentos T0-T2\n   ✓ Conclusão: 1º Semestre 2027\n   ✓ Ótimo para investimento\n\n🏖️ **Horizon** (Lourinhã) - €1.45M-€2.3M\n   ✓ Moradias T3-T4\n   ✓ Junto à Praia da Peralta\n   ✓ Totalmente mobiladas\n\nQual te interessa mais? 🔍`;
+    }
 
-  // Pergunta sobre preços
-  if (lower.includes("preço") || lower.includes("quanto") || lower.includes("custa")) {
-    return `Tenho imóveis em 2 gamas de preço:\n\n💰 **Machado Santos** - €285.000 - €395.000\n💰 **Horizon** - €1.450.000 - €2.300.000\n\nQual faixa de preço te interessa?`;
-  }
-
-  // Pergunta sobre T0, T1, T2, T3, T4
-  if (
-    lower.includes("t0") ||
-    lower.includes("t1") ||
-    lower.includes("t2") ||
-    lower.includes("t3") ||
-    lower.includes("t4")
-  ) {
-    const result = searchProperties(lower);
-    if (result.length > 0) {
-      return `Encontrei imóveis desse tipo:\n\n${result.map((p) => `• **${p.name}** (${p.region}) - ${p.typology}\n  Preço: ${p.priceRange}`).join("\n")}\n\nQual te interessa saber mais?`;
+    // Pergunta sobre preço ou financiamento
+    if (lower.includes("preço") || lower.includes("quanto") || lower.includes("custa") || lower.includes("pagar")) {
+      return `Aqui estão as faixas de preço:\n\n💰 **Machado Santos** - €285.000 - €395.000\n💰 **Horizon** - €1.450.000 - €2.300.000\n\nPodes obter **financiamento imobiliário** com as melhores taxas! 🏦\n\nQuer que te ajude com uma simulação de crédito?`;
     }
   }
 
-  // Pergunta geral sobre imóveis
-  if (
-    lower.includes("imóvel") ||
-    lower.includes("casa") ||
-    lower.includes("apartamento") ||
-    lower.includes("moradia") ||
-    lower.includes("propriedade")
-  ) {
-    return `Temos 2 empreendimentos fantásticos:\n\n🏢 **Machado Santos** (Montijo) - €285k-€395k\n   Apartamentos T0-T2, conclusão 2027\n\n🏖️ **Horizon** (Lourinhã) - €1.45M-€2.3M\n   Moradias T3-T4 junto à praia\n\nQual te interessa? 🔍`;
+  // 🏡 SE CLIENTE QUER VENDER
+  if (interest.includes("vender") || interest.includes("venda") || interest.includes("colocar à venda")) {
+    if (
+      lower.includes("imóvel") ||
+      lower.includes("casa") ||
+      lower.includes("propriedade") ||
+      lower.includes("apartamento") ||
+      lower.includes("moradia") ||
+      lower.includes("como")
+    ) {
+      return `🎉 Excelente! Na VIZ vendes com **0% COMISSÃO**!\n\nPara te ajudar a colocar o teu imóvel à venda, preciso saber:\n\n📍 **Localização** - Onde fica?\n🏠 **Tipo** - É T1, T2, T3?\n💰 **Preço esperado** - Quanto esperas receber?\n📏 **Área aproximada** - Quantos m² tem?\n\nDá-me estes detalhes e criaremos um anúncio profissional! 📸`;
+    }
+
+    // Pergunta sobre processo de venda
+    if (
+      lower.includes("como") ||
+      lower.includes("processo") ||
+      lower.includes("quanto tempo") ||
+      lower.includes("comissão")
+    ) {
+      return `Na VIZ, o processo é simples:\n\n✅ **Sem comissão** - Tu recebas 100%!\n✅ **Rápido** - Listamos em 24h\n✅ **Seguro** - Verificação de compradores\n✅ **Digital** - Tudo online\n\n⏱️ Em média, vendemos em 2-4 semanas.\n\nQuer começar? Diz-me os detalhes do teu imóvel! 🏠`;
+    }
   }
 
+  // 💰 SE CLIENTE QUER FINANCIAMENTO
+  if (
+    interest.includes("financiamento") ||
+    interest.includes("crédito") ||
+    interest.includes("financiar") ||
+    interest.includes("hipoteca")
+  ) {
+    if (
+      lower.includes("imóvel") ||
+      lower.includes("casa") ||
+      lower.includes("apartamento") ||
+      lower.includes("quanto") ||
+      lower.includes("taxa") ||
+      lower.includes("crédito")
+    ) {
+      return `💰 Ótimo! Temos parceria com as melhores instituições de crédito!\n\nPara te ajudar com uma simulação, preciso:\n\n💵 **Valor do imóvel** - Quanto custa?\n📊 **Entrada disponível** - Quanto tens para dar?\n💼 **Rendimento mensal** - Qual é o teu rendimento?\n📅 **Anos de financiamento** - Quantos anos?ª\n\nCom estes dados fago uma simulação personalizada! 🎯`;
+    }
+
+    // Pergunta genérica sobre financiamento
+    if (
+      lower.includes("taxa") ||
+      lower.includes("juros") ||
+      lower.includes("financiar") ||
+      lower.includes("empréstimo")
+    ) {
+      return `As nossas taxas de financiamento começam a partir de **1.95% a.a.** 📉\n\nDependendo do teu perfil, podes obter:\n\n✅ Financiamento até 90% do valor\n✅ Prazos de 5 a 40 anos\n✅ Sem despesas processuais (em alguns casos)\n\nQuer uma simulação? Diz-me o valor do imóvel! 💳`;
+    }
+  }
+
+  // 📋 SE CLIENTE QUER DOCUMENTOS
+  if (interest.includes("documento") || interest.includes("papelada") || interest.includes("upload")) {
+    if (
+      lower.includes("documento") ||
+      lower.includes("papel") ||
+      lower.includes("upload") ||
+      lower.includes("enviar")
+    ) {
+      return `📋 Perfeito! Na VIZ podes fazer upload de documentos de forma 100% segura.\n\nDocumentos que normalmente solicitamos:\n\n✅ ID/Passaporte\n✅ Comprovante de morada\n✅ Certificado de rendimento\n✅ Certidão de nascimento\n✅ Documentação do imóvel (se aplicável)\n\nQual documento precisa enviar? 📤`;
+    }
+  }
+
+  // ❓ RESPOSTA PADRÃO SE NÃO ENCAIXA
   return null;
 }
 
+// FUNÇÃO STREAM ORIGINAL
 async function streamChat({
   messages,
   sessionId,
@@ -178,10 +247,25 @@ export default function ChatWidget() {
       setSessionId(newId);
       setLead(data);
 
-      // ✨ MENSAGEM DE BOAS-VINDAS COM IMÓVEIS
+      // ✨ MENSAGEM DE BOAS-VINDAS PERSONALIZADA CONFORME O INTERESSE
+      let welcomeText = "";
+      const interest = data.interest.toLowerCase();
+
+      if (interest.includes("comprar") || interest.includes("investir")) {
+        welcomeText = `Olá ${data.name}! 👋 Bem-vindo à VIZ!\n\n🏠 Vejo que queres **comprar ou investir** em imóvel!\n\nTenho 2 empreendimentos incríveis para ti:\n\n🏢 **Machado Santos** - €285k-€395k (Montijo)\n🏖️ **Horizon** - €1.45M-€2.3M (Lourinhã)\n\nQuer saber mais sobre algum deles? 🔍`;
+      } else if (interest.includes("vender")) {
+        welcomeText = `Olá ${data.name}! 👋 Bem-vindo à VIZ!\n\n🏡 Vejo que queres **vender o teu imóvel**!\n\n🎉 Excelente notícia: **0% COMISSÃO** na VIZ!\n\nDiz-me os detalhes do teu imóvel e criaremos um anúncio profissional em 24h! 📸`;
+      } else if (interest.includes("financiamento") || interest.includes("crédito")) {
+        welcomeText = `Olá ${data.name}! 👋 Bem-vindo à VIZ!\n\n💰 Vejo que precisa de **financiamento imobiliário**!\n\n📊 Temos parcerias com as melhores instituições com taxas a partir de 1.95% a.a.\n\nDá-me os detalhes e faço uma simulação personalizada! 🎯`;
+      } else if (interest.includes("documento")) {
+        welcomeText = `Olá ${data.name}! 👋 Bem-vindo à VIZ!\n\n📋 Vejo que precisa fazer **upload de documentos**!\n\n✅ Tudo é 100% seguro na VIZ!\n\nQue documentos precisa enviar? 📤`;
+      } else {
+        welcomeText = `Olá ${data.name}! 👋 Bem-vindo à VIZ!\n\nComo posso ajudar-te? 🤝`;
+      }
+
       const welcome: Msg = {
         role: "assistant",
-        content: `Olá ${data.name}! 👋 Bem-vindo à VIZ!\n\nTenho 2 empreendimentos incríveis para te mostrar:\n\n🏢 **Machado Santos** (Montijo) - €285k-€395k\n   Apartamentos modernos, conclusão 1º Semestre 2027\n\n🏖️ **Horizon** (Lourinhã) - €1.45M-€2.3M\n   Moradias exclusivas junto à Praia da Peralta\n\nPergunta-me sobre qualquer um deles! "Quero saber sobre Machado", "Mostra Horizon", etc. 🔍`,
+        content: welcomeText,
       };
       setMessages([welcome]);
       await saveMessage(newId, "assistant", welcome.content);
@@ -202,8 +286,8 @@ export default function ChatWidget() {
 
     await saveMessage(sessionId, "user", text);
 
-    // 🔍 VERIFICA SE É PERGUNTA SOBRE IMÓVEIS
-    const propertyAnswer = getPropertyMessage(text);
+    // 🎯 VERIFICA SE É PERGUNTA QUE O CHATBOT CONSEGUE RESPONDER
+    const propertyAnswer = getPropertyMessage(text, lead.interest);
     if (propertyAnswer) {
       const botReply: Msg = { role: "assistant", content: propertyAnswer };
       setMessages((prev) => [...prev, botReply]);
@@ -212,7 +296,7 @@ export default function ChatWidget() {
       return;
     }
 
-    // Se não for sobre imóveis, usa a IA normal
+    // SE NÃO, USA A IA NORMAL
     let assistantSoFar = "";
     const upsert = (chunk: string) => {
       assistantSoFar += chunk;
