@@ -2,23 +2,22 @@ import { Link } from "react-router-dom";
 import { properties } from "@/data/properties";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, ArrowRight, ChevronLeft, ChevronRight, Zap } from "lucide-react";
+import { MapPin, ArrowRight, ChevronLeft, ChevronRight, Zap, Play } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 const FeaturedPropertiesSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [showVideo, setShowVideo] = useState(false);
   const autoPlayRef = useRef<NodeJS.Timeout>();
 
   const displayProperties = properties.slice(0, 4);
 
   useEffect(() => {
     if (!isAutoPlay || displayProperties.length === 0) return;
-
     autoPlayRef.current = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % displayProperties.length);
     }, 6000);
-
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
@@ -28,18 +27,16 @@ const FeaturedPropertiesSection = () => {
     setIsAutoPlay(false);
     setActiveIndex((prev) => (prev - 1 + displayProperties.length) % displayProperties.length);
   };
-
   const handleNext = () => {
     setIsAutoPlay(false);
     setActiveIndex((prev) => (prev + 1) % displayProperties.length);
   };
-
   const handleDotClick = (index: number) => {
     setIsAutoPlay(false);
     setActiveIndex(index);
   };
-
   const activeProperty = displayProperties[activeIndex];
+  const isVistaBella = activeProperty.slug === "vistabella-oeiras";
 
   return (
     <section className="relative py-20 md:py-32 bg-gradient-to-b from-background via-background to-background/80 overflow-hidden">
@@ -63,6 +60,58 @@ const FeaturedPropertiesSection = () => {
 
         {displayProperties.length > 0 && activeProperty && (
           <div className="max-w-6xl mx-auto">
+            {/* VÍDEO 360° EM DESTAQUE PARA VistaBella */}
+            {isVistaBella && activeProperty.video360 && (
+              <div className="mb-8 animate-in fade-in duration-800">
+                <div className="relative h-[400px] md:h-[550px] rounded-3xl overflow-hidden group bg-black/90 border-2 border-primary/30">
+                  {!showVideo ? (
+                    <div className="relative h-full w-full">
+                      <div
+                        className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
+                        style={{
+                          backgroundImage: `url('https://images.unsplash.com/photo-1512917774080-9b274c3f592b?w=1200&h=800&fit=crop')`,
+                        }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                      </div>
+
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                        <div
+                          className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-primary to-cyan-500 shadow-lg shadow-primary/50 cursor-pointer hover:scale-110 transition-transform"
+                          onClick={() => setShowVideo(true)}
+                        >
+                          <Play className="h-8 w-8 text-white fill-white" />
+                        </div>
+                        <p className="text-white text-center font-semibold">🎥 Tour 360° em Vídeo</p>
+                        <p className="text-white/80 text-sm text-center max-w-xs">
+                          Explore o empreendimento virtualmente
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={activeProperty.video360}
+                      title="Tour 360 VistaBella Oeiras"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="absolute inset-0"
+                    />
+                  )}
+                </div>
+                {showVideo && (
+                  <div className="mt-4 flex justify-center">
+                    <Button onClick={() => setShowVideo(false)} variant="outline" className="rounded-xl">
+                      Voltar às Fotos
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* CAROUSEL PRINCIPAL DE IMAGENS */}
             <div className="relative mb-12">
               <div className="relative h-[400px] md:h-[500px] rounded-3xl overflow-hidden group">
                 <div className="absolute inset-0">
@@ -77,11 +126,16 @@ const FeaturedPropertiesSection = () => {
 
                 <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
                   <div className="space-y-6 mb-8">
-                    <div className="w-fit">
+                    <div className="w-fit flex items-center gap-2">
                       <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
                         <MapPin className="h-4 w-4 mr-2" />
                         {activeProperty.region}
                       </Badge>
+                      {activeProperty.badge && (
+                        <Badge className="bg-gradient-to-r from-primary to-cyan-500 text-white border-none">
+                          ⭐ {activeProperty.badge}
+                        </Badge>
+                      )}
                     </div>
 
                     <div>
@@ -105,8 +159,7 @@ const FeaturedPropertiesSection = () => {
 
                     <Link to={`/imoveis/${activeProperty.slug}`} className="w-fit">
                       <Button className="bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90 text-white rounded-xl gap-2 h-12 px-8">
-                        Ver Detalhes
-                        <ArrowRight className="h-5 w-5" />
+                        Ver Detalhes <ArrowRight className="h-5 w-5" />
                       </Button>
                     </Link>
                   </div>
@@ -116,6 +169,7 @@ const FeaturedPropertiesSection = () => {
               </div>
             </div>
 
+            {/* CONTROLES DO CAROUSEL */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
               <div className="flex items-center gap-3">
                 <button
@@ -139,11 +193,7 @@ const FeaturedPropertiesSection = () => {
                   <button
                     key={index}
                     onClick={() => handleDotClick(index)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      index === activeIndex
-                        ? "w-8 bg-gradient-to-r from-primary to-cyan-500"
-                        : "w-2 bg-muted/50 hover:bg-muted"
-                    }`}
+                    className={`h-2 rounded-full transition-all duration-300 ${index === activeIndex ? "w-8 bg-gradient-to-r from-primary to-cyan-500" : "w-2 bg-muted/50 hover:bg-muted"}`}
                     aria-label={`Go to property ${index + 1}`}
                   />
                 ))}
@@ -155,11 +205,7 @@ const FeaturedPropertiesSection = () => {
                 </div>
                 <button
                   onClick={() => setIsAutoPlay(!isAutoPlay)}
-                  className={`p-3 rounded-full transition-all duration-300 ${
-                    isAutoPlay
-                      ? "bg-gradient-to-r from-primary to-cyan-500 text-white"
-                      : "bg-muted/50 text-foreground border border-border/50 hover:border-primary/30"
-                  }`}
+                  className={`p-3 rounded-full transition-all duration-300 ${isAutoPlay ? "bg-gradient-to-r from-primary to-cyan-500 text-white" : "bg-muted/50 text-foreground border border-border/50 hover:border-primary/30"}`}
                   aria-label={isAutoPlay ? "Pause autoplay" : "Resume autoplay"}
                 >
                   <Zap className="w-4 h-4" />
@@ -172,7 +218,7 @@ const FeaturedPropertiesSection = () => {
                 ✨ Carousel Interativo
               </div>
               <div className="px-3 py-1.5 rounded-full bg-muted/50 border border-border/50 text-xs text-muted-foreground backdrop-blur-sm">
-                🎭 Parallax & Efeitos 3D
+                🎥 Tour 360° com Vídeo
               </div>
               <div className="px-3 py-1.5 rounded-full bg-muted/50 border border-border/50 text-xs text-muted-foreground backdrop-blur-sm">
                 💫 Design Premium
@@ -188,8 +234,7 @@ const FeaturedPropertiesSection = () => {
               size="lg"
               className="rounded-xl gap-2 px-8 border-border/50 hover:border-primary/30 hover:bg-muted/50"
             >
-              Ver todos os {properties.length} empreendimentos
-              <ArrowRight className="h-4 w-4" />
+              Ver todos os {properties.length} empreendimentos <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
         </div>
