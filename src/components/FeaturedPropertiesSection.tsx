@@ -68,8 +68,11 @@ const FeaturedPropertiesSection = () => {
             {/* VÍDEO 360° - VISTABELLA */}
             {/* ============================================ */}
             {isVistaBella && activeProperty.video360 && showVideo && (
-              <div className="mb-6 md:mb-8 animate-in fade-in duration-800">
-                <div className="relative w-full h-64 sm:h-80 md:h-[500px] rounded-2xl md:rounded-3xl overflow-hidden border-2 border-primary/50 shadow-lg md:shadow-2xl md:shadow-primary/30">
+              <div className="mb-6 md:mb-8 w-full animate-in fade-in duration-800">
+                <div
+                  className="relative w-full rounded-2xl md:rounded-3xl overflow-hidden border-2 border-primary/50 shadow-lg md:shadow-2xl md:shadow-primary/30"
+                  style={{ paddingBottom: "56.25%" }}
+                >
                   <button
                     onClick={() => setShowVideo(false)}
                     className="absolute top-3 right-3 md:top-4 md:right-4 z-50 p-2 rounded-full bg-black/70 hover:bg-black/90 text-white transition-all"
@@ -81,12 +84,12 @@ const FeaturedPropertiesSection = () => {
                   <iframe
                     width="100%"
                     height="100%"
-                    src={`${activeProperty.video360}?autoplay=1&fs=1&modestbranding=1`}
+                    src="https://www.youtube.com/embed/FQedPU22iec?autoplay=1&fs=1&modestbranding=1"
                     title="Tour 360 VistaBella Oeiras"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
-                    className="absolute inset-0"
+                    className="absolute top-0 left-0"
                   />
                 </div>
               </div>
@@ -196,6 +199,31 @@ const FeaturedPropertiesSection = () => {
             )}
 
             {/* ============================================ */}
+            {/* GALERIA DE IMAGENS - VISTABELLA */}
+            {/* ============================================ */}
+            {isVistaBella && activeProperty.images && activeProperty.images.length > 0 && !showVideo && (
+              <div className="mb-8 md:mb-12 w-full animate-in fade-in duration-800">
+                <h4 className="text-base md:text-lg font-semibold text-foreground mb-4">🖼️ Galeria de Imagens</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-4">
+                  {activeProperty.images.map((img, idx) => (
+                    <div
+                      key={idx}
+                      className="relative h-32 sm:h-40 md:h-48 rounded-lg overflow-hidden group border border-border/50 hover:border-primary/50 transition-colors"
+                    >
+                      <img
+                        src={img}
+                        alt={`${activeProperty.name} - Imagem ${idx + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ============================================ */}
             {/* DESCRIÇÃO */}
             {/* ============================================ */}
             <div className="space-y-3 md:space-y-4 mb-8 md:mb-12">
@@ -255,9 +283,9 @@ const FeaturedPropertiesSection = () => {
               </div>
 
               {/* CONTROLES */}
-              <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-col gap-3 md:gap-0 md:flex-row md:items-center md:justify-between w-full">
                 {/* BOTÕES PREV/NEXT */}
-                <div className="flex items-center gap-2 md:order-1">
+                <div className="flex items-center gap-2 justify-start md:order-1">
                   <button
                     onClick={handlePrev}
                     className="p-2 md:p-3 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-foreground transition-all duration-300"
@@ -287,7 +315,7 @@ const FeaturedPropertiesSection = () => {
                 </div>
 
                 {/* CONTADOR E AUTOPLAY */}
-                <div className="flex items-center gap-2.5 md:gap-3 justify-center md:order-3">
+                <div className="flex items-center gap-2.5 md:gap-3 justify-between md:justify-end md:order-3 w-full md:w-auto">
                   <div className="text-xs md:text-sm font-medium text-muted-foreground">
                     <span className="text-primary font-bold">{activeIndex + 1}</span> / {displayProperties.length}
                   </div>
