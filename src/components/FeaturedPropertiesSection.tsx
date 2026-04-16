@@ -235,5 +235,9 @@ const FeaturedPropertiesSection = () => {
     );
   };
 
-  export default FeaturedPropertiesSection;
-`}</style>
+  </div>
+    </section>
+  );
+};
+
+export default FeaturedPropertiesSection;
