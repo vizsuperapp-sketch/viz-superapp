@@ -1,25 +1,43 @@
 
 
-## Criar ProtectedRoute — Correção de Pasta
+## Simplificar Divulgação de Imóveis na Homepage
 
-### Situação
-O projeto usa `src/components/` (inglês). O utilizador pediu `src/componentes/` (português) mas essa pasta não existe.
+### Problemas
+- Secção `FeaturedPropertiesSection` ocupa scroll excessivo (~330 linhas: showcase + descrição longa + galeria + carousel + outros)
+- Imagens externas (`vistabellaoeiras.com`) podem falhar sem fallback
+- Iframe YouTube com erros
 
-### Opções
+### Solução: Grid compacto estilo `/imoveis`
 
-**Opção A — Usar pasta existente (recomendado)**
-Criar em `src/components/ProtectedRoute.tsx` — consistente com todo o projeto.
+Substituir `FeaturedPropertiesSection.tsx` por uma versão enxuta:
 
-**Opção B — Criar pasta nova em português**
-Criar `src/componentes/ProtectedRoute.tsx` — requer atualizar todas as importações do projeto futuramente para manter consistência.
+**Estrutura nova (~80 linhas):**
+- Header curto: badge "Empreendimentos em Destaque" + título + subtítulo
+- Grid responsivo `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` com 4 cards
+- Cada card (reutilizando o padrão de `Imoveis.tsx`):
+  - Imagem `aspect-[4/3]` com `onError` fallback para `/placeholder.svg`
+  - Badge região (canto superior esquerdo)
+  - Badge "NOVO" se `property.badge` existir
+  - Nome + localização + tipologia + preço
+  - Hover: borda primary + scale na imagem
+  - Link para `/imoveis/${slug}`
+- CTA final: botão "Ver todos os N empreendimentos" → `/imoveis`
 
-### Recomendação
-Usar **Opção A** (`src/components/ProtectedRoute.tsx`) — mantém consistência com a estrutura existente. O código do componente estará 100% funcional e integrado.
+**Removido:**
+- Showcase com imóvel ativo grande
+- Iframe YouTube embed (vídeo só na página de detalhe)
+- Descrição longa em parágrafos
+- Galeria thumbnail duplicada
+- Controles carousel (prev/next/dots/auto-play)
+- Estado `activeIndex`, `isAutoPlay`, `showVideo`, refs de timer
 
-### Implementação (Opção A)
-Criar `src/components/ProtectedRoute.tsx` com:
-- Import correto: `@/contexts/AuthContext`
-- Estados: loading (spinner), unauthenticated (redirect /auth), email não confirmado (mensagem completa)
-- Prop `requiredEmailConfirmed` (default: true)
-- JSX formatado corretamente (o código partilhado tinha formatação corrompida)
+**Robustez de imagens:**
+```tsx
+<img src={property.coverImage} onError={(e) => { e.currentTarget.src = "/placeholder.svg"; }} />
+```
+
+**Resultado:** secção passa de ~scroll de 4-5 viewports para ~1 viewport, sem iframes, com fallback visual para imagens partidas. Mantém estética dark/glass do projeto e link para detalhe completo onde o vídeo 360° continua disponível.
+
+### Ficheiros
+- `src/components/FeaturedPropertiesSection.tsx` — reescrita completa
 
