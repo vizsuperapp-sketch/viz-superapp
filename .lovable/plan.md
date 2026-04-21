@@ -1,43 +1,35 @@
 
 
-## Simplificar Divulgação de Imóveis na Homepage
+## Clarear o fundo da aplicação
 
-### Problemas
-- Secção `FeaturedPropertiesSection` ocupa scroll excessivo (~330 linhas: showcase + descrição longa + galeria + carousel + outros)
-- Imagens externas (`vistabellaoeiras.com`) podem falhar sem fallback
-- Iframe YouTube com erros
+### Situação atual
+O fundo é definido em `src/index.css` com `--background: 222 47% 6%` (HSL) — extremamente escuro, quase preto-azulado. Isto cria a sensação de "muito escuro" reportada.
 
-### Solução: Grid compacto estilo `/imoveis`
+### Proposta
+Subir a luminosidade do fundo e ajustar tokens dependentes para manter a hierarquia visual (cards continuam ligeiramente mais claros que o fundo, bordas continuam visíveis).
 
-Substituir `FeaturedPropertiesSection.tsx` por uma versão enxuta:
+**Alterações em `src/index.css` (`:root`):**
 
-**Estrutura nova (~80 linhas):**
-- Header curto: badge "Empreendimentos em Destaque" + título + subtítulo
-- Grid responsivo `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` com 4 cards
-- Cada card (reutilizando o padrão de `Imoveis.tsx`):
-  - Imagem `aspect-[4/3]` com `onError` fallback para `/placeholder.svg`
-  - Badge região (canto superior esquerdo)
-  - Badge "NOVO" se `property.badge` existir
-  - Nome + localização + tipologia + preço
-  - Hover: borda primary + scale na imagem
-  - Link para `/imoveis/${slug}`
-- CTA final: botão "Ver todos os N empreendimentos" → `/imoveis`
+| Token | Antes | Depois | Efeito |
+|---|---|---|---|
+| `--background` | `222 47% 6%` | `222 35% 11%` | Fundo principal mais claro, mantém tom navy |
+| `--card` | `222 40% 9%` | `222 32% 14%` | Cards continuam acima do fundo |
+| `--popover` | `222 40% 9%` | `222 32% 14%` | Consistência com cards |
+| `--muted` | `222 30% 14%` | `222 25% 18%` | Áreas muted continuam destacadas |
+| `--border` | `222 20% 15%` | `222 18% 20%` | Bordas mantêm contraste suave |
+| `--input` | `222 20% 15%` | `222 18% 20%` | Igual a border |
+| `--sidebar-background` | `222 40% 8%` | `222 32% 13%` | Sidebar acompanha fundo |
+| `--sidebar-border` | `222 20% 15%` | `222 18% 20%` | Consistência |
+| `bg-gradient-soft` end | `222 40% 8%` | `222 32% 13%` | Gradiente acompanha |
 
-**Removido:**
-- Showcase com imóvel ativo grande
-- Iframe YouTube embed (vídeo só na página de detalhe)
-- Descrição longa em parágrafos
-- Galeria thumbnail duplicada
-- Controles carousel (prev/next/dots/auto-play)
-- Estado `activeIndex`, `isAutoPlay`, `showVideo`, refs de timer
+### O que NÃO muda
+- Paleta primária (verde VIZ + azul) — mantém identidade
+- Tokens de glass (`--glass-bg`, blur, highlights) — continuam a funcionar bem sobre o novo fundo
+- Tipografia, espaçamentos, layouts
 
-**Robustez de imagens:**
-```tsx
-<img src={property.coverImage} onError={(e) => { e.currentTarget.src = "/placeholder.svg"; }} />
-```
-
-**Resultado:** secção passa de ~scroll de 4-5 viewports para ~1 viewport, sem iframes, com fallback visual para imagens partidas. Mantém estética dark/glass do projeto e link para detalhe completo onde o vídeo 360° continua disponível.
+### Resultado esperado
+Fundo passa de quase-preto (~6% luminosidade) para um navy escuro confortável (~11%). Mantém a estética Liquid Glass dark, mas reduz a sensação de "buraco preto", melhora legibilidade e suaviza o contraste com texto claro.
 
 ### Ficheiros
-- `src/components/FeaturedPropertiesSection.tsx` — reescrita completa
+- `src/index.css` — bloco `:root` (tokens listados acima)
 
