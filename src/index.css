@@ -6,13 +6,13 @@
 
 @layer base {
   :root {
-    --background: 222 47% 6%;
+    --background: 222 35% 11%;
     --foreground: 210 20% 92%;
 
-    --card: 222 40% 9%;
+    --card: 222 32% 14%;
     --card-foreground: 210 20% 92%;
 
-    --popover: 222 40% 9%;
+    --popover: 222 32% 14%;
     --popover-foreground: 210 20% 92%;
 
     --primary: 163 43% 55%;
@@ -21,7 +21,7 @@
     --secondary: 211 100% 65%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 222 30% 14%;
+    --muted: 222 25% 18%;
     --muted-foreground: 215 15% 55%;
 
     --accent: 211 60% 15%;
@@ -30,8 +30,8 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 222 20% 15%;
-    --input: 222 20% 15%;
+    --border: 222 18% 20%;
+    --input: 222 18% 20%;
     --ring: 163 43% 55%;
 
     --radius: 1rem;
@@ -53,13 +53,13 @@
     --glow-primary-hover: hsla(211, 80%, 55%, 0.12);
     --glow-secondary: hsla(163, 43%, 55%, 0.04);
 
-    --sidebar-background: 222 40% 8%;
+    --sidebar-background: 222 32% 13%;
     --sidebar-foreground: 210 20% 85%;
     --sidebar-primary: 163 43% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 211 60% 15%;
     --sidebar-accent-foreground: 211 80% 75%;
-    --sidebar-border: 222 20% 15%;
+    --sidebar-border: 222 18% 20%;
     --sidebar-ring: 163 43% 55%;
   }
 }
@@ -86,7 +86,7 @@
   }
 
   .bg-gradient-soft {
-    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(222 40% 8%) 100%);
+    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(222 32% 13%) 100%);
   }
 
   /* Liquid Glass — dark unified material system */
