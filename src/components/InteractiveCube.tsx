@@ -1,11 +1,8 @@
-"use client";
-
-import { Suspense, useRef, useState, useEffect } from "react";
+import { Suspense, useRef, useState, useEffect, Component, ReactNode } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   OrbitControls,
   MeshTransmissionMaterial,
-  Environment,
   Edges,
   Text,
   Float,
@@ -26,52 +23,15 @@ const HALF = SIZE / 2;
 const OFFSET = HALF + 0.001;
 
 const faces: FaceContent[] = [
-  // top - VIZ
-  {
-    label: "VIZ",
-    position: [0, OFFSET, 0],
-    rotation: [-Math.PI / 2, 0, 0],
-    color: "#a8f0ff",
-    isLogo: true,
-  },
-  // front - COMPRAR
-  {
-    label: "COMPRAR",
-    position: [0, 0, OFFSET],
-    rotation: [0, 0, 0],
-    color: "#00e5ff",
-  },
-  // back - VENDER
-  {
-    label: "VENDER",
-    position: [0, 0, -OFFSET],
-    rotation: [0, Math.PI, 0],
-    color: "#3ea6ff",
-  },
-  // right - GERIR
-  {
-    label: "GERIR",
-    position: [OFFSET, 0, 0],
-    rotation: [0, Math.PI / 2, 0],
-    color: "#7ad7ff",
-  },
-  // left - ARRENDAR
-  {
-    label: "ARRENDAR",
-    position: [-OFFSET, 0, 0],
-    rotation: [0, -Math.PI / 2, 0],
-    color: "#5ec8ff",
-  },
-  // bottom - FINANCIAR
-  {
-    label: "FINANCIAR",
-    position: [0, -OFFSET, 0],
-    rotation: [Math.PI / 2, 0, 0],
-    color: "#9ed8ff",
-  },
+  { label: "VIZ", position: [0, OFFSET, 0], rotation: [-Math.PI / 2, 0, 0], color: "#a8f0ff", isLogo: true },
+  { label: "COMPRAR", position: [0, 0, OFFSET], rotation: [0, 0, 0], color: "#00e5ff" },
+  { label: "VENDER", position: [0, 0, -OFFSET], rotation: [0, Math.PI, 0], color: "#3ea6ff" },
+  { label: "GERIR", position: [OFFSET, 0, 0], rotation: [0, Math.PI / 2, 0], color: "#7ad7ff" },
+  { label: "ARRENDAR", position: [-OFFSET, 0, 0], rotation: [0, -Math.PI / 2, 0], color: "#5ec8ff" },
+  { label: "FINANCIAR", position: [0, -OFFSET, 0], rotation: [Math.PI / 2, 0, 0], color: "#9ed8ff" },
 ];
 
-const NeonLabel = ({ face }: { face: FaceContent }) => {
+function NeonLabel({ face }: { face: FaceContent }) {
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
 
   useFrame(({ clock }) => {
@@ -86,7 +46,6 @@ const NeonLabel = ({ face }: { face: FaceContent }) => {
       <Text
         fontSize={face.isLogo ? 0.7 : 0.28}
         letterSpacing={face.isLogo ? -0.04 : 0.08}
-        font="https://fonts.gstatic.com/s/montserrat/v26/JTUSjIg1_i6t8kCHKm459WlhyyTh89Y.woff"
         anchorX="center"
         anchorY="middle"
         outlineWidth={0.005}
@@ -104,15 +63,13 @@ const NeonLabel = ({ face }: { face: FaceContent }) => {
       </Text>
     </group>
   );
-};
+}
 
-const GlassCube = () => {
-  const groupRef = useRef<THREE.Group>(null);
-
+function GlassCube() {
   return (
     <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.3}>
-      <group ref={groupRef}>
-        <mesh castShadow receiveShadow>
+      <group>
+        <mesh>
           <boxGeometry args={[SIZE, SIZE, SIZE, 1, 1, 1]} />
           <MeshTransmissionMaterial
             transmission={1}
@@ -142,22 +99,21 @@ const GlassCube = () => {
       </group>
     </Float>
   );
-};
+}
 
-const Scene = () => {
+function Scene() {
   return (
     <>
-      <color attach="background" args={["#000000"]} />
       <fog attach="fog" args={["#020617", 6, 14]} />
 
-      <ambientLight intensity={0.25} />
-      <directionalLight position={[5, 6, 5]} intensity={1.2} color="#bae6fd" />
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[5, 6, 5]} intensity={1.4} color="#bae6fd" />
+      <directionalLight position={[-5, -3, -2]} intensity={0.6} color="#a855f7" />
       <pointLight position={[-4, 2, 4]} intensity={3} color="#06b6d4" distance={12} />
       <pointLight position={[4, -3, -4]} intensity={2.5} color="#3b82f6" distance={12} />
       <pointLight position={[0, 5, -3]} intensity={1.5} color="#a855f7" distance={10} />
 
       <Suspense fallback={null}>
-        <Environment preset="night" />
         <GlassCube />
       </Suspense>
 
@@ -169,17 +125,48 @@ const Scene = () => {
         rotateSpeed={0.7}
       />
 
-      <EffectComposer>
+      <EffectComposer multisampling={0}>
         <Bloom
-          intensity={1.4}
-          luminanceThreshold={0.15}
+          intensity={1.0}
+          luminanceThreshold={0.2}
           luminanceSmoothing={0.9}
           mipmapBlur
         />
       </EffectComposer>
     </>
   );
-};
+}
+
+// ---- Error boundary + CSS fallback ----
+class CubeErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(err: unknown) {
+    console.error("[InteractiveCube] WebGL/3D failed:", err);
+  }
+  render() {
+    return this.state.hasError ? this.props.fallback : this.props.children;
+  }
+}
+
+const CssFallbackCube = () => (
+  <div className="absolute inset-0 flex items-center justify-center">
+    <div
+      className="w-40 h-40 rounded-2xl border border-cyan-400/40"
+      style={{
+        background: "linear-gradient(135deg, hsla(190,100%,50%,0.15), hsla(220,100%,55%,0.1))",
+        boxShadow: "0 0 60px hsla(190,100%,55%,0.35), inset 0 0 40px hsla(190,100%,70%,0.15)",
+        animation: "ambient-drift 6s ease-in-out infinite alternate",
+      }}
+    >
+      <div className="w-full h-full flex items-center justify-center text-cyan-200 font-black tracking-widest">
+        VIZ
+      </div>
+    </div>
+  </div>
+);
 
 const InteractiveCube = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -204,7 +191,6 @@ const InteractiveCube = () => {
         className="relative w-full"
         style={{ height: "min(70vh, 520px)", minHeight: 380 }}
       >
-        {/* radial glow backdrop */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -213,15 +199,18 @@ const InteractiveCube = () => {
             filter: "blur(20px)",
           }}
         />
-        <Canvas
-          camera={{ position: [0, 0, 5.2], fov: 38 }}
-          dpr={[1, 2]}
-          gl={{ alpha: true, antialias: true }}
-          frameloop={visible ? "always" : "never"}
-          style={{ background: "transparent" }}
-        >
-          <Scene />
-        </Canvas>
+        <CubeErrorBoundary fallback={<CssFallbackCube />}>
+          <Canvas
+            camera={{ position: [0, 0, 5.2], fov: 38 }}
+            dpr={[1, 2]}
+            shadows={false}
+            gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+            frameloop={visible ? "always" : "never"}
+            style={{ background: "transparent" }}
+          >
+            <Scene />
+          </Canvas>
+        </CubeErrorBoundary>
       </div>
 
       <div className="relative z-10 mt-2 text-center pointer-events-none">
