@@ -1,395 +1,358 @@
-i'use client'
+import { useState, useRef, useEffect, forwardRef } from "react";
+import { Home, TrendingUp, Landmark, Key, Settings, LucideIcon } from "lucide-react";
 
-import { useState, useRef, useEffect } from 'react'
-import { Home, TrendingUp, Landmark, Key, Settings } from 'lucide-react'
-
-interface FaceConfig {
-  label: string
-  icon: React.ReactNode
-  color: string
-  glowColor: string
-  position: 'top' | 'front' | 'back' | 'left' | 'right' | 'bottom'
+interface FaceData {
+  label: string | null;
+  icon: LucideIcon | null;
+  isLogo: boolean;
 }
 
-const faceConfigs: FaceConfig[] = [
-  {
-    label: 'VIZ',
-    icon: null,
-    color: '#ffffff',
-    glowColor: '#ffffff',
-    position: 'top',
-  },
-  {
-    label: 'COMPRAR',
-    icon: <Home size={64} strokeWidth={1.5} />,
-    color: '#00ffff',
-    glowColor: '#00bfff',
-    position: 'front',
-  },
-  {
-    label: 'VENDER',
-    icon: <TrendingUp size={64} strokeWidth={1.5} />,
-    color: '#00bfff',
-    glowColor: '#00ffff',
-    position: 'back',
-  },
-  {
-    label: 'ARRENDAR',
-    icon: <Key size={64} strokeWidth={1.5} />,
-    color: '#7db3ff',
-    glowColor: '#4da6ff',
-    position: 'left',
-  },
-  {
-    label: 'GERIR',
-    icon: <Settings size={64} strokeWidth={1.5} />,
-    color: '#00ffff',
-    glowColor: '#00bfff',
-    position: 'right',
-  },
-  {
-    label: 'FINANCIAR',
-    icon: <Landmark size={64} strokeWidth={1.5} />,
-    color: '#a8d5ff',
-    glowColor: '#7db3ff',
-    position: 'bottom',
-  },
-]
+const faces: FaceData[] = [
+  { label: "VIZ", icon: null, isLogo: true },
+  { label: "COMPRAR", icon: Home, isLogo: false },
+  { label: "VENDER", icon: TrendingUp, isLogo: false },
+  { label: "FINANCIAR", icon: Landmark, isLogo: false },
+  { label: "ARRENDAR", icon: Key, isLogo: false },
+  { label: "GERIR", icon: Settings, isLogo: false },
+];
 
-const NeonGlassCube = () => {
-  const [rotation, setRotation] = useState({ x: -20, y: 35 })
-  const [isDragging, setIsDragging] = useState(false)
-  const [autoRotate, setAutoRotate] = useState(true)
-  const lastPos = useRef({ x: 0, y: 0 })
-  const animRef = useRef<number>()
-  const dragTimeoutRef = useRef<NodeJS.Timeout>()
+const InteractiveCube = () => {
+  const [rotation, setRotation] = useState({ x: -22, y: 35 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [autoRotate, setAutoRotate] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+  const lastPos = useRef({ x: 0, y: 0 });
+  const animRef = useRef<number>();
+  const dragTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    if (!autoRotate) return
+    if (!autoRotate) return;
+    const speed = isHovered ? 0.22 : 0.1;
     const animate = () => {
-      setRotation((r) => ({ x: r.x, y: r.y + 0.15 }))
-      animRef.current = requestAnimationFrame(animate)
-    }
-    animRef.current = requestAnimationFrame(animate)
+      setRotation((r) => ({ x: r.x, y: r.y + speed }));
+      animRef.current = requestAnimationFrame(animate);
+    };
+    animRef.current = requestAnimationFrame(animate);
     return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current)
-    }
-  }, [autoRotate])
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
+  }, [autoRotate, isHovered]);
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    setIsDragging(true)
-    setAutoRotate(false)
-    lastPos.current = { x: e.clientX, y: e.clientY }
-    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
-  }
+    setIsDragging(true);
+    setAutoRotate(false);
+    lastPos.current = { x: e.clientX, y: e.clientY };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return
-    const dx = e.clientX - lastPos.current.x
-    const dy = e.clientY - lastPos.current.y
-    setRotation((r) => ({
-      x: r.x - dy * 0.5,
-      y: r.y + dx * 0.5,
-    }))
-    lastPos.current = { x: e.clientX, y: e.clientY }
-  }
+    if (!isDragging) return;
+    const dx = e.clientX - lastPos.current.x;
+    const dy = e.clientY - lastPos.current.y;
+    setRotation((r) => ({ x: r.x - dy * 0.4, y: r.y + dx * 0.4 }));
+    lastPos.current = { x: e.clientX, y: e.clientY };
+  };
 
   const handlePointerUp = () => {
-    setIsDragging(false)
-    if (dragTimeoutRef.current) clearTimeout(dragTimeoutRef.current)
-    dragTimeoutRef.current = setTimeout(() => setAutoRotate(true), 2000)
-  }
+    setIsDragging(false);
 
-  const cubeSize = 300
-  const perspective = 1200
+    if (dragTimeoutRef.current) clearTimeout(dragTimeoutRef.current);
+    dragTimeoutRef.current = setTimeout(() => setAutoRotate(true), 2000);
+  };
+
+  const cubeSize = 260;
+  const half = cubeSize / 2;
 
   const faceTransforms = [
-    `translateZ(${cubeSize / 2}px)`, // top
-    `rotateY(0deg) translateZ(${cubeSize / 2}px)`, // front
-    `rotateY(180deg) translateZ(${cubeSize / 2}px)`, // back
-    `rotateY(-90deg) translateZ(${cubeSize / 2}px)`, // left
-    `rotateY(90deg) translateZ(${cubeSize / 2}px)`, // right
-    `rotateX(-90deg) translateZ(${cubeSize / 2}px)`, // bottom
-  ]
+    `translateZ(${half}px)`,
+    `rotateY(90deg) translateZ(${half}px)`,
+    `rotateY(-90deg) translateZ(${half}px)`,
+    `rotateY(180deg) translateZ(${half}px)`,
+    `rotateX(90deg) translateZ(${half}px)`,
+    `rotateX(-90deg) translateZ(${half}px)`,
+  ];
+
+  const containerSize = cubeSize * 1.7;
 
   return (
-    <div className="w-full h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute w-96 h-96 rounded-full mix-blend-screen filter blur-3xl opacity-30"
-          style={{
-            background: 'radial-gradient(circle, #0099ff 0%, transparent 70%)',
-            top: '20%',
-            left: '10%',
-            animation: 'float 8s ease-in-out infinite',
-          }}
-        />
-        <div
-          className="absolute w-96 h-96 rounded-full mix-blend-screen filter blur-3xl opacity-20"
-          style={{
-            background: 'radial-gradient(circle, #ff00ff 0%, transparent 70%)',
-            bottom: '20%',
-            right: '10%',
-            animation: 'float 10s ease-in-out infinite reverse',
-          }}
-        />
-      </div>
-
-      {/* Cube container */}
+    <div className="flex flex-col items-center select-none relative">
+      {/* Light background backdrop */}
       <div
-        className="relative flex items-center justify-center"
+        className="absolute pointer-events-none z-0 rounded-[2rem]"
         style={{
-          perspective: `${perspective}px`,
-          width: cubeSize * 1.5,
-          height: cubeSize * 1.5,
+          width: containerSize * 1.4,
+          height: containerSize * 1.4,
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "radial-gradient(circle, hsla(200,60%,96%,0.15) 0%, hsla(200,40%,90%,0.08) 50%, transparent 75%)",
         }}
-      >
-        {/* Glow effect around cube */}
-        <div
-          className="absolute w-full h-full rounded-3xl pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(circle, rgba(0, 255, 255, 0.3) 0%, rgba(0, 150, 255, 0.1) 40%, transparent 70%)',
-            filter: 'blur(30px)',
-            zIndex: 1,
-          }}
-        />
+      />
 
-        {/* Interactive cube */}
+      {/* Ground shadow beneath cube */}
+      <div
+        className="absolute pointer-events-none z-0"
+        style={{
+          width: containerSize * 0.75,
+          height: cubeSize * 0.25,
+          bottom: "6%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background:
+            "radial-gradient(ellipse 90% 70% at 50% 50%, hsla(180,70%,50%,0.35) 0%, hsla(180,60%,40%,0.15) 40%, transparent 70%)",
+          filter: "blur(24px)",
+        }}
+      />
+
+      {/* Ambient glow */}
+      <div
+        className="absolute pointer-events-none z-0"
+        style={{
+          width: containerSize * 1.6,
+          height: containerSize * 1.6,
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "radial-gradient(circle, hsla(180,70%,55%,0.2) 0%, hsla(163,50%,50%,0.1) 35%, transparent 65%)",
+          filter: "blur(40px)",
+        }}
+      />
+
+      <div
+        className="animate-breathe cursor-grab active:cursor-grabbing relative z-10 touch-none"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{ perspective: 900, width: containerSize, height: containerSize }}
+      >
+        {/* Hover labels — glass pill style */}
         <div
-          className="cursor-grab active:cursor-grabbing relative"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
-          style={{
-            perspective: `${perspective}px`,
-            width: cubeSize,
-            height: cubeSize,
-            zIndex: 10,
-          }}
+          className="absolute pointer-events-none z-20 transition-opacity duration-500"
+          style={{ opacity: isHovered ? 1 : 0, top: "50%", left: "-10px", transform: "translateY(-50%)" }}
         >
-          <div
-            className="relative w-full h-full"
+          <span
+            className="text-[10px] font-semibold uppercase tracking-[0.15em] px-2 py-1 rounded-full"
             style={{
-              transformStyle: 'preserve-3d',
-              transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
-              transition: isDragging ? 'none' : 'transform 0.05s linear',
+              color: "hsla(0,0%,100%,0.9)",
+              background: "hsla(180,70%,50%,0.25)",
+              border: "1px solid hsla(180,60%,70%,0.3)",
+              backdropFilter: "blur(12px)",
             }}
           >
-            {/* Render all 6 faces */}
-            {faceConfigs.map((config, index) => (
-              <NeonGlassFace
-                key={index}
-                config={config}
-                size={cubeSize}
-                transform={faceTransforms[index]}
-              />
-            ))}
+            Vender
+          </span>
+        </div>
+        <div
+          className="absolute pointer-events-none z-20 transition-opacity duration-500"
+          style={{ opacity: isHovered ? 1 : 0, top: "50%", right: "-10px", transform: "translateY(-50%)" }}
+        >
+          <span
+            className="text-[10px] font-semibold uppercase tracking-[0.15em] px-2 py-1 rounded-full"
+            style={{
+              color: "hsla(0,0%,100%,0.9)",
+              background: "hsla(180,70%,50%,0.25)",
+              border: "1px solid hsla(180,60%,70%,0.3)",
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            Comprar
+          </span>
+        </div>
+        <div
+          className="absolute pointer-events-none z-20 transition-opacity duration-500"
+          style={{ opacity: isHovered ? 1 : 0, bottom: "18%", left: "50%", transform: "translateX(-50%)" }}
+        >
+          <span
+            className="text-[10px] font-semibold uppercase tracking-[0.15em] px-2 py-1 rounded-full whitespace-nowrap"
+            style={{
+              color: "hsla(0,0%,100%,0.9)",
+              background: "hsla(180,70%,50%,0.25)",
+              border: "1px solid hsla(180,60%,70%,0.3)",
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            Financiar
+          </span>
+        </div>
 
-            {/* Inner glow effect */}
+        <div
+          className="relative w-full h-full"
+          style={{
+            transformStyle: "preserve-3d",
+            transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
+            transition: isDragging ? "none" : "transform 0.08s linear",
+          }}
+        >
+          {faces.map((face, i) => (
+            <CubeFace
+              key={i}
+              label={face.label}
+              icon={face.icon}
+              isLogo={face.isLogo}
+              size={cubeSize}
+              style={{ transform: faceTransforms[i] }}
+            />
+          ))}
+
+          {/* Glowing core */}
+          <div
+            className="absolute"
+            style={{
+              width: cubeSize * 0.6,
+              height: cubeSize * 0.6,
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              background:
+                "radial-gradient(circle, hsla(180,80%,60%,0.5) 0%, hsla(163,60%,50%,0.2) 40%, transparent 70%)",
+              borderRadius: "50%",
+              filter: "blur(25px)",
+            }}
+          />
+
+          {/* Edge sparkle points */}
+          {[
+            { top: "0%", left: "0%", delay: "0s", s: 6 },
+            { top: "0%", right: "0%", delay: "0.8s", s: 6 },
+            { bottom: "0%", left: "0%", delay: "0.4s", s: 6 },
+            { bottom: "0%", right: "0%", delay: "1.2s", s: 6 },
+            { top: "0%", left: "50%", delay: "1.6s", s: 5 },
+            { bottom: "0%", left: "50%", delay: "0.6s", s: 5 },
+            { top: "50%", left: "0%", delay: "1.0s", s: 4 },
+            { top: "50%", right: "0%", delay: "1.4s", s: 4 },
+          ].map((sp, i) => (
             <div
+              key={i}
               className="absolute pointer-events-none"
               style={{
-                width: '100%',
-                height: '100%',
-                left: 0,
-                top: 0,
-                transformStyle: 'preserve-3d',
-                background:
-                  'radial-gradient(circle at center, rgba(0, 255, 255, 0.2) 0%, transparent 70%)',
+                ...sp,
+                width: sp.s,
+                height: sp.s,
+                borderRadius: "50%",
+                background: "hsla(180,80%,95%,0.95)",
+                boxShadow: "0 0 10px 4px hsla(180,70%,65%,0.6)",
+                animation: `sparkle 2s ease-in-out ${sp.delay} infinite alternate`,
               }}
             />
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Bottom text */}
-      <div className="relative z-20 mt-8 text-center">
-        <h2 className="text-3xl font-black tracking-wider" style={{
-          color: '#00ffff',
-          textShadow: '0 0 30px rgba(0, 255, 255, 0.6), 0 0 60px rgba(0, 100, 255, 0.3)',
-        }}>
-          SuperApp da Casa
-        </h2>
-        <p className="text-xs text-cyan-400 mt-3 opacity-75">
-          🖱️ Arraste para rotacionar | 📱 Toque para interagir
-        </p>
-      </div>
-
-      {/* CSS animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(30px);
-          }
-        }
-
-        @keyframes glow-pulse {
-          0%, 100% {
-            filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.6));
-          }
-          50% {
-            filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.8));
-          }
-        }
-
-        @keyframes liquid-flow {
-          0%, 100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-      `}</style>
+      <p className="text-xs text-muted-foreground mt-4 relative z-10">Arraste para explorar</p>
     </div>
-  )
+  );
+};
+
+interface CubeFaceProps {
+  label: string | null;
+  icon: LucideIcon | null;
+  isLogo: boolean;
+  size: number;
+  style: React.CSSProperties;
 }
 
-interface NeonGlassFaceProps {
-  config: FaceConfig
-  size: number
-  transform: string
-}
-
-const NeonGlassFace = ({ config, size, transform }: NeonGlassFaceProps) => {
-  const isLogo = config.label === 'VIZ'
-
+const CubeFace = forwardRef<HTMLDivElement, CubeFaceProps>(({ label, icon: Icon, isLogo, size, style }, ref) => {
+  const half = size / 2;
   return (
     <div
-      className="absolute flex flex-col items-center justify-center rounded-2xl"
+      ref={ref}
+      className="absolute flex flex-col items-center justify-center gap-3"
       style={{
         width: size,
         height: size,
-        left: '50%',
-        top: '50%',
-        marginLeft: -size / 2,
-        marginTop: -size / 2,
-        transformStyle: 'preserve-3d',
-        transform: transform,
-        backfaceVisibility: 'hidden',
-        // Base glass material
-        background: `linear-gradient(135deg, 
-          rgba(74, 166, 255, 0.25) 0%,
-          rgba(0, 180, 255, 0.2) 40%,
-          rgba(0, 100, 180, 0.15) 100%)`,
-        backdropFilter: 'blur(20px) saturate(1.5)',
-        WebkitBackdropFilter: 'blur(20px) saturate(1.5)',
-        border: '2px solid rgba(100, 200, 255, 0.4)',
+        left: "50%",
+        top: "50%",
+        marginLeft: -half,
+        marginTop: -half,
+        borderRadius: "1.25rem",
+        background: `linear-gradient(145deg, hsla(163,70%,55%,0.5) 0%, hsla(180,75%,50%,0.45) 40%, hsla(200,80%,55%,0.5) 100%)`,
+        backdropFilter: "blur(16px) saturate(1.6)",
+        WebkitBackdropFilter: "blur(16px) saturate(1.6)",
+        border: "2px solid hsla(180,80%,70%,0.7)",
         boxShadow: `
-          inset 0 1px 0 rgba(255, 255, 255, 0.6),
-          inset 0 -1px 0 rgba(0, 50, 100, 0.3),
-          0 0 40px ${config.glowColor}66,
-          0 0 80px ${config.glowColor}33,
-          0 20px 50px rgba(0, 50, 100, 0.4)
+          inset 0 1px 0 hsla(0,0%,100%,0.5),
+          inset 0 -1px 0 hsla(200,60%,40%,0.15),
+          0 0 20px hsla(180,80%,60%,0.4),
+          0 0 40px hsla(180,80%,60%,0.2),
+          0 8px 32px hsla(200,60%,35%,0.2)
         `,
+        backfaceVisibility: "hidden",
+        ...style,
       }}
     >
-      {/* Top shine/specular highlight */}
-      <div
-        className="absolute inset-0 pointer-events-none rounded-2xl"
-        style={{
-          background: `linear-gradient(180deg, 
-            rgba(255, 255, 255, 0.6) 0%,
-            rgba(255, 255, 255, 0.2) 30%,
-            transparent 60%)`,
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '40%',
-        }}
-      />
-
-      {/* Liquid effect lines */}
+      {/* Specular highlight — thick glass shine */}
       <div
         className="absolute pointer-events-none"
         style={{
-          inset: 0,
-          background: `linear-gradient(90deg, 
-            transparent 0%,
-            rgba(0, 255, 255, 0.1) 25%,
-            rgba(0, 150, 255, 0.1) 50%,
-            rgba(0, 100, 200, 0.1) 75%,
-            transparent 100%)`,
-          animation: 'liquid-flow 4s ease-in-out infinite',
-          backgroundSize: '200% 100%',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "35%",
+          background: "linear-gradient(180deg, hsla(0,0%,100%,0.5) 0%, hsla(0,0%,100%,0.15) 60%, transparent 100%)",
+          borderRadius: "1.25rem 1.25rem 2rem 2rem",
         }}
       />
 
-      {/* Bottom rim glow */}
+      {/* Bottom edge glow */}
       <div
-        className="absolute pointer-events-none bottom-0 left-0 right-0 h-1"
+        className="absolute pointer-events-none"
         style={{
-          background: `linear-gradient(90deg, 
-            transparent,
-            ${config.glowColor},
-            transparent)`,
-          filter: 'blur(2px)',
-          opacity: 0.6,
+          bottom: 0,
+          left: "10%",
+          right: "10%",
+          height: "2px",
+          background: "linear-gradient(90deg, transparent, hsla(180,80%,70%,0.5), transparent)",
         }}
       />
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-4">
-        {isLogo ? (
-          // VIZ Logo
-          <div
-            style={{
-              fontSize: '120px',
-              fontWeight: 900,
-              letterSpacing: '-0.03em',
-              color: config.color,
-              textShadow: `
-                0 0 20px ${config.glowColor}cc,
-                0 0 40px ${config.glowColor}99,
-                0 0 60px ${config.glowColor}66,
-                0 2px 10px rgba(0, 0, 0, 0.5)
-              `,
-              fontFamily: "'Montserrat', 'DM Sans', system-ui, sans-serif",
-              animation: 'glow-pulse 3s ease-in-out infinite',
-            }}
-          >
-            {config.label}
-          </div>
-        ) : (
-          // Icon + Label
-          <>
-            <div
-              style={{
-                color: config.color,
-                filter: `drop-shadow(0 0 16px ${config.glowColor}99) 
-                         drop-shadow(0 0 8px ${config.glowColor}66)`,
-                animation: 'glow-pulse 2.5s ease-in-out infinite',
-              }}
-            >
-              {config.icon}
-            </div>
-            <div
-              style={{
-                fontSize: '28px',
-                fontWeight: 700,
-                letterSpacing: '0.1em',
-                color: config.color,
-                textShadow: `
-                  0 0 16px ${config.glowColor}cc,
-                  0 0 32px ${config.glowColor}66,
-                  0 2px 8px rgba(0, 0, 0, 0.4)
-                `,
-                fontFamily: "'Montserrat', 'DM Sans', system-ui, sans-serif",
-              }}
-            >
-              {config.label}
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  )
-}
+      {isLogo && label && (
+        <span
+          style={{
+            fontSize: "80px",
+            fontWeight: 800,
+            lineHeight: 1,
+            color: "hsla(0,0%,100%,0.97)",
+            textShadow:
+              "0 0 30px hsla(180,80%,60%,0.7), 0 0 60px hsla(180,80%,60%,0.35), 0 2px 8px hsla(200,60%,35%,0.3)",
+            fontFamily: "'DM Sans', system-ui, sans-serif",
+          }}
+        >
+          {label}
+        </span>
+      )}
 
-export default NeonGlassCube
+      {!isLogo && Icon && (
+        <Icon
+          size={72}
+          strokeWidth={1.5}
+          style={{
+            color: "hsla(0,0%,100%,0.95)",
+            filter: "drop-shadow(0 0 16px hsla(180,80%,60%,0.6)) drop-shadow(0 2px 4px hsla(200,60%,35%,0.3))",
+          }}
+        />
+      )}
+
+      {!isLogo && label && (
+        <span
+          style={{
+            fontSize: "24px",
+            fontWeight: 700,
+            lineHeight: 1,
+            color: "hsla(0,0%,100%,0.95)",
+            textShadow: "0 0 20px hsla(180,80%,60%,0.5), 0 2px 6px hsla(200,60%,35%,0.3)",
+            fontFamily: "'DM Sans', system-ui, sans-serif",
+            letterSpacing: "0.08em",
+          }}
+        >
+          {label}
+        </span>
+      )}
+    </div>
+  );
+});
+
+CubeFace.displayName = "CubeFace";
+
+export default InteractiveCube;
