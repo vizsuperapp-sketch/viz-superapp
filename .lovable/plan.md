@@ -1,52 +1,51 @@
 
 
-## Cubo VIZ — Aspecto Realista (estilo da imagem)
+## Restaurar o Cubo 3D Interativo
 
-### Fix obrigatório (build error)
-Remover `jsx` do `<style jsx>` em `InteractiveCube.tsx` linha 217 (Next.js syntax inválida em Vite). Trocar por `<style>` standard.
+### Diagnóstico
+A consola mostra erros de ref e o cubo deixou de aparecer. Causas prováveis:
+1. `Environment preset="night"` faz fetch externo de HDR — pode falhar silenciosamente e crashar a `<Suspense>`.
+2. `MeshTransmissionMaterial` + `EffectComposer/Bloom` juntos causam buffer preto em alguns GPUs/contextos WebGL.
+3. Componentes funcionais (`GlassCube`, `NeonLabel`, `Scene`) recebem `ref` indirectamente — gera warnings que noutros casos podem mascarar erros reais.
+4. Possível erro na fonte remota do `<Text>` (Google Fonts woff) que rebenta a Suspense sem fallback.
 
-### Direção visual (referência da imagem)
-- **Material**: vidro/gelo translúcido com refração, gotas/escorridos no topo, reflexos especulares fortes, transparência real entre faces.
-- **Neon vivo**: ícones e texto em néon ciano/azul/magenta com glow intenso e bloom.
-- **Iluminação**: rim light frio nas arestas, luz quente subtil num canto.
-- **Conteúdo das faces** (alinhar com a imagem):
-  - Topo: **VIZ** (néon branco/ciano)
-  - Frente: **Comprar** (aperto de mão, ciano)
-  - Direita: **Vender** (casa, azul)
-  - Outras faces mantidas: Arrendar, Gerir, Financiar — em néons da mesma família.
+### Correções em `src/components/InteractiveCube.tsx`
 
-### Decisão técnica: Three.js (recomendado)
+**1. Adicionar ErrorBoundary + fallback CSS**
+Envolver o `<Canvas>` num error boundary local. Se o WebGL/3D falhar, mostrar um cubo CSS simples (mantém a hero sem buraco vazio).
 
-Para chegar perto da imagem (refração, gotas, transparência real, bloom), CSS 3D não chega. Proposta:
+**2. Tornar Environment opcional e seguro**
+- Remover `<Environment preset="night">` (depende de CDN externo) e substituir por iluminação manual reforçada (já temos lights). Ganha-se robustez sem perder muito visual porque o Bloom + emissive dominam.
 
-- Adicionar `three`, `@react-three/fiber@^8.18`, `@react-three/drei@^9.122.0` (versões obrigatórias para React 18, conforme docs do projeto).
-- Reescrever `InteractiveCube.tsx` com:
-  - `<Canvas>` com câmara perspectiva e `OrbitControls` (auto-rotate + drag).
-  - **Cubo de vidro**: `MeshTransmissionMaterial` (drei) — `transmission: 1`, `roughness: 0.05`, `thickness: 1.5`, `ior: 1.45`, `chromaticAberration: 0.04`, `distortion: 0.2`, `temporalDistortion: 0.1`, `clearcoat: 1`, leve tint azul.
-  - **Arestas**: `<Edges>` com cor ciano para definir silhueta.
-  - **Texto/ícones néon**: `<Text>` (drei) por face com material emissivo forte (`emissiveIntensity: 2-3`) em ciano/azul/magenta; ícones desenhados como SVG→`<Text>` ou `<Svg>` extrusionado. Posicionados ligeiramente à frente de cada face (z-offset) para parecerem gravados/flutuantes dentro do vidro.
-  - **Pós-processamento** (`@react-three/postprocessing` opcional, ou via `EffectComposer` do drei): `Bloom` (intensity 1.2, luminanceThreshold 0.2) — é isto que dá o "néon vivo".
-  - **Ambiente**: `<Environment preset="night">` ou HDR escuro azulado para reflexos realistas.
-  - **Iluminação**: `directionalLight` fria + `pointLight` ciano + `pointLight` magenta subtil.
-  - **Fundo**: transparente (`<Canvas gl={{ alpha: true }}>`) para integrar com a Hero existente.
+**3. Remover dependência de fonte externa no `<Text>`**
+- Remover a prop `font="https://fonts.gstatic.com/..."` — usar a fonte default do drei (evita falhas de rede e Suspense pendurada).
 
-### Interação
-- Auto-rotate lento (0.4 rad/s) via `OrbitControls autoRotate`.
-- Drag desativa auto-rotate; volta ao fim de 2s parado.
-- `enableZoom={false}`, `enablePan={false}`.
+**4. Estabilizar postprocessing**
+- Manter Bloom mas reduzir `intensity` para 1.0 e adicionar `multisampling={0}` no `<EffectComposer>` para compatibilidade.
+- Garantir `gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}` e `<Canvas shadows={false}>`.
 
-### Layout
-- Container 100% da coluna direita do Hero, altura ~520px desktop / 380px mobile.
-- Legenda "SuperApp da Casa" abaixo do canvas, mantendo estilo atual.
+**5. Resolver warnings de ref**
+- Os componentes `Scene`, `GlassCube`, `NeonLabel` não precisam de `ref` — o warning vem porque drei/r3f tenta passar ref a componentes funcionais. Solução: envolver com `forwardRef` quando recebem children de R3F (apenas onde necessário) OU simplesmente parar de receber ref. Não é fatal, mas vamos limpar para evitar ruído.
 
-### Performance / fallback
-- `dpr={[1, 2]}`, `frameloop="always"` só quando visível (IntersectionObserver) → pausa quando fora do viewport.
-- Em dispositivos sem WebGL, fallback para a versão CSS atual simplificada.
+**6. Garantir que o container tem altura**
+Já tem `height: min(70vh, 520px); minHeight: 380px` — confirmar que não foi alterado.
+
+### Estrutura final do componente
+```
+<div container com altura fixa>
+  <ErrorBoundary fallback={<CssFallbackCube />}>
+    <Canvas>
+      <Scene />  // luzes + GlassCube + Bloom (sem Environment, sem fonte remota)
+    </Canvas>
+  </ErrorBoundary>
+</div>
+```
+
+### Resultado esperado
+- Cubo volta a aparecer mesmo sem ligação ao CDN da Google Fonts/HDR.
+- Se mesmo assim o WebGL falhar (driver/GPU), aparece um fallback CSS em vez de espaço vazio.
+- Warnings de ref desaparecem da consola.
 
 ### Ficheiros
-- `src/components/InteractiveCube.tsx` — reescrita completa (R3F)
-- `package.json` — adicionar `three`, `@react-three/fiber@^8.18`, `@react-three/drei@^9.122.0`, `@react-three/postprocessing` (compatível com R3F 8)
-
-### Notas
-- Não vamos usar a imagem carregada como textura — vamos **recriar** o aspecto em 3D real (fica vivo, rotaciona, néon pulsa). Se preferires usar a imagem como textura estática num plano, diz e simplifico.
+- `src/components/InteractiveCube.tsx` — patch focado (manter estrutura geral, só remover Environment + fonte remota + adicionar ErrorBoundary + fallback)
 
