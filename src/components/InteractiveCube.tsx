@@ -1,390 +1,246 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Home, TrendingUp, Landmark, Key, Settings } from "lucide-react";
+import { Suspense, useRef, useState, useEffect } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import {
+  OrbitControls,
+  MeshTransmissionMaterial,
+  Environment,
+  Edges,
+  Text,
+  Float,
+} from "@react-three/drei";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import * as THREE from "three";
 
-interface FaceConfig {
+interface FaceContent {
   label: string;
-  icon: React.ReactNode;
+  position: [number, number, number];
+  rotation: [number, number, number];
   color: string;
-  glowColor: string;
-  position: "top" | "front" | "back" | "left" | "right" | "bottom";
+  isLogo?: boolean;
 }
 
-const faceConfigs: FaceConfig[] = [
+const SIZE = 2;
+const HALF = SIZE / 2;
+const OFFSET = HALF + 0.001;
+
+const faces: FaceContent[] = [
+  // top - VIZ
   {
     label: "VIZ",
-    icon: null,
-    color: "#ffffff",
-    glowColor: "#ffffff",
-    position: "top",
+    position: [0, OFFSET, 0],
+    rotation: [-Math.PI / 2, 0, 0],
+    color: "#a8f0ff",
+    isLogo: true,
   },
+  // front - COMPRAR
   {
     label: "COMPRAR",
-    icon: <Home size={64} strokeWidth={1.5} />,
-    color: "#00ffff",
-    glowColor: "#00bfff",
-    position: "front",
+    position: [0, 0, OFFSET],
+    rotation: [0, 0, 0],
+    color: "#00e5ff",
   },
+  // back - VENDER
   {
     label: "VENDER",
-    icon: <TrendingUp size={64} strokeWidth={1.5} />,
-    color: "#00bfff",
-    glowColor: "#00ffff",
-    position: "back",
+    position: [0, 0, -OFFSET],
+    rotation: [0, Math.PI, 0],
+    color: "#3ea6ff",
   },
-  {
-    label: "ARRENDAR",
-    icon: <Key size={64} strokeWidth={1.5} />,
-    color: "#7db3ff",
-    glowColor: "#4da6ff",
-    position: "left",
-  },
+  // right - GERIR
   {
     label: "GERIR",
-    icon: <Settings size={64} strokeWidth={1.5} />,
-    color: "#00ffff",
-    glowColor: "#00bfff",
-    position: "right",
+    position: [OFFSET, 0, 0],
+    rotation: [0, Math.PI / 2, 0],
+    color: "#7ad7ff",
   },
+  // left - ARRENDAR
+  {
+    label: "ARRENDAR",
+    position: [-OFFSET, 0, 0],
+    rotation: [0, -Math.PI / 2, 0],
+    color: "#5ec8ff",
+  },
+  // bottom - FINANCIAR
   {
     label: "FINANCIAR",
-    icon: <Landmark size={64} strokeWidth={1.5} />,
-    color: "#a8d5ff",
-    glowColor: "#7db3ff",
-    position: "bottom",
+    position: [0, -OFFSET, 0],
+    rotation: [Math.PI / 2, 0, 0],
+    color: "#9ed8ff",
   },
 ];
 
-const NeonGlassCube = () => {
-  const [rotation, setRotation] = useState({ x: -20, y: 35 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [autoRotate, setAutoRotate] = useState(true);
-  const lastPos = useRef({ x: 0, y: 0 });
-  const animRef = useRef<number>();
-  const dragTimeoutRef = useRef<NodeJS.Timeout>();
+const NeonLabel = ({ face }: { face: FaceContent }) => {
+  const matRef = useRef<THREE.MeshStandardMaterial>(null);
 
-  useEffect(() => {
-    if (!autoRotate) return;
-    const animate = () => {
-      setRotation((r) => ({ x: r.x, y: r.y + 0.15 }));
-      animRef.current = requestAnimationFrame(animate);
-    };
-    animRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
-  }, [autoRotate]);
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    setIsDragging(true);
-    setAutoRotate(false);
-    lastPos.current = { x: e.clientX, y: e.clientY };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    const dx = e.clientX - lastPos.current.x;
-    const dy = e.clientY - lastPos.current.y;
-    setRotation((r) => ({
-      x: r.x - dy * 0.5,
-      y: r.y + dx * 0.5,
-    }));
-    lastPos.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handlePointerUp = () => {
-    setIsDragging(false);
-    if (dragTimeoutRef.current) clearTimeout(dragTimeoutRef.current);
-    dragTimeoutRef.current = setTimeout(() => setAutoRotate(true), 2000);
-  };
-
-  const cubeSize = 300;
-  const perspective = 1200;
-
-  const faceTransforms = [
-    `translateZ(${cubeSize / 2}px)`, // top
-    `rotateY(0deg) translateZ(${cubeSize / 2}px)`, // front
-    `rotateY(180deg) translateZ(${cubeSize / 2}px)`, // back
-    `rotateY(-90deg) translateZ(${cubeSize / 2}px)`, // left
-    `rotateY(90deg) translateZ(${cubeSize / 2}px)`, // right
-    `rotateX(-90deg) translateZ(${cubeSize / 2}px)`, // bottom
-  ];
+  useFrame(({ clock }) => {
+    if (matRef.current) {
+      const t = clock.getElapsedTime();
+      matRef.current.emissiveIntensity = 2.2 + Math.sin(t * 2 + face.position[0]) * 0.6;
+    }
+  });
 
   return (
-    <div className="w-full h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute w-96 h-96 rounded-full mix-blend-screen filter blur-3xl opacity-30"
-          style={{
-            background: "radial-gradient(circle, #0099ff 0%, transparent 70%)",
-            top: "20%",
-            left: "10%",
-            animation: "float 8s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute w-96 h-96 rounded-full mix-blend-screen filter blur-3xl opacity-20"
-          style={{
-            background: "radial-gradient(circle, #ff00ff 0%, transparent 70%)",
-            bottom: "20%",
-            right: "10%",
-            animation: "float 10s ease-in-out infinite reverse",
-          }}
-        />
-      </div>
-
-      {/* Cube container */}
-      <div
-        className="relative flex items-center justify-center"
-        style={{
-          perspective: `${perspective}px`,
-          width: cubeSize * 1.5,
-          height: cubeSize * 1.5,
-        }}
+    <group position={face.position} rotation={face.rotation}>
+      <Text
+        fontSize={face.isLogo ? 0.7 : 0.28}
+        letterSpacing={face.isLogo ? -0.04 : 0.08}
+        font="https://fonts.gstatic.com/s/montserrat/v26/JTUSjIg1_i6t8kCHKm459WlhyyTh89Y.woff"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.005}
+        outlineColor={face.color}
+        outlineOpacity={0.6}
       >
-        {/* Glow effect around cube */}
+        {face.label}
+        <meshStandardMaterial
+          ref={matRef}
+          color={face.color}
+          emissive={face.color}
+          emissiveIntensity={2.5}
+          toneMapped={false}
+        />
+      </Text>
+    </group>
+  );
+};
+
+const GlassCube = () => {
+  const groupRef = useRef<THREE.Group>(null);
+
+  return (
+    <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.3}>
+      <group ref={groupRef}>
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[SIZE, SIZE, SIZE, 1, 1, 1]} />
+          <MeshTransmissionMaterial
+            transmission={1}
+            thickness={1.4}
+            roughness={0.05}
+            ior={1.45}
+            chromaticAberration={0.05}
+            anisotropy={0.3}
+            distortion={0.25}
+            distortionScale={0.4}
+            temporalDistortion={0.1}
+            clearcoat={1}
+            clearcoatRoughness={0.1}
+            attenuationDistance={2}
+            attenuationColor="#7dd3fc"
+            color="#bae6fd"
+            backside
+            samples={6}
+            resolution={512}
+          />
+          <Edges threshold={15} color="#67e8f9" />
+        </mesh>
+
+        {faces.map((f) => (
+          <NeonLabel key={f.label} face={f} />
+        ))}
+      </group>
+    </Float>
+  );
+};
+
+const Scene = () => {
+  return (
+    <>
+      <color attach="background" args={["#000000"]} />
+      <fog attach="fog" args={["#020617", 6, 14]} />
+
+      <ambientLight intensity={0.25} />
+      <directionalLight position={[5, 6, 5]} intensity={1.2} color="#bae6fd" />
+      <pointLight position={[-4, 2, 4]} intensity={3} color="#06b6d4" distance={12} />
+      <pointLight position={[4, -3, -4]} intensity={2.5} color="#3b82f6" distance={12} />
+      <pointLight position={[0, 5, -3]} intensity={1.5} color="#a855f7" distance={10} />
+
+      <Suspense fallback={null}>
+        <Environment preset="night" />
+        <GlassCube />
+      </Suspense>
+
+      <OrbitControls
+        enableZoom={false}
+        enablePan={false}
+        autoRotate
+        autoRotateSpeed={0.8}
+        rotateSpeed={0.7}
+      />
+
+      <EffectComposer>
+        <Bloom
+          intensity={1.4}
+          luminanceThreshold={0.15}
+          luminanceSmoothing={0.9}
+          mipmapBlur
+        />
+      </EffectComposer>
+    </>
+  );
+};
+
+const InteractiveCube = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    obs.observe(containerRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full flex flex-col items-center justify-center"
+    >
+      <div
+        className="relative w-full"
+        style={{ height: "min(70vh, 520px)", minHeight: 380 }}
+      >
+        {/* radial glow backdrop */}
         <div
-          className="absolute w-full h-full rounded-3xl pointer-events-none"
+          className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(circle, rgba(0, 255, 255, 0.3) 0%, rgba(0, 150, 255, 0.1) 40%, transparent 70%)",
-            filter: "blur(30px)",
-            zIndex: 1,
+              "radial-gradient(circle at 50% 50%, hsla(190, 100%, 50%, 0.18) 0%, transparent 60%)",
+            filter: "blur(20px)",
           }}
         />
-
-        {/* Interactive cube */}
-        <div
-          className="cursor-grab active:cursor-grabbing relative"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
-          style={{
-            perspective: `${perspective}px`,
-            width: cubeSize,
-            height: cubeSize,
-            zIndex: 10,
-          }}
+        <Canvas
+          camera={{ position: [0, 0, 5.2], fov: 38 }}
+          dpr={[1, 2]}
+          gl={{ alpha: true, antialias: true }}
+          frameloop={visible ? "always" : "never"}
+          style={{ background: "transparent" }}
         >
-          <div
-            className="relative w-full h-full"
-            style={{
-              transformStyle: "preserve-3d",
-              transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
-              transition: isDragging ? "none" : "transform 0.05s linear",
-            }}
-          >
-            {/* Render all 6 faces */}
-            {faceConfigs.map((config, index) => (
-              <NeonGlassFace key={index} config={config} size={cubeSize} transform={faceTransforms[index]} />
-            ))}
-
-            {/* Inner glow effect */}
-            <div
-              className="absolute pointer-events-none"
-              style={{
-                width: "100%",
-                height: "100%",
-                left: 0,
-                top: 0,
-                transformStyle: "preserve-3d",
-                background: "radial-gradient(circle at center, rgba(0, 255, 255, 0.2) 0%, transparent 70%)",
-              }}
-            />
-          </div>
-        </div>
+          <Scene />
+        </Canvas>
       </div>
 
-      {/* Bottom text */}
-      <div className="relative z-20 mt-8 text-center">
+      <div className="relative z-10 mt-2 text-center pointer-events-none">
         <h2
-          className="text-3xl font-black tracking-wider"
+          className="text-2xl font-black tracking-wider"
           style={{
-            color: "#00ffff",
-            textShadow: "0 0 30px rgba(0, 255, 255, 0.6), 0 0 60px rgba(0, 100, 255, 0.3)",
+            color: "hsl(190 100% 75%)",
+            textShadow:
+              "0 0 30px hsla(190, 100%, 60%, 0.6), 0 0 60px hsla(210, 100%, 50%, 0.3)",
           }}
         >
           SuperApp da Casa
         </h2>
-        <p className="text-xs text-cyan-400 mt-3 opacity-75">🖱️ Arraste para rotacionar | 📱 Toque para interagir</p>
-      </div>
-
-      {/* CSS animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(30px);
-          }
-        }
-
-        @keyframes glow-pulse {
-          0%, 100% {
-            filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.6));
-          }
-          50% {
-            filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.8));
-          }
-        }
-
-        @keyframes liquid-flow {
-          0%, 100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-      `}</style>
-    </div>
-  );
-};
-
-interface NeonGlassFaceProps {
-  config: FaceConfig;
-  size: number;
-  transform: string;
-}
-
-const NeonGlassFace = ({ config, size, transform }: NeonGlassFaceProps) => {
-  const isLogo = config.label === "VIZ";
-
-  return (
-    <div
-      className="absolute flex flex-col items-center justify-center rounded-2xl"
-      style={{
-        width: size,
-        height: size,
-        left: "50%",
-        top: "50%",
-        marginLeft: -size / 2,
-        marginTop: -size / 2,
-        transformStyle: "preserve-3d",
-        transform: transform,
-        backfaceVisibility: "hidden",
-        // Base glass material
-        background: `linear-gradient(135deg, 
-          rgba(74, 166, 255, 0.25) 0%,
-          rgba(0, 180, 255, 0.2) 40%,
-          rgba(0, 100, 180, 0.15) 100%)`,
-        backdropFilter: "blur(20px) saturate(1.5)",
-        WebkitBackdropFilter: "blur(20px) saturate(1.5)",
-        border: "2px solid rgba(100, 200, 255, 0.4)",
-        boxShadow: `
-          inset 0 1px 0 rgba(255, 255, 255, 0.6),
-          inset 0 -1px 0 rgba(0, 50, 100, 0.3),
-          0 0 40px ${config.glowColor}66,
-          0 0 80px ${config.glowColor}33,
-          0 20px 50px rgba(0, 50, 100, 0.4)
-        `,
-      }}
-    >
-      {/* Top shine/specular highlight */}
-      <div
-        className="absolute inset-0 pointer-events-none rounded-2xl"
-        style={{
-          background: `linear-gradient(180deg, 
-            rgba(255, 255, 255, 0.6) 0%,
-            rgba(255, 255, 255, 0.2) 30%,
-            transparent 60%)`,
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "40%",
-        }}
-      />
-
-      {/* Liquid effect lines */}
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          inset: 0,
-          background: `linear-gradient(90deg, 
-            transparent 0%,
-            rgba(0, 255, 255, 0.1) 25%,
-            rgba(0, 150, 255, 0.1) 50%,
-            rgba(0, 100, 200, 0.1) 75%,
-            transparent 100%)`,
-          animation: "liquid-flow 4s ease-in-out infinite",
-          backgroundSize: "200% 100%",
-        }}
-      />
-
-      {/* Bottom rim glow */}
-      <div
-        className="absolute pointer-events-none bottom-0 left-0 right-0 h-1"
-        style={{
-          background: `linear-gradient(90deg, 
-            transparent,
-            ${config.glowColor},
-            transparent)`,
-          filter: "blur(2px)",
-          opacity: 0.6,
-        }}
-      />
-
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-4">
-        {isLogo ? (
-          // VIZ Logo
-          <div
-            style={{
-              fontSize: "120px",
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
-              color: config.color,
-              textShadow: `
-                0 0 20px ${config.glowColor}cc,
-                0 0 40px ${config.glowColor}99,
-                0 0 60px ${config.glowColor}66,
-                0 2px 10px rgba(0, 0, 0, 0.5)
-              `,
-              fontFamily: "'Montserrat', 'DM Sans', system-ui, sans-serif",
-              animation: "glow-pulse 3s ease-in-out infinite",
-            }}
-          >
-            {config.label}
-          </div>
-        ) : (
-          // Icon + Label
-          <>
-            <div
-              style={{
-                color: config.color,
-                filter: `drop-shadow(0 0 16px ${config.glowColor}99) 
-                         drop-shadow(0 0 8px ${config.glowColor}66)`,
-                animation: "glow-pulse 2.5s ease-in-out infinite",
-              }}
-            >
-              {config.icon}
-            </div>
-            <div
-              style={{
-                fontSize: "28px",
-                fontWeight: 700,
-                letterSpacing: "0.1em",
-                color: config.color,
-                textShadow: `
-                  0 0 16px ${config.glowColor}cc,
-                  0 0 32px ${config.glowColor}66,
-                  0 2px 8px rgba(0, 0, 0, 0.4)
-                `,
-                fontFamily: "'Montserrat', 'DM Sans', system-ui, sans-serif",
-              }}
-            >
-              {config.label}
-            </div>
-          </>
-        )}
+        <p className="text-[11px] text-cyan-300/60 mt-1">
+          🖱️ Arraste para rotacionar
+        </p>
       </div>
     </div>
   );
 };
 
-export default NeonGlassCube;
+export default InteractiveCube;
