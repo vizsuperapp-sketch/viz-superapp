@@ -36,55 +36,60 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Suspense fallback={<RouteFallback />}>
-            <Routes>
-              {/* Rotas Públicas */}
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/imoveis" element={<Imoveis />} />
-              <Route path="/imoveis/:slug" element={<ImovelDetalhe />} />
+          <ErrorBoundary>
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
+                {/* Rotas Públicas */}
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/termos" element={<Termos />} />
+                <Route path="/imoveis" element={<Imoveis />} />
+                <Route path="/imoveis/:slug" element={<ImovelDetalhe />} />
 
-              {/* Rotas Protegidas */}
-              <Route
-                path="/sucesso"
-                element={
-                  <ProtectedRoute>
-                    <SuccessPostSale />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute requiredEmailConfirmed={true}>
-                    <Admin />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/documentos"
-                element={
-                  <ProtectedRoute>
-                    <Documentos />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/vender"
-                element={
-                  <ProtectedRoute>
-                    <Vender />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Rotas Protegidas */}
+                <Route
+                  path="/sucesso"
+                  element={
+                    <ProtectedRoute>
+                      <SuccessPostSale />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute requiredEmailConfirmed={true}>
+                      <Admin />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/documentos"
+                  element={
+                    <ProtectedRoute>
+                      <Documentos />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/vender"
+                  element={
+                    <ProtectedRoute>
+                      <Vender />
+                    </ProtectedRoute>
+                  }
+                />
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
         </BrowserRouter>
-        <Suspense fallback={null}>
-          <ChatWidget />
-        </Suspense>
+        <ErrorBoundary fallback={null}>
+          <Suspense fallback={null}>
+            <ChatWidget />
+          </Suspense>
+        </ErrorBoundary>
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
