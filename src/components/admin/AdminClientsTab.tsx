@@ -160,7 +160,7 @@ const AdminClientsTab = ({ onSelectClient }: { onSelectClient?: (id: string, nam
                       })}
                     </td>
                     <td className="px-4 py-3">
-                      <Button variant="ghost" size="icon" onClick={() => downloadFile(doc)}>
+                      <Button variant="ghost" size="icon" onClick={() => downloadFile(doc)} aria-label="Descarregar ficheiro">
                         <Download className="h-4 w-4" />
                       </Button>
                     </td>

@@ -129,7 +129,7 @@ const Admin = () => {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <Link to="/">
-              <Button variant="ghost" size="icon" className="rounded-xl">
+              <Button variant="ghost" size="icon" className="rounded-xl" aria-label="Voltar">
                 <ArrowLeft size={18} />
               </Button>
             </Link>

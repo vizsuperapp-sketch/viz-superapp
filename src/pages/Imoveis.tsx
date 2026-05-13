@@ -11,7 +11,7 @@ const Imoveis = () => {
       <div className="border-b border-border/50">
         <div className="container mx-auto px-4 py-6 flex items-center gap-4">
           <Link to="/">
-            <Button variant="ghost" size="icon" className="rounded-full">
+            <Button variant="ghost" size="icon" className="rounded-full" aria-label="Voltar">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
