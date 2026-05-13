@@ -51,9 +51,10 @@ const Documentos = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [documents, setDocuments] = useState<ClientDocument[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const [uploadQueue, setUploadQueue] = useState<UploadItem[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [dragOver, setDragOver] = useState(false);
+  const uploading = uploadQueue.some((u) => u.status === "uploading" || u.status === "pending");
 
   useEffect(() => {
     if (!authLoading && !user) {
