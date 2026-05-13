@@ -7,6 +7,23 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Sanitize user-supplied text before injecting into LLM prompts.
+// Strips control chars/newlines, removes obvious prompt-injection markers, and enforces length cap.
+function sanitizePromptInput(value: unknown, maxLen: number): string {
+  if (typeof value !== "string") return "";
+  let s = value
+    // Remove control chars and excessive whitespace (incl. newlines)
+    .replace(/[\u0000-\u001F\u007F]+/g, " ")
+    // Neutralize role/system markers commonly used in injection
+    .replace(/<\|.*?\|>/g, " ")
+    .replace(/\b(system|assistant|developer)\s*:/gi, " ")
+    .replace(/ignore\s+(all\s+)?previous\s+instructions?/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (s.length > maxLen) s = s.slice(0, maxLen);
+  return s;
+}
+
 function buildSystemPrompt(name: string, interest: string) {
   return `Tu és o assistente virtual da VIZ — o SuperApp Imobiliário português.
 
