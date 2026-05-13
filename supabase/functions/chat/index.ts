@@ -110,7 +110,7 @@ serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: buildSystemPrompt(name, interest) },
-          ...messages.slice(-20),
+          ...safeMessages.slice(-20),
         ],
         stream: true,
       }),
