@@ -66,9 +66,22 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, session_id, name, interest } = await req.json();
+    const raw = await req.json();
+    const messages = Array.isArray(raw?.messages) ? raw.messages : [];
+    const session_id = typeof raw?.session_id === "string" ? raw.session_id : "";
+    const name = sanitizePromptInput(raw?.name, 100);
+    const interest = sanitizePromptInput(raw?.interest, 80);
 
-    if (!Array.isArray(messages) || messages.length === 0) {
+    // Sanitize message contents to mitigate prompt injection in conversation turns
+    const safeMessages = messages
+      .filter((m: any) => m && (m.role === "user" || m.role === "assistant"))
+      .map((m: any) => ({
+        role: m.role,
+        content: sanitizePromptInput(m.content, 4000),
+      }))
+      .filter((m: any) => m.content.length > 0);
+
+    if (safeMessages.length === 0) {
       return new Response(
         JSON.stringify({ error: "Mensagens em falta." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
