@@ -89,14 +89,24 @@ serve(async (req) => {
     const name = sanitizePromptInput(raw?.name, 100);
     const interest = sanitizePromptInput(raw?.interest, 80);
 
-    // Sanitize message contents to mitigate prompt injection in conversation turns
+    // Validate session_id is a UUID
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!session_id || !uuidRe.test(session_id) || !name || !interest) {
+      return new Response(
+        JSON.stringify({ error: "Dados da sessão em falta." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Sanitize message contents — tighter cap to limit per-request cost
     const safeMessages = messages
       .filter((m: any) => m && (m.role === "user" || m.role === "assistant"))
       .map((m: any) => ({
         role: m.role,
-        content: sanitizePromptInput(m.content, 4000),
+        content: sanitizePromptInput(m.content, 1000),
       }))
-      .filter((m: any) => m.content.length > 0);
+      .filter((m: any) => m.content.length > 0)
+      .slice(-20);
 
     if (safeMessages.length === 0) {
       return new Response(
@@ -105,12 +115,49 @@ serve(async (req) => {
       );
     }
 
-    if (!session_id || !name || !interest) {
+    // Bind requests to a real pre-form session and cap per-session usage
+    // to prevent anonymous cost abuse on the AI gateway.
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const { data: sessionRow, error: sessionErr } = await supabaseAdmin
+      .from("chat_sessions")
+      .select("id, created_at")
+      .eq("id", session_id)
+      .maybeSingle();
+
+    if (sessionErr || !sessionRow) {
       return new Response(
-        JSON.stringify({ error: "Dados da sessão em falta." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Sessão inválida." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Reject sessions older than 24h to bound long-lived abuse
+    const sessionAgeMs = Date.now() - new Date(sessionRow.created_at).getTime();
+    if (sessionAgeMs > 24 * 60 * 60 * 1000) {
+      return new Response(
+        JSON.stringify({ error: "Sessão expirada. Inicia uma nova conversa." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Cap total messages per session to prevent unbounded credit drain
+    const { count: msgCount } = await supabaseAdmin
+      .from("chat_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("session_id", session_id);
+
+    const MAX_MESSAGES_PER_SESSION = 60;
+    if ((msgCount ?? 0) >= MAX_MESSAGES_PER_SESSION) {
+      return new Response(
+        JSON.stringify({ error: "Limite de mensagens atingido para esta sessão." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
