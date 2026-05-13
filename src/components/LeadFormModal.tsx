@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { withRetry, friendlyError } from "@/lib/retry";
 
 interface LeadFormModalProps {
   open: boolean;
