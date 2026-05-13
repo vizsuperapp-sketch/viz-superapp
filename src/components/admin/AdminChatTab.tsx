@@ -64,7 +64,7 @@ export default function AdminChatTab() {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => setSelected(null)}>
+          <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => setSelected(null)} aria-label="Voltar à lista">
             <ArrowLeft size={16} />
           </Button>
           <div>

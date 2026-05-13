@@ -165,6 +165,7 @@ const AdminDocumentsTab = ({ preselectedClient }: { preselectedClient?: { id: st
                           size="icon"
                           onClick={() => downloadFile(selectedClient.id, file.name)}
                           title="Descarregar"
+                          aria-label="Descarregar ficheiro"
                         >
                           <Download className="h-4 w-4" />
                         </Button>

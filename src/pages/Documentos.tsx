@@ -191,7 +191,7 @@ const Documentos = () => {
       <header className="border-b border-border/50 bg-card/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")} aria-label="Voltar à página inicial">
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-viz">
