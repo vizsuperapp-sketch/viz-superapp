@@ -277,6 +277,16 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
+  const [escalated, setEscalated] = useState(false);
+
+  const quickRepliesFor = (interest?: string): string[] => {
+    const i = (interest || "").toLowerCase();
+    if (i.includes("comprar") || i.includes("investir"))
+      return ["Ver VistaBella Oeiras", "Simulação financiamento", "Falar com agente"];
+    if (i.includes("vender")) return ["Como vender com 0%?", "Quanto demora?", "Falar com agente"];
+    if (i.includes("financ") || i.includes("crédito")) return ["Taxas atuais", "Documentos necessários", "Falar com agente"];
+    return ["Ver imóveis", "Vender imóvel", "Falar com agente"];
+  };
 
   const saveMessage = async (sid: string, role: string, content: string) => {
     await supabase.from("chat_messages").insert({ session_id: sid, role, content });
