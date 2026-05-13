@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import PropertyDocumentsSection from "@/components/documentos/PropertyDocumentsSection";
 import { withRetry, friendlyError } from "@/lib/retry";
+import { uploadWithProgress } from "@/lib/uploadWithProgress";
+import { Progress } from "@/components/ui/progress";
 
 interface ClientDocument {
   id: string;
