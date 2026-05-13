@@ -15,6 +15,7 @@ import {
   FolderOpen,
 } from "lucide-react";
 import PropertyDocumentsSection from "@/components/documentos/PropertyDocumentsSection";
+import { withRetry, friendlyError } from "@/lib/retry";
 
 interface ClientDocument {
   id: string;
@@ -107,37 +108,50 @@ const Documentos = () => {
 
     setUploading(true);
     const filePath = `${user.id}/${Date.now()}-${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from("documents")
-      .upload(filePath, file, { contentType: file.type });
+    let uploaded = false;
+    try {
+      await withRetry(
+        async () => {
+          const { error } = await supabase.storage
+            .from("documents")
+            .upload(filePath, file, { contentType: file.type });
+          if (error) throw error;
+        },
+        { retries: 2, onRetry: (n) => console.warn(`Upload retry #${n} for ${file.name}`) },
+      );
+      uploaded = true;
 
-    if (uploadError) {
+      const { error: insertError } = await supabase
+        .from("client_documents")
+        .insert({
+          user_id: user.id,
+          bucket: "documents",
+          storage_path: filePath,
+          file_name: file.name,
+          document_type: documentType,
+        });
+
+      if (insertError) {
+        // Rollback ficheiro órfão para manter consistência
+        await supabase.storage.from("documents").remove([filePath]).catch(() => {});
+        throw insertError;
+      }
+
+      toast({ title: "Ficheiro enviado com sucesso!" });
+      fetchDocuments();
+    } catch (err) {
+      console.error("Upload failed:", err);
+      if (uploaded) {
+        await supabase.storage.from("documents").remove([filePath]).catch(() => {});
+      }
       toast({
         title: "Erro no upload",
-        description: uploadError.message,
+        description: friendlyError(err, "Não foi possível enviar o ficheiro. Tenta novamente."),
         variant: "destructive",
       });
+    } finally {
       setUploading(false);
-      return;
     }
-
-    const { error: insertError } = await supabase
-      .from("client_documents")
-      .insert({
-        user_id: user.id,
-        bucket: "documents",
-        storage_path: filePath,
-        file_name: file.name,
-        document_type: documentType,
-      });
-
-    if (insertError) {
-      console.error("Error registering document:", insertError);
-    }
-
-    toast({ title: "Ficheiro enviado com sucesso!" });
-    fetchDocuments();
-    setUploading(false);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
