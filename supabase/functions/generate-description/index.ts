@@ -32,7 +32,12 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { typology, location, area, condition, extras } = await req.json();
+    const body = await req.json();
+    const typology = sanitizePromptInput(body?.typology, 60);
+    const location = sanitizePromptInput(body?.location, 120);
+    const area = sanitizePromptInput(body?.area, 20);
+    const condition = sanitizePromptInput(body?.condition, 80);
+    const extras = sanitizePromptInput(body?.extras, 300);
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
