@@ -6,6 +6,19 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function sanitizePromptInput(value: unknown, maxLen: number): string {
+  if (typeof value !== "string" && typeof value !== "number") return "";
+  let s = String(value)
+    .replace(/[\u0000-\u001F\u007F]+/g, " ")
+    .replace(/<\|.*?\|>/g, " ")
+    .replace(/\b(system|assistant|developer)\s*:/gi, " ")
+    .replace(/ignore\s+(all\s+)?previous\s+instructions?/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (s.length > maxLen) s = s.slice(0, maxLen);
+  return s;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
