@@ -131,6 +131,8 @@ const Auth = () => {
         setStep("pending-email");
         setEmail("");
         setPassword("");
+        setConfirmPassword("");
+        setAcceptTerms(false);
         setFullName("");
 
         toast({
