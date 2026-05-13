@@ -6,6 +6,19 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function sanitizePromptInput(value: unknown, maxLen: number): string {
+  if (typeof value !== "string" && typeof value !== "number") return "";
+  let s = String(value)
+    .replace(/[\u0000-\u001F\u007F]+/g, " ")
+    .replace(/<\|.*?\|>/g, " ")
+    .replace(/\b(system|assistant|developer)\s*:/gi, " ")
+    .replace(/ignore\s+(all\s+)?previous\s+instructions?/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (s.length > maxLen) s = s.slice(0, maxLen);
+  return s;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -32,7 +45,12 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { typology, location, area, condition, extras } = await req.json();
+    const body = await req.json();
+    const typology = sanitizePromptInput(body?.typology, 60);
+    const location = sanitizePromptInput(body?.location, 120);
+    const area = sanitizePromptInput(body?.area, 20);
+    const condition = sanitizePromptInput(body?.condition, 80);
+    const extras = sanitizePromptInput(body?.extras, 300);
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 

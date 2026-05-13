@@ -7,6 +7,23 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Sanitize user-supplied text before injecting into LLM prompts.
+// Strips control chars/newlines, removes obvious prompt-injection markers, and enforces length cap.
+function sanitizePromptInput(value: unknown, maxLen: number): string {
+  if (typeof value !== "string") return "";
+  let s = value
+    // Remove control chars and excessive whitespace (incl. newlines)
+    .replace(/[\u0000-\u001F\u007F]+/g, " ")
+    // Neutralize role/system markers commonly used in injection
+    .replace(/<\|.*?\|>/g, " ")
+    .replace(/\b(system|assistant|developer)\s*:/gi, " ")
+    .replace(/ignore\s+(all\s+)?previous\s+instructions?/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (s.length > maxLen) s = s.slice(0, maxLen);
+  return s;
+}
+
 function buildSystemPrompt(name: string, interest: string) {
   return `Tu és o assistente virtual da VIZ — o SuperApp Imobiliário português.
 
@@ -66,9 +83,22 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, session_id, name, interest } = await req.json();
+    const raw = await req.json();
+    const messages = Array.isArray(raw?.messages) ? raw.messages : [];
+    const session_id = typeof raw?.session_id === "string" ? raw.session_id : "";
+    const name = sanitizePromptInput(raw?.name, 100);
+    const interest = sanitizePromptInput(raw?.interest, 80);
 
-    if (!Array.isArray(messages) || messages.length === 0) {
+    // Sanitize message contents to mitigate prompt injection in conversation turns
+    const safeMessages = messages
+      .filter((m: any) => m && (m.role === "user" || m.role === "assistant"))
+      .map((m: any) => ({
+        role: m.role,
+        content: sanitizePromptInput(m.content, 4000),
+      }))
+      .filter((m: any) => m.content.length > 0);
+
+    if (safeMessages.length === 0) {
       return new Response(
         JSON.stringify({ error: "Mensagens em falta." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -97,7 +127,7 @@ serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: buildSystemPrompt(name, interest) },
-          ...messages.slice(-20),
+          ...safeMessages.slice(-20),
         ],
         stream: true,
       }),
