@@ -243,26 +243,23 @@ const Documentos = () => {
 
         <Card
           className={`border-2 border-dashed transition-colors cursor-pointer ${
-            dragOver
-              ? "border-primary bg-accent/50"
-              : "border-border hover:border-primary/50"
+            dragOver ? "border-primary bg-accent/50" : "border-border hover:border-primary/50"
           }`}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           onClick={() => document.getElementById("file-input")?.click()}
         >
           <CardContent className="flex flex-col items-center justify-center py-12">
-            {uploading ? (
-              <Loader2 className="h-10 w-10 animate-spin text-primary mb-3" />
-            ) : (
-              <Upload className="h-10 w-10 text-muted-foreground mb-3" />
-            )}
-            <p className="text-foreground font-medium">
-              {uploading ? "A enviar..." : "Arraste ficheiros ou clique para enviar"}
+            <Upload className="h-10 w-10 text-muted-foreground mb-3" />
+            <p className="text-foreground font-medium text-center">
+              Arrasta ficheiros ou clica para enviar
             </p>
-            <p className="text-sm text-muted-foreground mt-1">
-              PDF, imagens e documentos Office — máx. 20 MB
+            <p className="text-sm text-muted-foreground mt-1 text-center">
+              PDF, JPG ou PNG — máx. 5 MB por ficheiro
             </p>
             <input
               id="file-input"
@@ -274,6 +271,58 @@ const Documentos = () => {
             />
           </CardContent>
         </Card>
+
+        {uploadQueue.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base text-foreground">A enviar</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {uploadQueue.map((it) => (
+                <div key={it.id} className="flex items-center gap-3">
+                  {it.previewUrl ? (
+                    <img
+                      src={it.previewUrl}
+                      alt={it.file.name}
+                      className="h-12 w-12 rounded-md object-cover border border-border shrink-0"
+                    />
+                  ) : (
+                    <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center shrink-0">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium text-foreground truncate">{it.file.name}</p>
+                      <span className="text-xs text-muted-foreground shrink-0">
+                        {it.status === "error"
+                          ? "Falhou"
+                          : it.status === "done"
+                            ? "Concluído"
+                            : `${it.progress}%`}
+                      </span>
+                    </div>
+                    <Progress
+                      value={it.progress}
+                      className={`h-1.5 ${it.status === "error" ? "[&>div]:bg-destructive" : ""}`}
+                    />
+                    {it.error && <p className="text-xs text-destructive">{it.error}</p>}
+                  </div>
+                  {it.status === "error" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeQueueItem(it.id)}
+                      aria-label="Remover"
+                    >
+                      ✕
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>
