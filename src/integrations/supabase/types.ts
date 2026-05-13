@@ -50,6 +50,7 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          escalated: boolean
           id: string
           interest: string
           name: string
@@ -58,6 +59,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
+          escalated?: boolean
           id?: string
           interest: string
           name: string
@@ -66,6 +68,7 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
+          escalated?: boolean
           id?: string
           interest?: string
           name?: string

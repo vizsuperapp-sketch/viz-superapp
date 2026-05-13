@@ -1,66 +1,93 @@
-## Plano — QA e Correções (Registo, Upload, Chatbot, Mobile)
+## Estado actual vs pedido
 
-### Contexto
-A app já tem implementado: registo (`/auth`), upload (`/documentos`), chatbot flutuante (`ChatWidget`), tema dark Liquid Glass. Este plano foca-se em **auditar, corrigir bugs e otimizar para mobile** — não há reescritas grandes.
+Antes de listar trabalho, o que **já existe** (não vou refazer):
 
-Nota: não consigo executar testes em iOS/Android físicos nem simular 4G real a partir do sandbox. Vou usar o browser tool para Desktop + emulação mobile (375×812 iPhone, 360×800 Android) + Network throttling "Slow 3G/Fast 3G" como aproximação a 4G fraco. Resultados reais em dispositivos físicos têm de ser validados pelo utilizador.
+- **Auth**: signup/login email+password + Google OAuth, reenvio de email de confirmação, mensagens de erro traduzidas para PT, redirect pós-login.
+- **Upload**: drag-and-drop existe em `Documentos.tsx`, validação de tipo (PDF/JPG/PNG/DOC/DOCX/XLS), `try/catch` com retry + rollback de ficheiros órfãos (feito na volta anterior).
+- **Chatbot**: flutuante bottom-right, full-screen em mobile, pre-form, streaming SSE, persistência em DB, mensagens de boas-vindas personalizadas por interesse.
+- **Mobile**: viewport meta com `viewport-fit=cover`, `aria-label` em botões icon-only, inputs com font-size 16px (anti-zoom iOS), code-split de rotas, `loading="lazy"` em imagens, sitemap.xml + JSON-LD (volta anterior).
+- **Retry/erros**: `withRetry` + `friendlyError` em `src/lib/retry.ts`, aplicados a leads e uploads.
 
----
+## Gaps reais a fechar
 
-### 1. Registo de utilizadores (`/auth`)
-- Auditar `Auth.tsx`: validação de email, força de password, mensagens de erro PT, estado de loading, redirect pós-signup.
-- Verificar fluxo Google OAuth (`lovable.auth.signInWithOAuth`).
-- Confirmar `emailRedirectTo: window.location.origin` no `signUp`.
-- Garantir mensagens traduzidas (memória `auth/error-localization`).
-- Corrigir bugs encontrados.
+### 1. Registo de utilizadores — `src/pages/Auth.tsx`
 
-### 2. Upload de documentos (`/documentos`)
-- Testar drag&drop, seleção múltipla, validação MIME/tamanho (já 20MB).
-- Verificar barra de progresso visível em ficheiros grandes (atualmente só spinner — adicionar % se viável).
-- Confirmar tratamento de erro de rede (4G fraco) com retry/toast claro.
-- Validar que sessão expirada redireciona corretamente.
+- Adicionar campo **"Confirmar password"** com validação (match + ≥8 chars).
+- Indicador visual da força da password (fraca/média/forte) em tempo real.
+- **Checkbox obrigatório de Termos & Condições + Política de Privacidade** no signup, com link para uma página `/termos` simples (texto placeholder editável).
+- Botão "Criar conta" `disabled` até validação passar.
+- Manter Google OAuth e fluxo de email de confirmação como estão.
 
-### 3. Chatbot flutuante (`ChatWidget`)
-- Auditar abertura/fecho, scroll, posição em mobile (não tapar CTAs).
-- Verificar estados: pré-form → chat → erro de quota (60 msgs) → sessão expirada (24h).
-- Garantir streaming SSE funcional com ligação lenta.
-- Botão fechar acessível com teclado.
-- Markdown renderizado nas respostas (verificar `react-markdown`).
+### 2. Upload de documentos — `src/pages/Documentos.tsx`
 
-### 4. Otimização Mobile
-- Auditar todas as páginas em 375×812 e 360×800: header, hero, cubo 3D (fallback se WebGL falhar), modais, tabelas comparativas, footer.
-- Verificar `touch-action`, áreas tocáveis ≥44px, fontes legíveis (≥14px).
-- Lazy-load do `InteractiveCube` (R3F é pesado em 4G).
-- Imagens com `loading="lazy"` e dimensões definidas.
-- Reduzir bundle inicial se necessário (code-split de rotas pesadas: `/admin`, `/vender`).
+- **Progress bar real por ficheiro** (em vez do spinner global). Como o cliente Supabase Storage não emite progresso, usar `fetch` para `XHR` upload com `xhr.upload.onprogress`, ou listar ficheiros em fila com estado `uploading` por item.
+- **Miniatura preview** para imagens (JPG/PNG): gerar `URL.createObjectURL` antes do upload e mostrar à frente do nome.
+- **Limite reduzido para 5 MB** (actualmente 20 MB) e mensagem clara `"Máximo 5 MB por ficheiro"`.
+- Restringir aceite a **PDF/JPG/PNG** apenas (remover DOCX/XLS do `ACCEPTED_TYPES`).
+- Mensagens de erro específicas por tipo de falha (rede, tipo, tamanho, rejeição RLS).
+
+### 3. Chatbot — `src/components/ChatWidget.tsx` + `chat/`
+
+- **Typing indicator**: mostrar `…` animado enquanto `loading` (3 dots a pulsar) — substitui o spinner actual em `ChatMessages`.
+- **Quick replies**: botões clicáveis injectados após cada resposta do bot com 3 sugestões contextuais ("Ver imóveis", "Falar com humano", "Simulação financiamento"). Carregar os botões empurra o texto para `input` e dispara `send`.
+- **Escalação para humano**: botão sempre visível "Falar com agente" no header do chat. Ao clicar, marca a sessão (`escalated=true` em `chat_sessions` — requer migration: nova coluna `escalated boolean default false`) e mostra mensagem "Um agente VIZ vai contactar-te brevemente". Aparece também na admin tab para filtragem.
+
+### 4. Optimização mobile
+
+- A maior parte já está feita. Verificar e corrigir:
+  - **Touch targets**: auditar visualmente botões `size="icon"` (default 36×36 → bumpar para `min-h-11 min-w-11` onde forem alvos primários).
+  - Garantir que **nenhum container tem overflow-x** em 320px (testar `iPhone SE`).
+  - Revisitar `HeroSection` em 320px (cube + headline lado-a-lado podem partir).
 
 ### 5. Correção de erros
-- `code--read_console_logs` + `browser--read_console_logs` em cada rota crítica.
-- Corrigir warnings de React (keys, refs, hydration).
-- Verificar 404s de assets no Network tab.
 
----
+- **`ErrorBoundary` global** (`src/components/ErrorBoundary.tsx`) wrappando `<App />` em `main.tsx`, com UI de fallback "Algo correu mal" + botão "Recarregar".
+- **`ErrorBoundary` por rota** dentro do `<Suspense>` para isolar crashes de rotas lazy-loaded.
+- Audit ao vivo no preview: abrir `/`, `/auth`, `/imoveis`, `/documentos`, `/admin` (após login) e capturar erros de consola + 404s de rede num relatório.
 
-### Metodologia de teste
-1. **Desktop (1280×720)**: navegação completa em `/`, `/auth`, `/documentos`, `/vender`, `/imoveis`, chatbot.
-2. **iOS aproximado (390×844, iPhone 14)**: mesmas rotas, foco em toque e teclado virtual.
-3. **Android aproximado (360×800)**: mesmas rotas.
-4. **4G throttled**: via `browser` tool com Fast 3G (proxy razoável para 4G fraco). Medir LCP e tempo até interativo no `/`.
+## Testes — sê realista sobre o que consigo fazer
 
-Para cada combinação registo: ✅ ok / ⚠️ aviso / ❌ bug → fix.
+Posso fazer no preview com browser tool:
+- ✅ Chrome (motor do sandbox), com viewport emulado iPhone (375×812), Android (360×800), Desktop (1280×720).
+- ✅ Throttling de rede via DevTools (Slow 4G ≈ 4G fraco).
+- ✅ Console errors, network 404s, performance profile, axe-style scan via observação.
+- ✅ Reproduzir fluxos: signup, upload (com a tua sessão), enviar mensagem ao chatbot.
 
-### Ficheiros prováveis de tocar
-- `src/pages/Auth.tsx` (mensagens, validação)
-- `src/pages/Documentos.tsx` (progresso upload, retry)
-- `src/components/ChatWidget.tsx` (mobile layout, estados de erro)
-- `src/components/HeroSection.tsx` + `InteractiveCube.tsx` (lazy-load)
-- `src/App.tsx` (code-split rotas pesadas com `React.lazy`)
-- `src/index.css` (ajustes responsivos pontuais)
+**Não consigo:**
+- ❌ Firefox/Safari/Edge reais. Posso citar incompatibilidades conhecidas mas não correr testes.
+- ❌ iPhone/Android físicos. Apenas emulação de viewport.
+- ❌ PageSpeed score real (depende de hosting/CDN/imagens). Posso medir LCP/CLS/INP no preview e indicar se está dentro do limite.
 
-### Entregável
-Relatório por rota/dispositivo com bugs encontrados + commits de correção. Sem mudanças de schema/backend (RLS e edge functions já endurecidas em rondas anteriores).
+## Relatório que entrego no fim
 
-### Limitações honestas
-- Não há iOS/Android físico no sandbox — emulação por viewport apenas.
-- "4G throttled" será aproximado via Chrome DevTools throttling no browser tool.
-- Validação final em dispositivos reais fica do lado do utilizador.
+Tabela por funcionalidade:
+- ✅ O que verifiquei a funcionar
+- ❌ O que falhou (com causa raiz e fix aplicado)
+- ⚠️ Warnings de consola/a11y
+- 📊 Métricas: LCP, CLS, INP, JS heap, contagem DOM, payload total
+
+## Detalhes técnicos
+
+**Migration necessária:**
+```sql
+ALTER TABLE chat_sessions ADD COLUMN escalated boolean NOT NULL DEFAULT false;
+```
+
+**Ficheiros tocados (estimativa):**
+- `src/pages/Auth.tsx` — confirm password, T&C, força
+- `src/pages/Termos.tsx` (novo) + rota em `App.tsx`
+- `src/pages/Documentos.tsx` — progress por ficheiro, preview, limite 5 MB
+- `src/components/ChatWidget.tsx` — typing, quick replies, escalação
+- `src/components/chat/ChatMessages.tsx` — typing dots, quick reply buttons
+- `src/components/admin/AdminChatTab.tsx` — filtro escalado
+- `src/components/ErrorBoundary.tsx` (novo)
+- `src/main.tsx` — wrap com boundary
+- `src/App.tsx` — boundary por rota
+
+**Ordem de execução:**
+1. Migration (`escalated`) — pede aprovação
+2. Auth + Termos
+3. Upload (progress + preview + 5MB)
+4. Chat (typing + quick replies + escalação + admin filter)
+5. ErrorBoundary
+6. Audit ao vivo no preview com viewport mobile + relatório final
