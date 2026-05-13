@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,10 +14,26 @@ import { Mail, Lock, User, ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-r
 
 type AuthStep = "login" | "signup" | "pending-email" | "email-not-confirmed";
 
+function passwordStrength(pw: string): { score: 0 | 1 | 2 | 3; label: string; color: string } {
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score++;
+  const map = [
+    { label: "Muito fraca", color: "bg-destructive" },
+    { label: "Fraca", color: "bg-orange-500" },
+    { label: "Média", color: "bg-yellow-500" },
+    { label: "Forte", color: "bg-green-500" },
+  ] as const;
+  return { score: score as 0 | 1 | 2 | 3, ...map[score] };
+}
+
 const Auth = () => {
   const [step, setStep] = useState<AuthStep>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
@@ -24,6 +41,15 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, session } = useAuth();
+
+  const pwStrength = passwordStrength(password);
+  const passwordsMatch = password.length > 0 && password === confirmPassword;
+  const signupValid =
+    fullName.trim().length > 1 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+    password.length >= 8 &&
+    passwordsMatch &&
+    acceptTerms;
 
   // ✅ FIX: Só redireciona se user existe E email foi confirmado
   useEffect(() => {
@@ -105,6 +131,8 @@ const Auth = () => {
         setStep("pending-email");
         setEmail("");
         setPassword("");
+        setConfirmPassword("");
+        setAcceptTerms(false);
         setFullName("");
 
         toast({
@@ -361,13 +389,79 @@ const Auth = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10"
-                        minLength={6}
+                        minLength={step === "signup" ? 8 : 6}
                         required
                       />
                     </div>
+                    {step === "signup" && password.length > 0 && (
+                      <div className="space-y-1">
+                        <div className="flex gap-1 h-1">
+                          {[0, 1, 2].map((i) => (
+                            <div
+                              key={i}
+                              className={`flex-1 rounded-full transition-colors ${
+                                i <= pwStrength.score - 1 ? pwStrength.color : "bg-muted"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Força: <span className="font-medium">{pwStrength.label}</span>
+                          {password.length < 8 && " · mínimo 8 caracteres"}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
-                  <Button type="submit" variant="hero" className="w-full h-11" disabled={loading}>
+                  {step === "signup" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword" className="text-foreground">
+                          Confirmar password
+                        </Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="confirmPassword"
+                            type="password"
+                            placeholder="••••••••"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="pl-10"
+                            minLength={8}
+                            required
+                            aria-invalid={confirmPassword.length > 0 && !passwordsMatch}
+                          />
+                        </div>
+                        {confirmPassword.length > 0 && !passwordsMatch && (
+                          <p className="text-xs text-destructive">As passwords não coincidem.</p>
+                        )}
+                      </div>
+
+                      <label className="flex items-start gap-2 text-sm text-muted-foreground cursor-pointer select-none">
+                        <Checkbox
+                          checked={acceptTerms}
+                          onCheckedChange={(v) => setAcceptTerms(v === true)}
+                          className="mt-0.5"
+                          aria-label="Aceitar termos e condições"
+                        />
+                        <span>
+                          Li e aceito os{" "}
+                          <Link to="/termos" target="_blank" className="text-primary underline-offset-2 hover:underline">
+                            Termos & Condições e Política de Privacidade
+                          </Link>
+                          .
+                        </span>
+                      </label>
+                    </>
+                  )}
+
+                  <Button
+                    type="submit"
+                    variant="hero"
+                    className="w-full h-11"
+                    disabled={loading || (step === "signup" && !signupValid)}
+                  >
                     {loading ? "⏳ A processar..." : step === "login" ? "Iniciar sessão" : "Criar conta"}
                   </Button>
                 </form>

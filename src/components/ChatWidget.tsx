@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import ChatPreForm, { type ChatLead } from "@/components/chat/ChatPreForm";
@@ -277,6 +277,16 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
+  const [escalated, setEscalated] = useState(false);
+
+  const quickRepliesFor = (interest?: string): string[] => {
+    const i = (interest || "").toLowerCase();
+    if (i.includes("comprar") || i.includes("investir"))
+      return ["Ver VistaBella Oeiras", "Simulação financiamento", "Falar com agente"];
+    if (i.includes("vender")) return ["Como vender com 0%?", "Quanto demora?", "Falar com agente"];
+    if (i.includes("financ") || i.includes("crédito")) return ["Taxas atuais", "Documentos necessários", "Falar com agente"];
+    return ["Ver imóveis", "Vender imóvel", "Falar com agente"];
+  };
 
   const saveMessage = async (sid: string, role: string, content: string) => {
     await supabase.from("chat_messages").insert({ session_id: sid, role, content });
@@ -401,16 +411,50 @@ export default function ChatWidget() {
         <div className="fixed inset-x-3 bottom-3 top-3 z-50 flex flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl sm:inset-auto sm:bottom-6 sm:right-6 sm:top-auto sm:h-[500px] sm:w-[370px] sm:max-w-[calc(100vw-2rem)]">
           <div className="flex items-center justify-between bg-gradient-viz px-4 py-3 text-white">
             <span className="font-semibold text-sm">Assistente VIZ</span>
-            <button onClick={() => setOpen(false)} aria-label="Fechar chat" className="p-1 -m-1 rounded hover:bg-white/10">
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              {sessionId && !escalated && (
+                <button
+                  onClick={async () => {
+                    setEscalated(true);
+                    await supabase.from("chat_sessions").update({ escalated: true }).eq("id", sessionId);
+                    const msg: Msg = {
+                      role: "assistant",
+                      content: "✅ Pedido recebido. Um agente VIZ vai contactar-te muito em breve no email/telefone que indicaste.",
+                    };
+                    setMessages((prev) => [...prev, msg]);
+                    await supabase.from("chat_messages").insert({ session_id: sessionId, role: "assistant", content: msg.content });
+                  }}
+                  aria-label="Falar com agente humano"
+                  title="Falar com agente humano"
+                  className="p-1.5 -m-1 rounded hover:bg-white/10 text-xs flex items-center gap-1"
+                >
+                  <UserCog className="h-4 w-4" />
+                  <span className="hidden sm:inline">Agente</span>
+                </button>
+              )}
+              <button onClick={() => setOpen(false)} aria-label="Fechar chat" className="p-1 -m-1 rounded hover:bg-white/10">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
 
           {!sessionId ? (
             <ChatPreForm onSubmit={handleFormSubmit} loading={formLoading} />
           ) : (
             <>
-              <ChatMessages messages={messages} loading={loading} />
+              <ChatMessages
+                messages={messages}
+                loading={loading}
+                quickReplies={escalated ? [] : quickRepliesFor(lead?.interest)}
+                onQuickReply={(t) => {
+                  if (t === "Falar com agente") {
+                    document.querySelector<HTMLButtonElement>('button[aria-label="Falar com agente humano"]')?.click();
+                    return;
+                  }
+                  setInput(t);
+                  setTimeout(() => send(), 0);
+                }}
+              />
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -425,13 +469,7 @@ export default function ChatWidget() {
                   className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                   disabled={loading}
                 />
-                <Button
-                  type="submit"
-                  size="icon"
-                  variant="ghost"
-                  disabled={loading || !input.trim()}
-                  className="h-8 w-8 shrink-0"
-                >
+                <Button type="submit" size="icon" variant="ghost" disabled={loading || !input.trim()} className="h-8 w-8 shrink-0">
                   <Send className="h-4 w-4" />
                 </Button>
               </form>

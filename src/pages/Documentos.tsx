@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import PropertyDocumentsSection from "@/components/documentos/PropertyDocumentsSection";
 import { withRetry, friendlyError } from "@/lib/retry";
+import { uploadWithProgress } from "@/lib/uploadWithProgress";
+import { Progress } from "@/components/ui/progress";
 
 interface ClientDocument {
   id: string;
@@ -26,18 +28,8 @@ interface ClientDocument {
   created_at: string;
 }
 
-const ACCEPTED_TYPES = [
-  "application/pdf",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-powerpoint",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-];
+const ACCEPTED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 const formatSize = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;
@@ -45,14 +37,24 @@ const formatSize = (bytes: number) => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
+interface UploadItem {
+  id: string;
+  file: File;
+  previewUrl?: string;
+  progress: number; // 0-100
+  status: "pending" | "uploading" | "done" | "error";
+  error?: string;
+}
+
 const Documentos = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [documents, setDocuments] = useState<ClientDocument[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const [uploadQueue, setUploadQueue] = useState<UploadItem[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [dragOver, setDragOver] = useState(false);
+  const uploading = uploadQueue.some((u) => u.status === "uploading" || u.status === "pending");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -80,78 +82,85 @@ const Documentos = () => {
     if (user) fetchDocuments();
   }, [user, fetchDocuments]);
 
+  const updateItem = (id: string, patch: Partial<UploadItem>) => {
+    setUploadQueue((q) => q.map((it) => (it.id === id ? { ...it, ...patch } : it)));
+  };
+
   const uploadFile = async (file: File, documentType = "outro") => {
     if (!user) return;
-    // Verify session before upload
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      toast({ title: "Sessão expirada", description: "Faça login novamente para continuar.", variant: "destructive" });
+      toast({ title: "Sessão expirada", description: "Faz login novamente para continuar.", variant: "destructive" });
       navigate("/auth", { replace: true });
       return;
     }
     if (!ACCEPTED_TYPES.includes(file.type)) {
       toast({
         title: "Tipo não suportado",
-        description: "Envie ficheiros PDF, imagens ou documentos Office.",
+        description: "Apenas PDF, JPG ou PNG são permitidos.",
         variant: "destructive",
       });
       return;
     }
-    if (file.size > 20 * 1024 * 1024) {
+    if (file.size > MAX_SIZE_BYTES) {
       toast({
         title: "Ficheiro muito grande",
-        description: "O tamanho máximo é de 20 MB.",
+        description: `Máximo 5 MB por ficheiro (este tem ${formatSize(file.size)}).`,
         variant: "destructive",
       });
       return;
     }
 
-    setUploading(true);
+    const id = crypto.randomUUID();
+    const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
+    setUploadQueue((q) => [...q, { id, file, previewUrl, progress: 0, status: "pending" }]);
+
     const filePath = `${user.id}/${Date.now()}-${file.name}`;
     let uploaded = false;
     try {
+      updateItem(id, { status: "uploading" });
       await withRetry(
-        async () => {
-          const { error } = await supabase.storage
-            .from("documents")
-            .upload(filePath, file, { contentType: file.type });
-          if (error) throw error;
-        },
+        () => uploadWithProgress("documents", filePath, file, (pct) => updateItem(id, { progress: pct })),
         { retries: 2, onRetry: (n) => console.warn(`Upload retry #${n} for ${file.name}`) },
       );
       uploaded = true;
 
-      const { error: insertError } = await supabase
-        .from("client_documents")
-        .insert({
-          user_id: user.id,
-          bucket: "documents",
-          storage_path: filePath,
-          file_name: file.name,
-          document_type: documentType,
-        });
+      const { error: insertError } = await supabase.from("client_documents").insert({
+        user_id: user.id,
+        bucket: "documents",
+        storage_path: filePath,
+        file_name: file.name,
+        document_type: documentType,
+      });
 
       if (insertError) {
-        // Rollback ficheiro órfão para manter consistência
         await supabase.storage.from("documents").remove([filePath]).catch(() => {});
         throw insertError;
       }
 
+      updateItem(id, { status: "done", progress: 100 });
       toast({ title: "Ficheiro enviado com sucesso!" });
       fetchDocuments();
+      // Limpa o item da fila após 2 segundos
+      setTimeout(() => {
+        setUploadQueue((q) => q.filter((it) => it.id !== id));
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+      }, 2000);
     } catch (err) {
       console.error("Upload failed:", err);
-      if (uploaded) {
-        await supabase.storage.from("documents").remove([filePath]).catch(() => {});
-      }
-      toast({
-        title: "Erro no upload",
-        description: friendlyError(err, "Não foi possível enviar o ficheiro. Tenta novamente."),
-        variant: "destructive",
-      });
-    } finally {
-      setUploading(false);
+      if (uploaded) await supabase.storage.from("documents").remove([filePath]).catch(() => {});
+      const msg = friendlyError(err, "Não foi possível enviar o ficheiro.");
+      updateItem(id, { status: "error", error: msg });
+      toast({ title: "Erro no upload", description: msg, variant: "destructive" });
     }
+  };
+
+  const removeQueueItem = (id: string) => {
+    setUploadQueue((q) => {
+      const it = q.find((x) => x.id === id);
+      if (it?.previewUrl) URL.revokeObjectURL(it.previewUrl);
+      return q.filter((x) => x.id !== id);
+    });
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,26 +243,23 @@ const Documentos = () => {
 
         <Card
           className={`border-2 border-dashed transition-colors cursor-pointer ${
-            dragOver
-              ? "border-primary bg-accent/50"
-              : "border-border hover:border-primary/50"
+            dragOver ? "border-primary bg-accent/50" : "border-border hover:border-primary/50"
           }`}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           onClick={() => document.getElementById("file-input")?.click()}
         >
           <CardContent className="flex flex-col items-center justify-center py-12">
-            {uploading ? (
-              <Loader2 className="h-10 w-10 animate-spin text-primary mb-3" />
-            ) : (
-              <Upload className="h-10 w-10 text-muted-foreground mb-3" />
-            )}
-            <p className="text-foreground font-medium">
-              {uploading ? "A enviar..." : "Arraste ficheiros ou clique para enviar"}
+            <Upload className="h-10 w-10 text-muted-foreground mb-3" />
+            <p className="text-foreground font-medium text-center">
+              Arrasta ficheiros ou clica para enviar
             </p>
-            <p className="text-sm text-muted-foreground mt-1">
-              PDF, imagens e documentos Office — máx. 20 MB
+            <p className="text-sm text-muted-foreground mt-1 text-center">
+              PDF, JPG ou PNG — máx. 5 MB por ficheiro
             </p>
             <input
               id="file-input"
@@ -265,6 +271,58 @@ const Documentos = () => {
             />
           </CardContent>
         </Card>
+
+        {uploadQueue.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base text-foreground">A enviar</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {uploadQueue.map((it) => (
+                <div key={it.id} className="flex items-center gap-3">
+                  {it.previewUrl ? (
+                    <img
+                      src={it.previewUrl}
+                      alt={it.file.name}
+                      className="h-12 w-12 rounded-md object-cover border border-border shrink-0"
+                    />
+                  ) : (
+                    <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center shrink-0">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium text-foreground truncate">{it.file.name}</p>
+                      <span className="text-xs text-muted-foreground shrink-0">
+                        {it.status === "error"
+                          ? "Falhou"
+                          : it.status === "done"
+                            ? "Concluído"
+                            : `${it.progress}%`}
+                      </span>
+                    </div>
+                    <Progress
+                      value={it.progress}
+                      className={`h-1.5 ${it.status === "error" ? "[&>div]:bg-destructive" : ""}`}
+                    />
+                    {it.error && <p className="text-xs text-destructive">{it.error}</p>}
+                  </div>
+                  {it.status === "error" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeQueueItem(it.id)}
+                      aria-label="Remover"
+                    >
+                      ✕
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>
