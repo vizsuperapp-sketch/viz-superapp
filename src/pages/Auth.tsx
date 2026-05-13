@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,10 +14,26 @@ import { Mail, Lock, User, ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-r
 
 type AuthStep = "login" | "signup" | "pending-email" | "email-not-confirmed";
 
+function passwordStrength(pw: string): { score: 0 | 1 | 2 | 3; label: string; color: string } {
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score++;
+  const map = [
+    { label: "Muito fraca", color: "bg-destructive" },
+    { label: "Fraca", color: "bg-orange-500" },
+    { label: "Média", color: "bg-yellow-500" },
+    { label: "Forte", color: "bg-green-500" },
+  ] as const;
+  return { score: score as 0 | 1 | 2 | 3, ...map[score] };
+}
+
 const Auth = () => {
   const [step, setStep] = useState<AuthStep>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
@@ -24,6 +41,15 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, session } = useAuth();
+
+  const pwStrength = passwordStrength(password);
+  const passwordsMatch = password.length > 0 && password === confirmPassword;
+  const signupValid =
+    fullName.trim().length > 1 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+    password.length >= 8 &&
+    passwordsMatch &&
+    acceptTerms;
 
   // ✅ FIX: Só redireciona se user existe E email foi confirmado
   useEffect(() => {
