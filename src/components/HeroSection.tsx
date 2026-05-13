@@ -131,7 +131,9 @@ const HeroSection = () => {
           className="flex items-center justify-center opacity-0 animate-fade-up"
           style={{ animationDelay: "300ms" }}
         >
-          <InteractiveCube />
+          <Suspense fallback={<img src={vizLogoCube} alt="Cubo VIZ" className="w-64 h-64 opacity-70" loading="lazy" decoding="async" />}>
+            <InteractiveCube />
+          </Suspense>
         </div>
       </div>
 
