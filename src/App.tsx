@@ -6,8 +6,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
+import Termos from "./pages/Termos.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 // Code-split rotas pesadas (admin, vender, documentos, imóveis) para baixar bundle inicial em mobile/4G
