@@ -82,78 +82,85 @@ const Documentos = () => {
     if (user) fetchDocuments();
   }, [user, fetchDocuments]);
 
+  const updateItem = (id: string, patch: Partial<UploadItem>) => {
+    setUploadQueue((q) => q.map((it) => (it.id === id ? { ...it, ...patch } : it)));
+  };
+
   const uploadFile = async (file: File, documentType = "outro") => {
     if (!user) return;
-    // Verify session before upload
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      toast({ title: "Sessão expirada", description: "Faça login novamente para continuar.", variant: "destructive" });
+      toast({ title: "Sessão expirada", description: "Faz login novamente para continuar.", variant: "destructive" });
       navigate("/auth", { replace: true });
       return;
     }
     if (!ACCEPTED_TYPES.includes(file.type)) {
       toast({
         title: "Tipo não suportado",
-        description: "Envie ficheiros PDF, imagens ou documentos Office.",
+        description: "Apenas PDF, JPG ou PNG são permitidos.",
         variant: "destructive",
       });
       return;
     }
-    if (file.size > 20 * 1024 * 1024) {
+    if (file.size > MAX_SIZE_BYTES) {
       toast({
         title: "Ficheiro muito grande",
-        description: "O tamanho máximo é de 20 MB.",
+        description: `Máximo 5 MB por ficheiro (este tem ${formatSize(file.size)}).`,
         variant: "destructive",
       });
       return;
     }
 
-    setUploading(true);
+    const id = crypto.randomUUID();
+    const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
+    setUploadQueue((q) => [...q, { id, file, previewUrl, progress: 0, status: "pending" }]);
+
     const filePath = `${user.id}/${Date.now()}-${file.name}`;
     let uploaded = false;
     try {
+      updateItem(id, { status: "uploading" });
       await withRetry(
-        async () => {
-          const { error } = await supabase.storage
-            .from("documents")
-            .upload(filePath, file, { contentType: file.type });
-          if (error) throw error;
-        },
+        () => uploadWithProgress("documents", filePath, file, (pct) => updateItem(id, { progress: pct })),
         { retries: 2, onRetry: (n) => console.warn(`Upload retry #${n} for ${file.name}`) },
       );
       uploaded = true;
 
-      const { error: insertError } = await supabase
-        .from("client_documents")
-        .insert({
-          user_id: user.id,
-          bucket: "documents",
-          storage_path: filePath,
-          file_name: file.name,
-          document_type: documentType,
-        });
+      const { error: insertError } = await supabase.from("client_documents").insert({
+        user_id: user.id,
+        bucket: "documents",
+        storage_path: filePath,
+        file_name: file.name,
+        document_type: documentType,
+      });
 
       if (insertError) {
-        // Rollback ficheiro órfão para manter consistência
         await supabase.storage.from("documents").remove([filePath]).catch(() => {});
         throw insertError;
       }
 
+      updateItem(id, { status: "done", progress: 100 });
       toast({ title: "Ficheiro enviado com sucesso!" });
       fetchDocuments();
+      // Limpa o item da fila após 2 segundos
+      setTimeout(() => {
+        setUploadQueue((q) => q.filter((it) => it.id !== id));
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+      }, 2000);
     } catch (err) {
       console.error("Upload failed:", err);
-      if (uploaded) {
-        await supabase.storage.from("documents").remove([filePath]).catch(() => {});
-      }
-      toast({
-        title: "Erro no upload",
-        description: friendlyError(err, "Não foi possível enviar o ficheiro. Tenta novamente."),
-        variant: "destructive",
-      });
-    } finally {
-      setUploading(false);
+      if (uploaded) await supabase.storage.from("documents").remove([filePath]).catch(() => {});
+      const msg = friendlyError(err, "Não foi possível enviar o ficheiro.");
+      updateItem(id, { status: "error", error: msg });
+      toast({ title: "Erro no upload", description: msg, variant: "destructive" });
     }
+  };
+
+  const removeQueueItem = (id: string) => {
+    setUploadQueue((q) => {
+      const it = q.find((x) => x.id === id);
+      if (it?.previewUrl) URL.revokeObjectURL(it.previewUrl);
+      return q.filter((x) => x.id !== id);
+    });
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
