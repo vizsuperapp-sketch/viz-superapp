@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import ChatPreForm, { type ChatLead } from "@/components/chat/ChatPreForm";
