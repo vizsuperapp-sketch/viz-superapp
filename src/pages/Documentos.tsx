@@ -28,24 +28,23 @@ interface ClientDocument {
   created_at: string;
 }
 
-const ACCEPTED_TYPES = [
-  "application/pdf",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-powerpoint",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-];
+const ACCEPTED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 const formatSize = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
+
+interface UploadItem {
+  id: string;
+  file: File;
+  previewUrl?: string;
+  progress: number; // 0-100
+  status: "pending" | "uploading" | "done" | "error";
+  error?: string;
+}
 
 const Documentos = () => {
   const { user, loading: authLoading, signOut } = useAuth();
