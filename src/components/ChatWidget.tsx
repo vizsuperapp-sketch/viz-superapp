@@ -398,10 +398,10 @@ export default function ChatWidget() {
       )}
 
       {open && (
-        <div className="fixed bottom-6 right-6 z-50 flex h-[500px] w-[370px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl">
+        <div className="fixed inset-x-3 bottom-3 top-3 z-50 flex flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl sm:inset-auto sm:bottom-6 sm:right-6 sm:top-auto sm:h-[500px] sm:w-[370px] sm:max-w-[calc(100vw-2rem)]">
           <div className="flex items-center justify-between bg-gradient-viz px-4 py-3 text-white">
             <span className="font-semibold text-sm">Assistente VIZ</span>
-            <button onClick={() => setOpen(false)} aria-label="Fechar chat">
+            <button onClick={() => setOpen(false)} aria-label="Fechar chat" className="p-1 -m-1 rounded hover:bg-white/10">
               <X className="h-5 w-5" />
             </button>
           </div>

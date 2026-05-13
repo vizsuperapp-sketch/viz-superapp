@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import vizLogoCube from "@/assets/viz-logo-cube.png";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Play, ShieldCheck, Lock, Users, UserCircle } from "lucide-react";
-import InteractiveCube from "@/components/InteractiveCube";
+const InteractiveCube = lazy(() => import("@/components/InteractiveCube"));
 import LeadFormModal from "@/components/LeadFormModal";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -131,7 +131,9 @@ const HeroSection = () => {
           className="flex items-center justify-center opacity-0 animate-fade-up"
           style={{ animationDelay: "300ms" }}
         >
-          <InteractiveCube />
+          <Suspense fallback={<img src={vizLogoCube} alt="Cubo VIZ" className="w-64 h-64 opacity-70" loading="lazy" decoding="async" />}>
+            <InteractiveCube />
+          </Suspense>
         </div>
       </div>
 
