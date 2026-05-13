@@ -52,21 +52,24 @@ const LeadFormModal = ({ open, onOpenChange }: LeadFormModalProps) => {
     setError(null);
 
     try {
-      const { data, error: invokeError } = await supabase.functions.invoke("submit-lead", {
-        body: {
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          service: form.service,
-          message: form.message,
-        },
-      });
-
-      if (invokeError) throw new Error(invokeError.message);
-      if (data?.error) throw new Error(data.error);
+      const data = await withRetry(async () => {
+        const { data, error: invokeError } = await supabase.functions.invoke("submit-lead", {
+          body: {
+            name: form.name,
+            email: form.email,
+            phone: form.phone,
+            service: form.service,
+            message: form.message,
+          },
+        });
+        if (invokeError) throw new Error(invokeError.message);
+        if (data?.error) throw new Error(data.error);
+        return data;
+      }, { retries: 2 });
       setSubmitted(true);
-    } catch (err: any) {
-      setError(err?.message || "Ocorreu um erro. Tente novamente.");
+    } catch (err: unknown) {
+      console.error("Lead submission failed:", err);
+      setError(friendlyError(err, "Não foi possível enviar o pedido. Tenta novamente em instantes."));
     } finally {
       setLoading(false);
     }
