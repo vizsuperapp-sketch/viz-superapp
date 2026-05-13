@@ -15,6 +15,7 @@ import {
   FolderOpen,
 } from "lucide-react";
 import PropertyDocumentsSection from "@/components/documentos/PropertyDocumentsSection";
+import { withRetry, friendlyError } from "@/lib/retry";
 
 interface ClientDocument {
   id: string;
