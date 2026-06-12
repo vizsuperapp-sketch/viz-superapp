@@ -3,6 +3,7 @@ import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { SERVICOS } from "@/data/servicos";
+import { getWhatsAppLink } from "@/lib/whatsapp";
 
 const EcosystemServicesSection = () => {
   const sectionRef = useScrollReveal();
