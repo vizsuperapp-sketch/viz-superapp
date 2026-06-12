@@ -1,5 +1,11 @@
 import { useState, useCallback } from "react";
-import { MessageCircle, X, Send, UserCog } from "lucide-react";
+import { MessageCircle, X, Send, UserCog, Phone } from "lucide-react";
+
+const WHATSAPP_NUMBER = "351916021831";
+
+function buildWhatsAppUrl(message: string) {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import ChatPreForm, { type ChatLead } from "@/components/chat/ChatPreForm";
