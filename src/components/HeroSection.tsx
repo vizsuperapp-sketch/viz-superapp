@@ -2,7 +2,7 @@ import { useState, lazy, Suspense } from "react";
 import vizLogoCube from "@/assets/viz-logo-cube.png";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Play, ShieldCheck, Lock, Users, UserCircle } from "lucide-react";
+import { ChevronRight, Play, ShieldCheck, Lock, Users, FileBadge, Camera, FileText, Landmark, Building2, Wrench } from "lucide-react";
 const InteractiveCube = lazy(() => import("@/components/InteractiveCube"));
 import LeadFormModal from "@/components/LeadFormModal";
 import { useAuth } from "@/contexts/AuthContext";
