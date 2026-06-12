@@ -101,6 +101,30 @@ const HeroSection = () => {
             </Button>
           </div>
 
+          {/* Service chips — link para Ecossistema */}
+          <div
+            className="flex flex-wrap gap-2 mb-6 opacity-0 animate-fade-up"
+            style={{ animationDelay: "400ms" }}
+          >
+            {[
+              { icon: FileBadge, label: "CEE" },
+              { icon: Landmark, label: "Hipoteca" },
+              { icon: FileText, label: "Documentos" },
+              { icon: Camera, label: "Fotos 360°" },
+              { icon: Building2, label: "Gestão renda" },
+              { icon: Wrench, label: "Manutenção" },
+            ].map(({ icon: Icon, label }) => (
+              <button
+                key={label}
+                onClick={scrollToEcosystem}
+                className="glass-icon rounded-full px-3 py-1.5 flex items-center gap-1.5 text-[11px] font-medium text-foreground/80 hover:text-foreground transition-colors"
+              >
+                <Icon size={12} className="text-primary" />
+                {label}
+              </button>
+            ))}
+          </div>
+
           {/* Trust micro-signals */}
           <div
             className="flex items-center gap-5 opacity-0 animate-fade-up"
