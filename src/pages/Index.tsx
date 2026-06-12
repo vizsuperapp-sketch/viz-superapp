@@ -1,4 +1,5 @@
 import HeroSection from "@/components/HeroSection";
+import EcosystemServicesSection from "@/components/EcosystemServicesSection";
 import FeaturedPropertiesSection from "@/components/FeaturedPropertiesSection";
 import NotAgencySection from "@/components/NotAgencySection";
 import ComparisonSection from "@/components/ComparisonSection";
