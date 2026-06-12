@@ -1,41 +1,81 @@
-## Diagnóstico
-O `InteractiveCube` tem 3 problemas que causam o travamento e o desalinhamento no telemóvel:
+# Plano — Ecossistema de Serviços VIZ (FASE 1)
 
-1. **Layout fora do eixo**: o componente envolve tudo num `w-full h-screen` com fundo gradiente próprio, mas é renderizado dentro da coluna direita do Hero. Em mobile cria um bloco 100vh com largura total a empurrar o grid, gerando overflow horizontal e margens descentradas. Além disso o container do cubo tem `width: 480px` (cubeSize 320 × 1.5), maior que viewports de 375px.
-2. **Re-render a 60fps**: `setRotation` é chamado em cada `requestAnimationFrame`, re-renderizando os 6 faces (cada um com vários divs com `backdropFilter`) a cada frame — causa freeze em iPhone/Android médios.
-3. **GPU overload**: três blobs `blur-3xl` + `backdrop-filter: blur(12px) saturate(1.2)` em 6 faces simultâneas + glow radial pulsante. Em mobile a composição passa do limite e bloqueia o main thread.
+Objetivo: tornar visível e tangível o modelo de monetização VIZ (0% comissão + serviços adjacentes), mostrando preços "a partir de" e poupança vs mercado.
 
-## Alterações em `src/components/InteractiveCube.tsx`
+## 1. Fonte de dados — `src/data/servicos.ts`
 
-### 1. Remover wrapper full-screen
-- Substituir o `<div className="w-full h-screen bg-gradient-to-br ...">` por um wrapper compacto `relative flex flex-col items-center justify-center` sem altura fixa nem fundo (o Hero já tem ambient background).
-- Remover os 3 blobs `blur-3xl` (duplicam o fundo do Hero).
-- Remover o `<h2>SuperApp da Casa</h2>` e o `<p>` de instruções (já existem no Hero).
+Array `SERVICOS` com 6 entradas (cee, fotos360, documentos, hipoteca, gestaoRenda, manutencao). Cada serviço:
 
-### 2. Tamanho responsivo
-- Detetar mobile uma vez via `window.matchMedia("(max-width: 640px)")` no mount.
-- `cubeSize`: 220 em mobile, 320 em desktop. Container interno = `cubeSize` (sem multiplicador 1.5) com `overflow-visible` para o glow.
-- Wrapper exterior `max-w-full` para nunca exceder a coluna.
+```
+{
+  id, nome, categoria: 'vender'|'comprar'|'arrendar'|'manutencao',
+  icon: LucideIcon, precoLabel: 'desde €200' | '-1,5% taxa' | '€30/mês',
+  precoMercadoLabel: '€400',
+  poupancaLabel: 'Poupa até €200',
+  descricao, beneficios: string[],
+  ctaLabel, ctaHref: '/servicos/<id>'  // placeholder
+}
+```
 
-### 3. Animação sem re-render
-- Trocar `useState({x,y})` por `useRef({x,y})` e aplicar a rotação diretamente via `innerCubeRef.current.style.transform = ...` dentro do rAF.
-- React deixa de re-renderizar a cada frame; só o nó interior recebe atualização de transform.
-- Estados que continuam em React: `isDragging`, `autoRotate` (mudam raramente).
+Também `CATEGORIAS` (Vender, Comprar, Arrendar, Manutenção) para os tabs.
 
-### 4. Reduzir custo GPU em mobile
-- Em mobile: `backdropFilter` reduzido para `blur(6px)` (em vez de 12px) e `saturate(1.1)`.
-- Remover a animação `pulse-glow` no mobile (manter glow estático).
-- Remover a animação `liquid-shimmer` no swirl interno em mobile.
-- Manter visuais completos em desktop.
+## 2. Nova secção na homepage — `src/components/EcosystemServicesSection.tsx`
 
-### 5. Touch sem scroll-jacking
-- Adicionar `touch-action: none` no nó do cubo para o drag em telemóvel não interferir com scroll vertical da página fora do cubo.
+- Inserida em `src/pages/Index.tsx` **antes** de `NotAgencySection`.
+- Grid `md:grid-cols-2 lg:grid-cols-3`, mobile stack.
+- Cards usam tokens existentes (`glass-card`, `text-gradient`, gradiente cyan/primário do cubo) — sem cores hardcoded. Liquid Glass.
+- Cada card: ícone Lucide num `glass-icon`, título, lista de 3 bullets, preço grande (`text-2xl font-bold text-gradient`), badge "Poupa €X vs mercado", botão `variant="outline"` → `navigate(ctaHref)`.
+- Hover: leve `scale-[1.02]` + shadow azul. Scroll-reveal via `useScrollReveal`.
+- Mantém narrativa: cabeçalho "Ecossistema VIZ — Tudo o que precisa, num só sítio" + subtítulo sobre 0% comissão + serviços opcionais.
+
+## 3. Top-nav — `src/components/TopNav.tsx`
+
+- Componente novo, fixo no topo (`sticky top-0 z-40`), translúcido (`backdrop-blur`, `bg-background/70`, borda inferior subtil).
+- Logo VIZ à esquerda → `/`. Links: Home, Serviços, Preços, Imóveis. À direita: botão "Área de Cliente" (já presente no Hero) — passa a viver na nav.
+- Mobile: menu hambúrguer com `Sheet` (já no projeto).
+- Renderizado em `src/App.tsx` dentro de `<BrowserRouter>` acima das `<Routes>`, exceto em `/admin` e `/auth` (verificado via `useLocation`).
+- Remover botão duplicado do `HeroSection` (o canto superior direito do Hero deixa de ter o botão "Área de Cliente" para evitar duplicação).
+
+## 4. Hero — `src/components/HeroSection.tsx`
+
+- Manter layout side-by-side e headline principal (memory `brand/hero-redesign` respeitada).
+- Adicionar abaixo do parágrafo descritivo uma linha de 6 micro-chips (ícone Lucide + label curto): CEE, Hipoteca, Documentos, Fotos 360°, Gestão Renda, Manutenção. Cada chip é `glass-icon` pequeno; ao clicar faz scroll para a nova secção `#ecossistema`.
+- Não alterar cubo, CTAs principais nem trust signals.
+
+## 5. Página `/servicos` — `src/pages/Servicos.tsx`
+
+- Header: "Ecossistema VIZ — Tudo integrado. Tudo simples."
+- `Tabs` (shadcn) com triggers: Tudo · Vender · Comprar · Arrendar · Manutenção.
+- Cada tab renderiza os serviços filtrados de `SERVICOS` num grid de cards mais detalhados (nome, preço "desde €X", preço mercado riscado, badge poupança, 4 bullets, CTA "Encomendar" → `ctaHref` placeholder).
+- Footer reutilizado.
+
+## 6. Página `/precos` — `src/pages/Precos.tsx`
+
+- Header: "Preços VIZ vs Mercado".
+- Tabela responsiva (shadcn `Table` em desktop; cards empilhados em mobile) com colunas Serviço · VIZ · Mercado · Poupança.
+- Linha total destacada com badge `text-gradient` "Economiza até €2.000+ por transação".
+- Nota legal: "Valores indicativos, a partir de. Pode variar conforme imóvel."
+- Footer reutilizado.
+
+## 7. Rotas — `src/App.tsx`
+
+- Adicionar `Servicos` e `Precos` como `lazy()` imports.
+- Novas rotas públicas `/servicos` e `/precos`.
+- Importar `TopNav` e renderizá-lo dentro do `BrowserRouter`.
+
+## 8. Memory updates
+
+- Atualizar `mem://features/homepage-narrative` para incluir `EcosystemServicesSection` antes de NotAgency.
+- Criar `mem://features/servicos-ecosystem` com a lista de 6 serviços e preços "a partir de".
+- Criar `mem://features/top-nav` com rotas do menu e regra de ocultar em /admin e /auth.
+
+## Out of scope (FASE 2, não nesta entrega)
+
+- `/simulador-hipoteca`, `/comparativo`, checkout, backend de encomendas, integração Stripe, FAQ por serviço, testemunhos, newsletter, pacotes B2B.
+- CTAs apontam para `/servicos/<id>` que **não** será criado agora — a rota cairá no `NotFound` existente até FASE 2. Posso opcionalmente fazer cada CTA abrir `LeadFormModal` em vez disso se preferir — confirmar antes de implementar se este comportamento de 404 incomodar.
 
 ## Verificação
-- `browser--view_preview` com viewport 375×812: confirmar que (a) não há scroll horizontal, (b) o cubo está centrado dentro da coluna, (c) o scroll vertical é fluido, (d) o cubo continua a rodar.
-- Repetir em desktop 1280×720 para garantir que nada regrediu visualmente.
-- `browser--performance_profile` em mobile para confirmar redução de long tasks.
 
-## Fora de scope
-- Não mexer no Hero nem noutros componentes.
-- Manter API/identidade visual (faces, cores, ícones, texto "VIZ").
+- `browser--view_preview` em 1280×720 e 375×812: secção nova visível, cards alinhados, tabela `/precos` legível, top-nav não sobrepõe Hero.
+- Confirmar que botões do Hero antigos continuam funcionais e que `Área de Cliente` aparece só na nav.
+- Console limpo, sem warnings de chave duplicada nem 404 de assets.
