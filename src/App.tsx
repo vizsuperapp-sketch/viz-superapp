@@ -39,6 +39,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <TopNav />
           <ErrorBoundary>
             <Suspense fallback={<RouteFallback />}>
               <Routes>
@@ -48,6 +49,8 @@ const App = () => (
                 <Route path="/termos" element={<Termos />} />
                 <Route path="/imoveis" element={<Imoveis />} />
                 <Route path="/imoveis/:slug" element={<ImovelDetalhe />} />
+                <Route path="/servicos" element={<Servicos />} />
+                <Route path="/precos" element={<Precos />} />
 
                 {/* Rotas Protegidas */}
                 <Route
