@@ -16,8 +16,11 @@ const Index = () => {
       {/* Hero Section - Primeira coisa que vê */}
       <HeroSection />
 
-      {/* Imóveis em Destaque - COM VÍDEO 360° DO VistaBella */}
+      {/* Imóveis em Destaque - COM VÍDEO 360° do VistaBella */}
       <FeaturedPropertiesSection />
+
+      {/* Ecossistema de Serviços (monetização) */}
+      <EcosystemServicesSection />
 
       {/* Resto das seções */}
       <NotAgencySection />
