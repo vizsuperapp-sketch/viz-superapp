@@ -19,7 +19,10 @@ const Documentos = lazy(() => import("./pages/Documentos.tsx"));
 const Vender = lazy(() => import("./pages/Vender.tsx"));
 const Imoveis = lazy(() => import("./pages/Imoveis.tsx"));
 const ImovelDetalhe = lazy(() => import("./pages/ImovelDetalhe.tsx"));
+const Servicos = lazy(() => import("./pages/Servicos.tsx"));
+const Precos = lazy(() => import("./pages/Precos.tsx"));
 const ChatWidget = lazy(() => import("./components/ChatWidget"));
+import TopNav from "./components/TopNav";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +39,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <TopNav />
           <ErrorBoundary>
             <Suspense fallback={<RouteFallback />}>
               <Routes>
@@ -45,6 +49,8 @@ const App = () => (
                 <Route path="/termos" element={<Termos />} />
                 <Route path="/imoveis" element={<Imoveis />} />
                 <Route path="/imoveis/:slug" element={<ImovelDetalhe />} />
+                <Route path="/servicos" element={<Servicos />} />
+                <Route path="/precos" element={<Precos />} />
 
                 {/* Rotas Protegidas */}
                 <Route

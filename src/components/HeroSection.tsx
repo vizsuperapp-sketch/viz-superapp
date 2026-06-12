@@ -2,18 +2,22 @@ import { useState, lazy, Suspense } from "react";
 import vizLogoCube from "@/assets/viz-logo-cube.png";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Play, ShieldCheck, Lock, Users, UserCircle } from "lucide-react";
+import { ChevronRight, Play, ShieldCheck, Lock, Users, FileBadge, Camera, FileText, Landmark, Building2, Wrench } from "lucide-react";
 const InteractiveCube = lazy(() => import("@/components/InteractiveCube"));
 import LeadFormModal from "@/components/LeadFormModal";
 import { useAuth } from "@/contexts/AuthContext";
 
 const HeroSection = () => {
   const [formOpen, setFormOpen] = useState(false);
-  const { user } = useAuth();
+  useAuth();
   const navigate = useNavigate();
 
   const scrollToHowItWorks = () => {
     document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const scrollToEcosystem = () => {
+    document.getElementById("ecossistema")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -33,18 +37,7 @@ const HeroSection = () => {
         />
       </div>
 
-      {/* Top nav */}
-      <div className="absolute top-4 right-4 z-20">
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-full border-border/50 text-muted-foreground hover:text-foreground"
-          onClick={() => navigate(user ? "/documentos" : "/auth")}
-        >
-          <UserCircle className="h-4 w-4 mr-2" />
-          {user ? "Os meus documentos" : "Área de Cliente"}
-        </Button>
-      </div>
+      {/* Top nav lives in <TopNav /> globally; Hero no longer renders its own client button */}
 
       {/* Main grid */}
       <div className="container max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-8 items-center relative z-10">
@@ -106,6 +99,30 @@ const HeroSection = () => {
               <Play size={16} className="text-primary" />
               Ver como funciona
             </Button>
+          </div>
+
+          {/* Service chips — link para Ecossistema */}
+          <div
+            className="flex flex-wrap gap-2 mb-6 opacity-0 animate-fade-up"
+            style={{ animationDelay: "400ms" }}
+          >
+            {[
+              { icon: FileBadge, label: "CEE" },
+              { icon: Landmark, label: "Hipoteca" },
+              { icon: FileText, label: "Documentos" },
+              { icon: Camera, label: "Fotos 360°" },
+              { icon: Building2, label: "Gestão renda" },
+              { icon: Wrench, label: "Manutenção" },
+            ].map(({ icon: Icon, label }) => (
+              <button
+                key={label}
+                onClick={scrollToEcosystem}
+                className="glass-icon rounded-full px-3 py-1.5 flex items-center gap-1.5 text-[11px] font-medium text-foreground/80 hover:text-foreground transition-colors"
+              >
+                <Icon size={12} className="text-primary" />
+                {label}
+              </button>
+            ))}
           </div>
 
           {/* Trust micro-signals */}
