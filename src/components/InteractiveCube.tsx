@@ -103,7 +103,6 @@ export default function RealisticGlassCube() {
     }, 2500);
   };
 
-  const cubeSize = isMobile ? 220 : 320;
   const perspective = 1200;
 
   const faceTransforms = [
@@ -116,7 +115,15 @@ export default function RealisticGlassCube() {
   ];
 
   return (
-    <div className="relative flex items-center justify-center max-w-full">
+    <div
+      ref={wrapperRef}
+      className="relative flex w-full items-center justify-center mx-auto"
+      style={{
+        paddingLeft: "max(0px, env(safe-area-inset-left))",
+        paddingRight: "max(0px, env(safe-area-inset-right))",
+      }}
+    >
+
       {/* Cube container */}
       <div
         className="relative flex items-center justify-center"
