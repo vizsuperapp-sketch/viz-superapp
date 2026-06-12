@@ -19,7 +19,10 @@ const Documentos = lazy(() => import("./pages/Documentos.tsx"));
 const Vender = lazy(() => import("./pages/Vender.tsx"));
 const Imoveis = lazy(() => import("./pages/Imoveis.tsx"));
 const ImovelDetalhe = lazy(() => import("./pages/ImovelDetalhe.tsx"));
+const Servicos = lazy(() => import("./pages/Servicos.tsx"));
+const Precos = lazy(() => import("./pages/Precos.tsx"));
 const ChatWidget = lazy(() => import("./components/ChatWidget"));
+import TopNav from "./components/TopNav";
 
 const queryClient = new QueryClient();
 
