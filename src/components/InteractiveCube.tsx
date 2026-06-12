@@ -21,6 +21,8 @@ const faceConfigs: FaceConfig[] = [
 ];
 
 export default function RealisticGlassCube() {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [cubeSize, setCubeSize] = useState(320);
   const [isMobile, setIsMobile] = useState(false);
   const innerRef = useRef<HTMLDivElement>(null);
   const rotRef = useRef({ x: -22, y: 35 });
@@ -30,13 +32,30 @@ export default function RealisticGlassCube() {
   const animRef = useRef<number>();
   const resumeTimeoutRef = useRef<NodeJS.Timeout>();
 
+  // Measure available width and pick a cube size that always fits the column,
+  // respecting safe-area insets (notch / rounded screen edges).
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const apply = () => setIsMobile(mq.matches);
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
+    const el = wrapperRef.current;
+    if (!el) return;
+    const compute = () => {
+      const w = el.clientWidth;
+      const mobile = window.matchMedia("(max-width: 640px)").matches;
+      setIsMobile(mobile);
+      const maxByDevice = mobile ? 240 : 320;
+      // Leave ~16px breathing room so glow shadow isn't clipped at the edges.
+      const fit = Math.max(160, Math.min(maxByDevice, w - 16));
+      setCubeSize(Math.round(fit));
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(el);
+    window.addEventListener("resize", compute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", compute);
+    };
   }, []);
+
 
   // Direct DOM transform updates — no React re-render per frame
   useEffect(() => {
@@ -84,7 +103,6 @@ export default function RealisticGlassCube() {
     }, 2500);
   };
 
-  const cubeSize = isMobile ? 220 : 320;
   const perspective = 1200;
 
   const faceTransforms = [
@@ -97,7 +115,15 @@ export default function RealisticGlassCube() {
   ];
 
   return (
-    <div className="relative flex items-center justify-center max-w-full">
+    <div
+      ref={wrapperRef}
+      className="relative flex w-full items-center justify-center mx-auto"
+      style={{
+        paddingLeft: "max(0px, env(safe-area-inset-left))",
+        paddingRight: "max(0px, env(safe-area-inset-right))",
+      }}
+    >
+
       {/* Cube container */}
       <div
         className="relative flex items-center justify-center"
