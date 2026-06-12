@@ -1,5 +1,11 @@
 import { useState, useCallback } from "react";
-import { MessageCircle, X, Send, UserCog } from "lucide-react";
+import { MessageCircle, X, Send, UserCog, Phone } from "lucide-react";
+
+const WHATSAPP_NUMBER = "351916021831";
+
+function buildWhatsAppUrl(message: string) {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import ChatPreForm, { type ChatLead } from "@/components/chat/ChatPreForm";
@@ -412,6 +418,22 @@ export default function ChatWidget() {
           <div className="flex items-center justify-between bg-gradient-viz px-4 py-3 text-white">
             <span className="font-semibold text-sm">Assistente VIZ</span>
             <div className="flex items-center gap-1">
+              <a
+                href={buildWhatsAppUrl(
+                  lead
+                    ? `Olá VIZ! Sou ${lead.name}, interessado em ${lead.interest}. Gostaria de continuar a conversa por aqui.`
+                    : "Olá VIZ! Gostaria de falar convosco."
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Falar no WhatsApp"
+                title="Falar no WhatsApp"
+                className="p-1.5 -m-1 rounded hover:bg-white/10 text-xs flex items-center gap-1"
+                style={{ color: "#25D366" }}
+              >
+                <Phone className="h-4 w-4" />
+                <span className="hidden sm:inline text-white">WhatsApp</span>
+              </a>
               {sessionId && !escalated && (
                 <button
                   onClick={async () => {
