@@ -1,28 +1,34 @@
 import { supabase } from "@/integrations/supabase/client";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
 /**
- * Upload um ficheiro para Supabase Storage com progresso real via XHR.
- * O cliente JS de Storage não emite progresso — por isso vamos directos à REST API.
+ * Upload a file via the `secure-upload` edge function, which performs
+ * server-side magic-byte validation and uses the service role to write
+ * to storage. Reports real progress via XHR.
  */
 export async function uploadWithProgress(
   bucket: string,
   path: string,
   file: File,
   onProgress: (pct: number) => void,
+  opts: { upsert?: boolean } = {},
 ): Promise<void> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error("Sessão expirada. Faz login novamente.");
 
-  const url = `${SUPABASE_URL}/storage/v1/object/${bucket}/${encodeURI(path)}`;
+  const url = `${SUPABASE_URL}/functions/v1/secure-upload`;
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", url);
     xhr.setRequestHeader("Authorization", `Bearer ${session.access_token}`);
-    xhr.setRequestHeader("x-upsert", "false");
-    xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
+    xhr.setRequestHeader("apikey", SUPABASE_PUBLISHABLE_KEY);
+    xhr.setRequestHeader("x-bucket", bucket);
+    xhr.setRequestHeader("x-path", path);
+    xhr.setRequestHeader("x-upsert", opts.upsert ? "true" : "false");
+    xhr.setRequestHeader("Content-Type", "application/octet-stream");
 
     xhr.upload.onprogress = (evt) => {
       if (evt.lengthComputable) {
@@ -38,7 +44,7 @@ export async function uploadWithProgress(
         let msg = `Upload falhou (${xhr.status})`;
         try {
           const body = JSON.parse(xhr.responseText);
-          if (body?.message) msg = body.message;
+          if (body?.error) msg = body.error;
         } catch {
           /* ignore */
         }
