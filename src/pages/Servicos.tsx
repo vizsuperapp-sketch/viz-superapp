@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import FooterSection from "@/components/FooterSection";
 import { CATEGORIAS, SERVICOS, type ServicoCategoria } from "@/data/servicos";
+import { getWhatsAppLink } from "@/lib/whatsapp";
 
 const Servicos = () => {
   const [tab, setTab] = useState<string>("tudo");
@@ -84,7 +85,7 @@ const Servicos = () => {
                           variant="outline"
                           size="sm"
                           className="w-full justify-between border-primary/25 hover:bg-primary/10"
-                          onClick={() => navigate(s.ctaHref)}
+                          onClick={() => window.open(getWhatsAppLink(), "_blank", "noopener,noreferrer")}
                         >
                           {s.ctaLabel}
                           <ArrowRight size={14} />

@@ -3,6 +3,7 @@ import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { SERVICOS } from "@/data/servicos";
+import { getWhatsAppLink } from "@/lib/whatsapp";
 
 const EcosystemServicesSection = () => {
   const sectionRef = useScrollReveal();
@@ -94,7 +95,7 @@ const EcosystemServicesSection = () => {
                     variant="outline"
                     size="sm"
                     className="w-full justify-between border-primary/25 hover:bg-primary/10"
-                    onClick={() => navigate(s.ctaHref)}
+                    onClick={() => window.open(getWhatsAppLink(), "_blank", "noopener,noreferrer")}
                   >
                     {s.ctaLabel}
                     <ArrowRight size={14} />
