@@ -95,7 +95,7 @@ const EcosystemServicesSection = () => {
                     variant="outline"
                     size="sm"
                     className="w-full justify-between border-primary/25 hover:bg-primary/10"
-                    onClick={() => navigate(s.ctaHref)}
+                    onClick={() => window.open(getWhatsAppLink(), "_blank", "noopener,noreferrer")}
                   >
                     {s.ctaLabel}
                     <ArrowRight size={14} />
