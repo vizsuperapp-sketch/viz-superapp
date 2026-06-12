@@ -37,18 +37,7 @@ const HeroSection = () => {
         />
       </div>
 
-      {/* Top nav */}
-      <div className="absolute top-4 right-4 z-20">
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-full border-border/50 text-muted-foreground hover:text-foreground"
-          onClick={() => navigate(user ? "/documentos" : "/auth")}
-        >
-          <UserCircle className="h-4 w-4 mr-2" />
-          {user ? "Os meus documentos" : "Área de Cliente"}
-        </Button>
-      </div>
+      {/* Top nav lives in <TopNav /> globally; Hero no longer renders its own client button */}
 
       {/* Main grid */}
       <div className="container max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-8 items-center relative z-10">
