@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload, Sparkles, Loader2, X, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadWithProgress } from "@/lib/uploadWithProgress";
 import { useToast } from "@/hooks/use-toast";
 
 interface PhotoItem {
@@ -108,19 +109,17 @@ const StepPhotos = ({ propertyId, userId, onFinish, onBack }: StepPhotosProps) =
         const ext = photo.file.name.split(".").pop();
         const filePath = `${userId}/${propertyId}/photos/${photo.id}.${ext}`;
 
-        // Upload original or enhanced
-        let fileToUpload: Blob = photo.file;
+        let fileToUpload: File = photo.file;
         if (photo.enhancedPreview) {
           const res = await fetch(photo.enhancedPreview);
-          fileToUpload = await res.blob();
+          const blob = await res.blob();
+          fileToUpload = new File([blob], photo.file.name, { type: blob.type || photo.file.type });
         }
 
-        const { error } = await supabase.storage
-          .from("property-files")
-          .upload(filePath, fileToUpload, { upsert: true });
-
-        if (error) {
-          toast({ title: `Erro ao carregar ${photo.file.name}`, description: error.message, variant: "destructive" });
+        try {
+          await uploadWithProgress("property-files", filePath, fileToUpload, () => {}, { upsert: true });
+        } catch (err: any) {
+          toast({ title: `Erro ao carregar ${photo.file.name}`, description: err.message, variant: "destructive" });
           continue;
         }
       }

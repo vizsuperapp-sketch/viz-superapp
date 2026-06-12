@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Upload, FileCheck, AlertCircle, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadWithProgress } from "@/lib/uploadWithProgress";
 import { useToast } from "@/hooks/use-toast";
 
 interface DocumentFile {
@@ -57,11 +58,9 @@ const StepDocuments = ({ propertyId, userId, onNext }: StepDocumentsProps) => {
     try {
       const filePath = `${userId}/${propertyId}/documents/${key}_${Date.now()}_${file.name}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("property-files")
-        .upload(filePath, file, { upsert: false });
-
-      if (uploadError) {
+      try {
+        await uploadWithProgress("property-files", filePath, file, () => {});
+      } catch (uploadError: any) {
         toast({ title: "Erro ao carregar documento", description: uploadError.message, variant: "destructive" });
         setDocuments((prev) => ({
           ...prev,
