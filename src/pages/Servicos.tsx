@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import FooterSection from "@/components/FooterSection";
 import { CATEGORIAS, SERVICOS, type ServicoCategoria } from "@/data/servicos";
+import { getWhatsAppLink } from "@/lib/whatsapp";
 
 const Servicos = () => {
   const [tab, setTab] = useState<string>("tudo");
