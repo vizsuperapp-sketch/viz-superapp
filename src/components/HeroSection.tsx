@@ -9,11 +9,15 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const HeroSection = () => {
   const [formOpen, setFormOpen] = useState(false);
-  const { user } = useAuth();
+  useAuth();
   const navigate = useNavigate();
 
   const scrollToHowItWorks = () => {
     document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const scrollToEcosystem = () => {
+    document.getElementById("ecossistema")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
