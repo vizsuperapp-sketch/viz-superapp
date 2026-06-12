@@ -1,46 +1,26 @@
 ## Objetivo
-Substituir a navegação interna (placeholder `/servicos/<id>`) pelos CTAs de todos os cards de serviço, direcionando o utilizador diretamente para uma conversa WhatsApp com mensagem pré-preenchida.
+Ajustar o chatbot VIZ para **não entrar em detalhes de preços/pormenores** e **redirecionar dúvidas para WhatsApp** (+351 916 021 831).
 
-## Dados do utilizador
-- Número: `+351 916 021 831` (formatado para wa.me: `351916021831`)
-- Mensagem genérica: `Olá, quero saber mais sobre os serviços VIZ.`
-- Escopo: **ambas as secções** — cards da homepage (`EcosystemServicesSection`) e página `/servicos` (`Servicos`).
+## Alterações
 
----
+### 1. `supabase/functions/chat/index.ts` — Atualizar `buildSystemPrompt`
+Reescrever as regras do prompt do assistente:
 
-## Passos
+- **Nunca mencionar preços, valores, taxas, percentagens ou condições financeiras concretas.** Se o utilizador perguntar preço/custo/comissão/spread → resposta padrão: *"Os valores variam consoante o caso. Para te dar uma resposta certa, fala com a equipa VIZ no WhatsApp 👉 https://wa.me/351916021831"*.
+- **Manter respostas curtas e de alto nível** (2-3 frases). Apresentar o serviço em 1 frase, sem detalhes técnicos, prazos ou comparações.
+- **Sempre que houver dúvida específica, pedido de proposta, caso particular, documento, prazo, agendamento ou negociação** → encaminhar para WhatsApp com o link `https://wa.me/351916021831`.
+- Remover da árvore de qualificação as menções a "spread -1,5%", "comissões 0%", etc. Substituir por linguagem genérica ("ajudamos com financiamento", "tratamos do certificado energético").
+- Manter tom informal/amigável, português de Portugal, 1 pergunta de cada vez.
+- Adicionar instrução explícita: *"Em caso de dúvida ou pedido concreto, encaminha SEMPRE para o WhatsApp em vez de inventar ou estimar."*
 
-### 1. Utilitário WhatsApp (`src/lib/whatsapp.ts`)
-Criar função auxiliar que retorna o link `wa.me` encode-ado:
-```ts
-export const WHATSAPP_NUMBER = "351916021831";
-export const WHATSAPP_MESSAGE = "Olá, quero saber mais sobre os serviços VIZ.";
+### 2. `src/lib/whatsapp.ts` — (sem alteração)
+Reutilizar `WHATSAPP_NUMBER` já existente. O prompt do chatbot inclui o link em texto puro (Markdown já é renderizado em `ChatMessages.tsx` via `react-markdown`, portanto o link fica clicável automaticamente).
 
-export function getWhatsAppLink(): string {
-  const encoded = encodeURIComponent(WHATSAPP_MESSAGE);
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`;
-}
-```
-
-### 2. Atualizar `src/components/EcosystemServicesSection.tsx`
-- Remover `useNavigate` (ou deixar se ainda for usado pelo botão "Ver todos os serviços").
-- No `onClick` de cada card CTA (`Button` dentro do loop `SERVICOS.map`):
-  - Substituir `navigate(s.ctaHref)` por `window.open(getWhatsAppLink(), "_blank", "noopener,noreferrer")`.
-- No botão "Ver todos os serviços" (rodapé da secção):
-  - Manter `navigate("/servicos")` (este continua a fazer sentido como navegação interna).
-
-### 3. Atualizar `src/pages/Servicos.tsx`
-- No `onClick` de cada card CTA:
-  - Substituir `navigate(s.ctaHref)` por `window.open(getWhatsAppLink(), "_blank", "noopener,noreferrer")`.
-- Manter `useNavigate` para eventuais outros usos futuros (ou remover se ficar sem uso).
-
-### 4. Verificação
-- Confirmar que nenhum `navigate(s.ctaHref)` resta nos dois componentes.
-- Testar preview: clicar num CTA de serviço deve abrir nova tab com WhatsApp.
-- Console limpo — sem warnings de hooks não utilizados.
-
----
+### 3. Verificação
+- Abrir chatbot, perguntar "quanto custa o certificado energético?" → deve responder genericamente + link WhatsApp.
+- Perguntar "qual o spread do crédito?" → mesma resposta.
+- Pergunta geral ("o que fazem?") → resposta curta sem preços.
 
 ## Fora do scope
-- Não alterar `src/data/servicos.ts` (mantém `ctaHref` para FASE 2).
-- Não criar página de checkout, backend de encomendas, nem integração Stripe.
+- Não alterar UI do chat, `ChatPreForm`, persistência, nem `src/data/servicos.ts` (preços continuam visíveis nos cards de serviços, conforme decisão anterior).
+- Não alterar CTAs WhatsApp dos cards (já implementados).
