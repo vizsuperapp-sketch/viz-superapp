@@ -37,18 +37,18 @@ const imoveis = [
     images: 9,
   },
   {
-    name: "Machado Santos",
+    name: "MONTIJO",
     region: "Margem Sul",
     location: "Montijo",
-    priceRange: "285 000 € – 395 000 €",
-    areaRange: "80,02 m² – 173,11 m²",
+    priceRange: "299 000 € – 395 000 €",
+    areaRange: "80 m² – 173,11 m²",
     typology: "T0 – T2",
     completion: "1º Semestre 2027",
-    description: "Machado Santos é um novo empreendimento residencial no coração do Montijo com fácil acesso à Lisboa.",
+    description: "È um novo empreendimento residencial no coração do Montijo com fácil acesso à Lisboa.",
     images: 6,
   },
   {
-    name: "Horizon",
+    name: "Moradias Lourinha",
     region: "Lisboa",
     location: "Lourinhã",
     priceRange: "1 450 000 € – 2 300 000 €",
@@ -290,7 +290,8 @@ export default function ChatWidget() {
     if (i.includes("comprar") || i.includes("investir"))
       return ["Ver VistaBella Oeiras", "Simulação financiamento", "Falar com agente"];
     if (i.includes("vender")) return ["Como vender com 0%?", "Quanto demora?", "Falar com agente"];
-    if (i.includes("financ") || i.includes("crédito")) return ["Taxas atuais", "Documentos necessários", "Falar com agente"];
+    if (i.includes("financ") || i.includes("crédito"))
+      return ["Taxas atuais", "Documentos necessários", "Falar com agente"];
     return ["Ver imóveis", "Vender imóvel", "Falar com agente"];
   };
 
@@ -422,7 +423,7 @@ export default function ChatWidget() {
                 href={buildWhatsAppUrl(
                   lead
                     ? `Olá VIZ! Sou ${lead.name}, interessado em ${lead.interest}. Gostaria de continuar a conversa por aqui.`
-                    : "Olá VIZ! Gostaria de falar convosco."
+                    : "Olá VIZ! Gostaria de falar convosco.",
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -441,10 +442,13 @@ export default function ChatWidget() {
                     await supabase.from("chat_sessions").update({ escalated: true }).eq("id", sessionId);
                     const msg: Msg = {
                       role: "assistant",
-                      content: "✅ Pedido recebido. Um agente VIZ vai contactar-te muito em breve no email/telefone que indicaste.",
+                      content:
+                        "✅ Pedido recebido. Um agente VIZ vai contactar-te muito em breve no email/telefone que indicaste.",
                     };
                     setMessages((prev) => [...prev, msg]);
-                    await supabase.from("chat_messages").insert({ session_id: sessionId, role: "assistant", content: msg.content });
+                    await supabase
+                      .from("chat_messages")
+                      .insert({ session_id: sessionId, role: "assistant", content: msg.content });
                   }}
                   aria-label="Falar com agente humano"
                   title="Falar com agente humano"
@@ -454,7 +458,11 @@ export default function ChatWidget() {
                   <span className="hidden sm:inline">Agente</span>
                 </button>
               )}
-              <button onClick={() => setOpen(false)} aria-label="Fechar chat" className="p-1 -m-1 rounded hover:bg-white/10">
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Fechar chat"
+                className="p-1 -m-1 rounded hover:bg-white/10"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -491,7 +499,13 @@ export default function ChatWidget() {
                   className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                   disabled={loading}
                 />
-                <Button type="submit" size="icon" variant="ghost" disabled={loading || !input.trim()} className="h-8 w-8 shrink-0">
+                <Button
+                  type="submit"
+                  size="icon"
+                  variant="ghost"
+                  disabled={loading || !input.trim()}
+                  className="h-8 w-8 shrink-0"
+                >
                   <Send className="h-4 w-4" />
                 </Button>
               </form>
