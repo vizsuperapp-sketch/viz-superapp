@@ -18,7 +18,7 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { data, error } = await supabaseAdmin
+    const { count, error } = await supabaseAdmin
       .from("leads")
       .select("*", { count: "exact", head: true });
 
@@ -26,10 +26,8 @@ serve(async (req) => {
       throw error;
     }
 
-    const count = data?.length ?? 0;
-
     return new Response(
-      JSON.stringify({ count }),
+      JSON.stringify({ count: count ?? 0 }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
