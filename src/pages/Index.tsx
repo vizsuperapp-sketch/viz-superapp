@@ -31,6 +31,7 @@ const Index = () => {
       <BenefitsSection />
       <EcosystemSection />
       <FinalCTASection />
+      <SellPropertySection />
       <FooterSection />
     </div>
   );
