@@ -102,7 +102,7 @@ const HeroSection = () => {
 
           {/* VIP counter */}
           <div
-            className="flex items-center gap-2 mb-8 opacity-0 animate-fade-up"
+            className="flex items-center gap-2 mb-6 opacity-0 animate-fade-up"
             style={{ animationDelay: "400ms" }}
           >
             <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white/10 border border-white/10">
@@ -113,10 +113,13 @@ const HeroSection = () => {
             </span>
           </div>
 
+          {/* Social proof bar */}
+          <SocialProofBar />
+
           {/* Service chips — link para Ecossistema */}
           <div
-            className="flex flex-wrap gap-2 mb-6 opacity-0 animate-fade-up"
-            style={{ animationDelay: "450ms" }}
+            className="flex flex-wrap gap-2 mt-8 mb-6 opacity-0 animate-fade-up"
+            style={{ animationDelay: "500ms" }}
           >
             {[
               { icon: FileBadge, label: "CEE" },
@@ -140,7 +143,7 @@ const HeroSection = () => {
           {/* Trust micro-signals */}
           <div
             className="flex items-center gap-5 opacity-0 animate-fade-up"
-            style={{ animationDelay: "500ms" }}
+            style={{ animationDelay: "550ms" }}
           >
             {[
               { icon: ShieldCheck, text: "Dados verificados" },
