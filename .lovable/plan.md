@@ -1,31 +1,28 @@
 ## Objetivo
 
-Adicionar uma nova secção de conversão "Quero Vender o Meu Imóvel" antes do footer, com destaque visual e CTA claro.
+Adicionar uma barra de prova social abaixo do Hero Section com três números de impacto, fundo glass e design minimalista.
 
-## Nova secção
+## Alterações
 
-1. **Criar componente** `src/components/SellPropertySection.tsx`:
-  - **Headline**: `Pronto para poupar milhares Euros ?`
-  - **Subtitle**: `Publica o teu imóvel gratuitamente. Sem contratos. Sem comissões.`
-  - **Botão grande**: `Publicar o Meu Imóvel →` (variante `cyan` do botão, tamanho `xl`)
-  - **Ação do botão**: navegar para `/vender`.
-  - **Background**: card com gradiente suave e glow (reutilizando/estendendo o estilo liquid-glass/glass-card existente, com gradiente próprio).
-  - **Animação**: usar `useScrollReveal` para manter consistência com as outras secções.
-2. **Inserir na homepage**:
-  - Em `src/pages/Index.tsx`, renderizar `<SellPropertySection />` imediatamente antes de `<FooterSection />`.
+1. **Criar componente** `src/components/SocialProofBar.tsx`:
+   - Fundo: glass card semi-transparente (`liquid-glass-strong` ou similar).
+   - Três itens lado a lado (horizontal em desktop, empilhados em mobile):
+     - **0%** — label "Comissão cobrada" (ícone simples, ex. `Percent` ou `BadgePercent`)
+     - **€15.000+** — label "Poupança média por transação" (ícone simples, ex. `Wallet` ou `PiggyBank`)
+     - **100%** — label "Transparência no processo" (ícone simples, ex. `Eye` ou `ShieldCheck`)
+   - Texto branco, tipografia clean, ícones pequenos e discretos.
+   - Animação opcional: `reveal`/`fade-up` para manter consistência com o Hero.
 
-## Estilos
-
-- Criar/utilizar um utilitário CSS para o gradiente de fundo da secção, mantendo a paleta dark existente.
-- O glow deve ser sutil, sem competir com o cubo ou outros elementos.
+2. **Inserir no Hero Section**:
+   - Em `src/components/HeroSection.tsx`, renderizar `<SocialProofBar />` abaixo do conteúdo principal do texto, antes do botão "Começar agora" ou integrado com os CTAs existentes (posicionar de forma visualmente equilibrada).
 
 ## Ficheiros a alterar
 
-- `src/components/SellPropertySection.tsx` (novo)
-- `src/pages/Index.tsx` (inserir secção)
+- `src/components/SocialProofBar.tsx` (novo)
+- `src/components/HeroSection.tsx` (inserir barra)
 
 ## Verificação
 
 - `bunx vite build` passa sem erros.
-- Preview mostra a nova secção antes do footer, com headline, subtitle, botão azul/cyan e glow suave.
-- Clicar no botão navega para `/vender`.
+- Preview mostra a barra de prova social abaixo do Hero com os 3 números, fundo glass e texto branco.
+- Layout responsivo: horizontal em desktop, empilhado em mobile.
