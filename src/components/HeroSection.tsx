@@ -65,9 +65,8 @@ const HeroSection = () => {
             className="text-5xl font-bold leading-[1.05] tracking-tight mb-5 opacity-0 animate-fade-up"
             style={{ animationDelay: "100ms", textWrap: "balance" }}
           >
-            Vende a tua casa.<br />
-            Poupa €15.000.<br />
-            <span className="text-gradient">Sem agências.</span>
+            SuperApp da casa<br />
+            Comprar ou vender, <span className="text-gradient">sem comissões.</span>
           </h1>
 
           <p
