@@ -7,6 +7,7 @@ const InteractiveCube = lazy(() => import("@/components/InteractiveCube"));
 import LeadFormModal from "@/components/LeadFormModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { getVipCount } from "@/lib/vip-count";
+import SocialProofBar from "@/components/SocialProofBar";
 
 const HeroSection = () => {
   const [formOpen, setFormOpen] = useState(false);
