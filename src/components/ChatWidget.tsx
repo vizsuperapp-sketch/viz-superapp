@@ -16,7 +16,7 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 // Dados dos imóveis - VistaBella em 1º lugar com vídeo 360
 const imoveis = [
   {
-    name: "VistaBella Oeiras",
+    name: "Oeiras",
     region: "Oeiras",
     location: "Oeiras",
     priceRange: "690 000 €",
