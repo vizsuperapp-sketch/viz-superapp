@@ -75,8 +75,8 @@ export const properties: Property[] = [
     ],
   },
   {
-    slug: "machado-santos",
-    name: "Machado Santos",
+    slug: "MONTIJO",
+    name: "MONTIJO",
     location: "Montijo",
     region: "Margem Sul",
     typology: "T0 – T2",
@@ -84,7 +84,7 @@ export const properties: Property[] = [
     areaRange: "80,02 m² – 173,11 m²",
     completion: "1º Semestre 2027",
     description:
-      "Machado Santos é um novo e empolgante empreendimento residencial localizado no coração do Montijo. Esta localização privilegiada oferece o equilíbrio perfeito entre a tranquilidade suburbana e o fácil acesso à vibrante vida urbana da capital, numa curta viagem de 25 minutos de ferry até o centro de Lisboa.\n\nO empreendimento conta com uma variedade de apartamentos modernos, desde unidades T0 penthouse até apartamentos T2 com pátios e jardins. Essas residências oferecem um excelente custo-benefício para aqueles que procuram viver no centro, aproveitando os benefícios de um estilo de vida mais tranquilo e acessível.",
+      "È um novo e empolgante empreendimento residencial localizado no coração do Montijo. Esta localização privilegiada oferece o equilíbrio perfeito entre a tranquilidade suburbana e o fácil acesso à vibrante vida urbana da capital, numa curta viagem de 25 minutos de ferry até o centro de Lisboa.\n\nO empreendimento conta com uma variedade de apartamentos modernos, desde unidades T0 penthouse até apartamentos T2 com pátios e jardins. Essas residências oferecem um excelente custo-benefício para aqueles que procuram viver no centro, aproveitando os benefícios de um estilo de vida mais tranquilo e acessível.",
     coverImage:
       "https://static.wixstatic.com/media/a9bb7d_aa24eb9118dd4ded8cb5103109d0e1f8~mv2.jpg/v1/fill/w_1905,h_782,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/img74.jpg",
     images: [
