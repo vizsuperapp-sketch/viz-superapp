@@ -28,8 +28,8 @@ export interface Property {
 
 export const properties: Property[] = [
   {
-    slug: "vistabella-oeiras",
-    name: "VistaBella Oeiras",
+    slug: "oeiras",
+    name: "Oeiras",
     location: "Oeiras",
     region: "Oeiras",
     typology: "T2 com 2 Suítes",
@@ -49,7 +49,7 @@ export const properties: Property[] = [
       "Parque infantil e pet place",
     ],
     description:
-      "VistaBella Oeiras é um novo conceito de bairro planeado localizado na região central de Oeiras, um dos concelhos mais valorizados da Grande Lisboa.\n\n🌟 Um Bairro Completo:\nMais que uma morada, VistaBella oferece um estilo de vida premium com três empreendimentos residenciais (Panorama, Boulevard e Mirador) integrados num bairro com infraestruturas de excelência.\n\n📍 Localização Estratégica:\n• Junto ao Parque dos Poetas\n• Próximo do centro comercial Oeiras Parque\n• 10 minutos das praias da região\n• Acesso a escolas e hospitais de referência\n• Lagoas Park e Taguspark a curta distância\n• 15 minutos de Lisboa\n\n🏊 Clube Privado Condomínio:\n• Ginásio totalmente equipado\n• Spa completo (sauna, jacuzzi, relaxamento)\n• Piscina exterior para adultos\n• Piscina infantil\n• Área gourmet premium\n• Quadra de padel regulamentada\n\n🌳 Infraestruturas do Bairro:\n• Parque urbano arborizado\n• Parque infantil seguro\n• Ruas pavimentadas com betão poroso\n• Estacionamento para visitantes\n• Ecoponto subterrâneo\n• Painéis solares fotovoltaicos\n• Pet place (zona dedicada a animais de estimação)\n\n✅ Construção Sustentável:\n✅ Arquitetura contemporânea e moderna\n✅ Eficiência energética excepcional\n✅ Materiais premium em todo o empreendimento\n✅ Excelente isolamento térmico e acústico\n✅ Painéis solares integrados\n\n💡 Ideal Para:\n✓ Famílias que procuram qualidade de vida\n✓ Investimento imobiliário de alto potencial\n✓ Zona em constante desenvolvimento urbano\n✓ Mercado premium em Oeiras",
+      "é um novo conceito de bairro planeado localizado na região central de Oeiras, um dos concelhos mais valorizados da Grande Lisboa.\n\n🌟 Um Bairro Completo:\nMais que uma morada, VistaBella oferece um estilo de vida premium com três empreendimentos residenciais (Panorama, Boulevard e Mirador) integrados num bairro com infraestruturas de excelência.\n\n📍 Localização Estratégica:\n• Junto ao Parque dos Poetas\n• Próximo do centro comercial Oeiras Parque\n• 10 minutos das praias da região\n• Acesso a escolas e hospitais de referência\n• Lagoas Park e Taguspark a curta distância\n• 15 minutos de Lisboa\n\n🏊 Clube Privado Condomínio:\n• Ginásio totalmente equipado\n• Spa completo (sauna, jacuzzi, relaxamento)\n• Piscina exterior para adultos\n• Piscina infantil\n• Área gourmet premium\n• Quadra de padel regulamentada\n\n🌳 Infraestruturas do Bairro:\n• Parque urbano arborizado\n• Parque infantil seguro\n• Ruas pavimentadas com betão poroso\n• Estacionamento para visitantes\n• Ecoponto subterrâneo\n• Painéis solares fotovoltaicos\n• Pet place (zona dedicada a animais de estimação)\n\n✅ Construção Sustentável:\n✅ Arquitetura contemporânea e moderna\n✅ Eficiência energética excepcional\n✅ Materiais premium em todo o empreendimento\n✅ Excelente isolamento térmico e acústico\n✅ Painéis solares integrados\n\n💡 Ideal Para:\n✓ Famílias que procuram qualidade de vida\n✓ Investimento imobiliário de alto potencial\n✓ Zona em constante desenvolvimento urbano\n✓ Mercado premium em Oeiras",
     coverImage: "https://www.vistabellaoeiras.com/images/intro.jpg",
     images: [
       "https://www.vistabellaoeiras.com/images/intro.jpg",

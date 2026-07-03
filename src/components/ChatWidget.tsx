@@ -70,11 +70,7 @@ function getPropertyMessage(userMessage: string, clientInterest: string): string
   // 🏠 SE CLIENTE QUER COMPRAR OU INVESTIR
   if (interest.includes("comprar") || interest.includes("investir") || interest.includes("propriedade para compra")) {
     // Pergunta sobre VistaBella Oeiras
-    if (
-      lower.includes("vistabella") ||
-      lower.includes("oeiras") ||
-      (lower.includes("t2") && lower.includes("oeiras"))
-    ) {
+    if (lower.includes("oeiras ") || lower.includes("oeiras") || (lower.includes("t2") && lower.includes("oeiras"))) {
       const p = imoveis[0];
       return `📍 **${p.name}** ${p.badge ? `🌟 ${p.badge}` : ""}\n\n💰 Preço: ${p.priceRange}\n📏 Área: ${p.areaRange}\n🏠 Tipo: ${p.typology}\n📅 Conclusão: ${p.completion}\n\n✨ Destaques:\n• ${p.highlights?.join("\n• ")}\n\n${p.description}\n\n🏆 OPORTUNIDADE PREMIUM em DESTAQUE!\n${p.hasVideo360 ? "\n🎥 NOVO! Tour 360° disponível no site para explorar o empreendimento virtualmente!\n" : ""}\n🖼️ Tenho ${p.images} fotos incríveis! Quer agendar uma visita? 📸`;
     }
