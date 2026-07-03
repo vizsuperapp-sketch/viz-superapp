@@ -132,8 +132,8 @@ export const properties: Property[] = [
     ],
   },
   {
-    slug: "horizon",
-    name: "Horizon",
+    slug: "Lourinhã",
+    name: "Lourinhã",
     location: "Lourinhã",
     region: "Lisboa",
     typology: "T3 – T4",
@@ -146,7 +146,7 @@ export const properties: Property[] = [
       "Junto à Praia da Peralta",
     ],
     description:
-      "Situado junto à Praia da Peralta, na Lourinhã, o HORIZON redefine o conceito de viver entre o mar e a sofisticação. Composto por apenas 15 moradias exclusivas (T3 e T4), o empreendimento destaca-se pela arquitetura contemporânea e janelas panorâmicas que trazem o Atlântico para dentro de casa.\n\nCada residência inclui elevador, jardim privativo, piscina e é entregue totalmente mobilada e decorada com acabamentos premium. A menos de uma hora de Lisboa, o HORIZON oferece o equilíbrio perfeito entre a tranquilidade da Região Oeste — famosa pela sua gastronomia e natureza preservada — e a conveniência da capital.",
+      "Situado junto à Praia da Peralta, na Lourinhã,   redefine o conceito de viver entre o mar e a sofisticação. Composto por apenas 15 moradias exclusivas (T3 e T4), o empreendimento destaca-se pela arquitetura contemporânea e janelas panorâmicas que trazem o Atlântico para dentro de casa.\n\nCada residência inclui elevador, jardim privativo, piscina e é entregue totalmente mobilada e decorada com acabamentos premium. A menos de uma hora de Lisboa, o HORIZON oferece o equilíbrio perfeito entre a tranquilidade da Região Oeste — famosa pela sua gastronomia e natureza preservada — e a conveniência da capital.",
     coverImage:
       "https://static.wixstatic.com/media/a9bb7d_60db3151f85d427fb897ea71a1adec88~mv2.jpg/v1/fill/w_1600,h_657,al_c,q_85,enc_avif,quality_auto/06.jpg",
     images: [
