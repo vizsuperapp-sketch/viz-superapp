@@ -8,6 +8,7 @@ import ManifestoSection from "@/components/ManifestoSection";
 import BenefitsSection from "@/components/BenefitsSection";
 import EcosystemSection from "@/components/EcosystemSection";
 import FinalCTASection from "@/components/FinalCTASection";
+import SellPropertySection from "@/components/SellPropertySection";
 import FooterSection from "@/components/FooterSection";
 
 const Index = () => {
@@ -30,6 +31,7 @@ const Index = () => {
       <BenefitsSection />
       <EcosystemSection />
       <FinalCTASection />
+      <SellPropertySection />
       <FooterSection />
     </div>
   );
