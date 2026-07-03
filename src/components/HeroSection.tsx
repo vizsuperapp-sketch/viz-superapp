@@ -1,23 +1,35 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import vizLogoCube from "@/assets/viz-logo-cube.png";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Play, ShieldCheck, Lock, Users, FileBadge, Camera, FileText, Landmark, Building2, Wrench } from "lucide-react";
+import { ArrowRight, ShieldCheck, Lock, Users, FileBadge, Camera, FileText, Landmark, Building2, Wrench } from "lucide-react";
 const InteractiveCube = lazy(() => import("@/components/InteractiveCube"));
 import LeadFormModal from "@/components/LeadFormModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { getVipCount } from "@/lib/vip-count";
 
 const HeroSection = () => {
   const [formOpen, setFormOpen] = useState(false);
+  const [vipCount, setVipCount] = useState<number>(247);
   useAuth();
   const navigate = useNavigate();
 
-  const scrollToHowItWorks = () => {
-    document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
-  };
+  useEffect(() => {
+    let mounted = true;
+    getVipCount().then((count) => {
+      if (mounted) setVipCount(count);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const scrollToEcosystem = () => {
     document.getElementById("ecossistema")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const scrollToProperties = () => {
+    document.getElementById("imoveis-destaque")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -37,8 +49,6 @@ const HeroSection = () => {
         />
       </div>
 
-      {/* Top nav lives in <TopNav /> globally; Hero no longer renders its own client button */}
-
       {/* Main grid */}
       <div className="container max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-8 items-center relative z-10">
         {/* Left — Text */}
@@ -55,56 +65,58 @@ const HeroSection = () => {
             className="text-5xl font-bold leading-[1.05] tracking-tight mb-5 opacity-0 animate-fade-up"
             style={{ animationDelay: "100ms", textWrap: "balance" }}
           >
-            SuperApp da casa<br />
-            Comprar ou vender , <span className="text-gradient">sem comissões.</span>
+            Vende a tua casa.<br />
+            Poupa €15.000.<br />
+            <span className="text-gradient">Sem agências.</span>
           </h1>
 
           <p
-            className="text-base md:text-lg mb-3 opacity-0 animate-fade-up text-muted-foreground max-w-md"
+            className="text-base md:text-lg mb-8 opacity-0 animate-fade-up text-muted-foreground max-w-md"
             style={{ animationDelay: "200ms", textWrap: "balance" }}
           >
-            A VIZ liga comprador e vendedor diretamente, com tecnologia, transparência e zero comissão.
-          </p>
-
-          <p
-            className="text-sm mb-8 opacity-0 animate-fade-up max-w-md"
-            style={{ animationDelay: "250ms", color: "hsl(var(--muted-foreground))", opacity: 0.7 }}
-          >
-            Não somos uma imobiliária. Somos a nova infraestrutura da transação imobiliária.
+            A VIZ liga compradores e vendedores diretamente. Zero comissão. Sempre.
           </p>
 
           {/* CTA buttons */}
           <div
-            className="flex flex-col sm:flex-row items-start gap-3 mb-8 opacity-0 animate-fade-up"
+            className="flex flex-col sm:flex-row items-start gap-3 mb-5 opacity-0 animate-fade-up"
             style={{ animationDelay: "350ms" }}
           >
-            <Button variant="hero" size="xl" onClick={() => setFormOpen(true)}>
-              Começar agora
-              <ChevronRight className="ml-1" />
-            </Button>
             <Button
-              variant="outline"
-              size="lg"
-              className="border-primary/30 text-foreground hover:bg-primary/10"
+              variant="cyan"
+              size="xl"
               onClick={() => navigate("/vender")}
             >
               Quero Vender
+              <ArrowRight className="ml-1" />
             </Button>
             <Button
-              variant="ghost"
-              size="lg"
-              className="text-muted-foreground hover:text-foreground gap-2"
-              onClick={scrollToHowItWorks}
+              variant="outline-white"
+              size="xl"
+              onClick={scrollToProperties}
             >
-              <Play size={16} className="text-primary" />
-              Ver como funciona
+              Quero Comprar
+              <ArrowRight className="ml-1" />
             </Button>
+          </div>
+
+          {/* VIP counter */}
+          <div
+            className="flex items-center gap-2 mb-8 opacity-0 animate-fade-up"
+            style={{ animationDelay: "400ms" }}
+          >
+            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white/10 border border-white/10">
+              <Users size={14} className="text-cyan-300" />
+            </div>
+            <span className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">{vipCount.toLocaleString("pt-PT")}</span> pessoas já na lista VIP
+            </span>
           </div>
 
           {/* Service chips — link para Ecossistema */}
           <div
             className="flex flex-wrap gap-2 mb-6 opacity-0 animate-fade-up"
-            style={{ animationDelay: "400ms" }}
+            style={{ animationDelay: "450ms" }}
           >
             {[
               { icon: FileBadge, label: "CEE" },
@@ -128,7 +140,7 @@ const HeroSection = () => {
           {/* Trust micro-signals */}
           <div
             className="flex items-center gap-5 opacity-0 animate-fade-up"
-            style={{ animationDelay: "450ms" }}
+            style={{ animationDelay: "500ms" }}
           >
             {[
               { icon: ShieldCheck, text: "Dados verificados" },
