@@ -70,8 +70,10 @@
   }
 
   html, body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply text-foreground font-sans antialiased;
     font-family: 'DM Sans', system-ui, sans-serif;
+    background: linear-gradient(180deg, #0f172a 0%, #1a2744 50%, #0f172a 100%) fixed;
+    background-color: hsl(var(--background));
     /* Mobile: previne overflow horizontal e melhora rendering iOS */
     overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
