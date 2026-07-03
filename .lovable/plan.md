@@ -1,28 +1,14 @@
-## Objetivo
+## Estado atual
 
-Adicionar uma barra de prova social abaixo do Hero Section com três números de impacto, fundo glass e design minimalista.
+A secção "Quero Vender o Meu Imóvel" já foi implementada anteriormente e está presente no projeto:
 
-## Alterações
+- **Ficheiro**: `src/components/SellPropertySection.tsx`
+- **Headline**: `Pronto para poupar milhares de €uros?`
+- **Subtitle**: `Publica o teu imóvel gratuitamente. Sem contratos. Sem comissões.`
+- **Botão**: `Publicar o Meu Imóvel →` (variante `cyan`, tamanho `xl`), navega para `/vender`
+- **Background**: gradient card com glow suave
+- **Posição**: renderizada em `src/pages/Index.tsx` imediatamente antes de `FooterSection`
 
-1. **Criar componente** `src/components/SocialProofBar.tsx`:
-   - Fundo: glass card semi-transparente (`liquid-glass-strong` ou similar).
-   - Três itens lado a lado (horizontal em desktop, empilhados em mobile):
-     - **0%** — label "Comissão cobrada" (ícone simples, ex. `Percent` ou `BadgePercent`)
-     - **€15.000+** — label "Poupança média por transação" (ícone simples, ex. `Wallet` ou `PiggyBank`)
-     - **100%** — label "Transparência no processo" (ícone simples, ex. `Eye` ou `ShieldCheck`)
-   - Texto branco, tipografia clean, ícones pequenos e discretos.
-   - Animação opcional: `reveal`/`fade-up` para manter consistência com o Hero.
+## Plano
 
-2. **Inserir no Hero Section**:
-   - Em `src/components/HeroSection.tsx`, renderizar `<SocialProofBar />` abaixo do conteúdo principal do texto, antes do botão "Começar agora" ou integrado com os CTAs existentes (posicionar de forma visualmente equilibrada).
-
-## Ficheiros a alterar
-
-- `src/components/SocialProofBar.tsx` (novo)
-- `src/components/HeroSection.tsx` (inserir barra)
-
-## Verificação
-
-- `bunx vite build` passa sem erros.
-- Preview mostra a barra de prova social abaixo do Hero com os 3 números, fundo glass e texto branco.
-- Layout responsivo: horizontal em desktop, empilhado em mobile.
+Não há alterações de código necessárias. Aprova este plano apenas para confirmar que o estado atual corresponde ao pedido. Se quiseres algum ajuste visual ou de texto, diz qual e criarei um plano novo.
