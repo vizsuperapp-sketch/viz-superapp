@@ -229,6 +229,33 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          user_type: Database["public"]["Enums"]["waitlist_user_type"]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          user_type: Database["public"]["Enums"]["waitlist_user_type"]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          user_type?: Database["public"]["Enums"]["waitlist_user_type"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -245,6 +272,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       property_status: "draft" | "pending" | "active"
+      waitlist_user_type: "comprador" | "vendedor" | "investidor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -374,6 +402,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       property_status: ["draft", "pending", "active"],
+      waitlist_user_type: ["comprador", "vendedor", "investidor"],
     },
   },
 } as const
