@@ -46,7 +46,7 @@ const VizWaitlistForm = () => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.from("waitlist").insert(parsed.data);
+    const { error } = await supabase.from("waitlist").insert([parsed.data]);
     setLoading(false);
     if (error) {
       if (error.code === "23505") {
