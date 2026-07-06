@@ -28,15 +28,37 @@ const StepPhotos = ({ propertyId, userId, onFinish, onBack }: StepPhotosProps) =
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const ACCEPTED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+  const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
+
   const handleFilesSelect = (files: FileList) => {
-    const newPhotos: PhotoItem[] = Array.from(files).map((file) => ({
-      id: crypto.randomUUID(),
-      file,
-      preview: URL.createObjectURL(file),
-      enhancing: false,
-      uploaded: false,
-    }));
-    setPhotos((prev) => [...prev, ...newPhotos]);
+    const rejected: string[] = [];
+    const accepted: PhotoItem[] = [];
+    Array.from(files).forEach((file) => {
+      if (!ACCEPTED_PHOTO_TYPES.includes(file.type)) {
+        rejected.push(`${file.name}: tipo não suportado`);
+        return;
+      }
+      if (file.size > MAX_PHOTO_BYTES) {
+        rejected.push(`${file.name}: excede 15 MB`);
+        return;
+      }
+      accepted.push({
+        id: crypto.randomUUID(),
+        file,
+        preview: URL.createObjectURL(file),
+        enhancing: false,
+        uploaded: false,
+      });
+    });
+    if (rejected.length) {
+      toast({
+        title: "Algumas fotos foram ignoradas",
+        description: rejected.join(" · "),
+        variant: "destructive",
+      });
+    }
+    if (accepted.length) setPhotos((prev) => [...prev, ...accepted]);
   };
 
   const removePhoto = (id: string) => {
