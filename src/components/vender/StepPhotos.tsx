@@ -126,11 +126,9 @@ const StepPhotos = ({ propertyId, userId, onFinish, onBack }: StepPhotosProps) =
       return;
     }
     setUploading(true);
+    let uploadedCount = 0;
     try {
       for (const photo of photos) {
-        const ext = photo.file.name.split(".").pop();
-        const filePath = `${userId}/${propertyId}/photos/${photo.id}.${ext}`;
-
         let fileToUpload: File = photo.file;
         if (photo.enhancedPreview) {
           const res = await fetch(photo.enhancedPreview);
@@ -138,14 +136,39 @@ const StepPhotos = ({ propertyId, userId, onFinish, onBack }: StepPhotosProps) =
           fileToUpload = new File([blob], photo.file.name, { type: blob.type || photo.file.type });
         }
 
+        // Only jpeg/png/webp are accepted server-side; ensure ext matches actual type.
+        const mimeToExt: Record<string, string> = {
+          "image/jpeg": "jpg",
+          "image/png": "png",
+          "image/webp": "webp",
+        };
+        const ext = mimeToExt[fileToUpload.type] ?? "jpg";
+        const filePath = `${userId}/${propertyId}/photos/${photo.id}.${ext}`;
+
         try {
           await uploadWithProgress("property-files", filePath, fileToUpload, () => {}, { upsert: true });
         } catch (err: any) {
           toast({ title: `Erro ao carregar ${photo.file.name}`, description: err.message, variant: "destructive" });
           continue;
         }
+
+        // Register in client_documents so photos are visible in admin/user areas.
+        const safeName = photo.file.name.replace(/[^\w.\-]+/g, "_");
+        const { error: insertError } = await supabase.from("client_documents").insert({
+          user_id: userId,
+          bucket: "property-files",
+          storage_path: filePath,
+          file_name: safeName,
+          document_type: "foto",
+        });
+        if (insertError) console.error("Error registering photo:", insertError);
+        uploadedCount++;
       }
 
+      if (uploadedCount === 0) {
+        toast({ title: "Nenhuma foto foi carregada", variant: "destructive" });
+        return;
+      }
       toast({ title: "Fotos carregadas com sucesso!" });
       onFinish();
     } catch (e) {
