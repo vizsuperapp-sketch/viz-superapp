@@ -161,7 +161,7 @@ const StepDocuments = ({ propertyId, userId, onNext }: StepDocumentsProps) => {
                     <input
                       ref={(el) => { fileInputRefs.current[doc.key] = el; }}
                       type="file"
-                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                      accept="application/pdf,image/jpeg,image/png"
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
