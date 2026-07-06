@@ -175,14 +175,15 @@ const Auth = () => {
           description: "Não foi possível iniciar sessão com o Google.",
           variant: "destructive",
         });
+        return;
       }
 
+      // If the SDK redirected to Google, nothing else to do — the return
+      // trip lands back on /auth and the useEffect above will navigate.
       if (result.redirected) return;
 
-      // ✅ Aguarda um pouco para session ser atualizada
-      setTimeout(() => {
-        navigate("/documentos", { replace: true });
-      }, 500);
+      // Local-only flow: onAuthStateChange in AuthContext will populate the
+      // session; the redirect useEffect handles the navigation. No setTimeout.
     } catch {
       toast({
         title: "❌ Erro",
