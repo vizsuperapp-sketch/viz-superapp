@@ -1,43 +1,61 @@
 ## Objetivo
+Enviar uma notificação WhatsApp para **+351 916 021 831** sempre que ocorrer:
+1. **Novo registo** em `/auth`
+2. **Novo upload** de documento (em `/vender` ou `/documentos`)
+3. **Nova conversa** de chat iniciada (1 notificação por sessão, não por mensagem)
 
-Fazer uma varredura profunda end-to-end do site, testar registo, uploads de documentos e chatbot, e corrigir tudo o que não estiver fluido. Nada disto altera o design.
+Canal de envio: **Twilio WhatsApp** via connector gateway da Lovable.
 
-## Fase 1 — Diagnóstico (sem editar código)
+## Pré-requisitos (ação do utilizador)
+1. **Ligar o connector Twilio** — vou pedir a ligação; precisas de ter uma conta Twilio (o sandbox WhatsApp serve para testes).
+2. **Número From aprovado no Twilio** — normalmente `whatsapp:+14155238886` no sandbox, ou o teu número WhatsApp Business aprovado em produção.
+3. **Sandbox**: enviar `join <código>` do +351 916 021 831 para o número Twilio sandbox uma vez, para poder receber mensagens.
 
-1. **Estado do backend**
-   - `security--run_security_scan` para detetar RLS/GRANTs em falta em `profiles`, `properties`, `leads`, `client_documents`, `chat_sessions`, `chat_messages`, `user_roles`.
-   - `supabase--linter` + `read_query` para confirmar policies e grants nas 7 tabelas e nos buckets `documents` e `property-files`.
-   - `edge_function_logs` das funções `chat`, `submit-lead`, `secure-upload`, `enhance-photo`, `generate-description`, `get-vip-count` (últimas 24h).
+Guardo o número `From` como secret `TWILIO_WHATSAPP_FROM` e o destino `TWILIO_WHATSAPP_TO=whatsapp:+351916021831` (fixo, o teu número).
 
-2. **Testes E2E via Playwright headless** (script em `/tmp/browser/`, com sessão Supabase injetada quando aplicável):
-   - **Registo / Auth** (`/auth`): signup novo, login, erros PT-PT, redirect pós-login.
-   - **Chatbot** (widget global): abrir → pre-form → enviar mensagem → confirmar streaming e persistência em `chat_messages`.
-   - **Vender / Uploads** (`/vender`): fluxo dos 3 passos, upload de foto real, upload de PDF, geração de descrição IA, criação de `properties` + `client_documents`.
-   - **Documentos** (`/documentos`): listagem, upload, download de ficheiro em bucket privado (signed URL).
-   - **Leads** (modal do Hero): submissão via `submit-lead`, verificar registo em `leads`.
-   - Cada passo captura screenshot + consola + network; qualquer 4xx/5xx ou exceção é registada.
+## Arquitetura
 
-3. **Relatório consolidado**: lista priorizada de bugs (bloqueante / grave / polimento) com ficheiro:linha e evidência.
+Uma única edge function `notify-whatsapp` (privada, service-role) que:
+- Recebe `{ event: "signup" | "upload" | "chat", payload: {...} }`.
+- Formata a mensagem em PT-PT.
+- Chama Twilio via `https://connector-gateway.lovable.dev/twilio/Messages.json`.
+- É *fire-and-forget* — falhas não bloqueiam o fluxo do utilizador (log em `console.error` + tabela `notification_log` para auditoria).
 
-## Fase 2 — Correções (build mode, uma iteração por categoria)
+Cada evento é disparado a partir do sítio certo:
 
-Só depois de aprovado o relatório. Correções típicas esperadas:
+| Evento | Disparo | Ficheiro |
+|---|---|---|
+| Novo registo | Trigger PG em `auth.users` (AFTER INSERT) → `net.http_post` para `notify-whatsapp` | Migração SQL |
+| Novo upload | No fim do `secure-upload/index.ts`, depois de gravar em `client_documents` | Edge function existente |
+| Nova conversa | Após criar `chat_sessions` (primeira vez), invoke client-side de `notify-whatsapp` | `src/components/chat/ChatPreForm.tsx` |
 
-- **Backend**: GRANTs em falta, policies RLS que bloqueiam inserts legítimos, `user_id` nullable, políticas de storage nos buckets `documents` / `property-files`.
-- **Edge Functions**: CORS incompleto, validação Zod, tratamento de erros, respostas com `corsHeaders` também em erro.
-- **Frontend**: estados de loading/erro em falta, `toast` de erro em vez de crashes silenciosos, guards de sessão antes de upload (já é regra do projeto), race conditions em uploads, feedback visual durante streaming do chat.
-- **Auth**: mensagens PT-PT em falta, redirects protegidos.
+Para o registo uso trigger DB (garantido, mesmo em signup por Google/OAuth). Para upload e chat uso invoke direto porque já há contexto server/client.
 
-Cada correção é seguida de re-teste Playwright do mesmo fluxo para confirmar verde.
+### Tabela de auditoria
+```
+notification_log(id, event_type, payload jsonb, status, twilio_sid, error, created_at)
+```
+Só service_role escreve/lê. Útil para depurar entregas.
 
-## Fase 3 — Validação final
+## Formato das mensagens
 
-- Re-run do script E2E completo com 0 erros de consola relevantes e 0 respostas 4xx/5xx inesperadas.
-- `bunx vite build` limpo.
-- Resumo final: o que foi encontrado, o que foi corrigido, o que ficou fora de âmbito.
+- **Registo**: `🆕 Novo registo VIZ\nNome: {nome}\nEmail: {email}\nData: {hora PT}`
+- **Upload**: `📎 Novo upload VIZ\nCliente: {email}\nFicheiro: {nome} ({tipo})\nData: {hora PT}`
+- **Chat**: `💬 Novo cliente no chat VIZ\nNome: {nome}\nInteresse: {interesse}\nData: {hora PT}`
+
+## Passos de implementação
+
+1. Connector Twilio (`standard_connectors--connect`).
+2. Guardar `TWILIO_WHATSAPP_FROM` e `TWILIO_WHATSAPP_TO` como secrets.
+3. Criar tabela `notification_log` (migração com GRANTs + RLS service-role only).
+4. Criar edge function `notify-whatsapp` (com CORS, sem verify_jwt para permitir chamada de trigger PG e client).
+5. Migração: trigger `on_auth_user_created_notify` em `auth.users`.
+6. Editar `supabase/functions/secure-upload/index.ts` → invoke `notify-whatsapp` após insert em `client_documents`.
+7. Editar `src/components/chat/ChatPreForm.tsx` → invoke `notify-whatsapp` após criar `chat_sessions`.
+8. Testar cada fluxo end-to-end e confirmar entrega WhatsApp + linha em `notification_log`.
 
 ## Fora de âmbito
-
-- Alterações visuais / de copy que não estejam ligadas a um bug.
-- Novas funcionalidades (só correções).
-- Testes de carga / performance sob concorrência real.
+- UI para configurar destinatários (número fica hard-coded via secret).
+- Notificações por email em paralelo.
+- Alertas para outros eventos (ex: leads, geração IA).
+- Alterações visuais.
