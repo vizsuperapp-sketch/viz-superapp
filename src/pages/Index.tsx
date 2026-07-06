@@ -1,39 +1,43 @@
-import HeroSection from "@/components/HeroSection";
-import EcosystemServicesSection from "@/components/EcosystemServicesSection";
-import FeaturedPropertiesSection from "@/components/FeaturedPropertiesSection";
-import NotAgencySection from "@/components/NotAgencySection";
-import ComparisonSection from "@/components/ComparisonSection";
-import HowItWorksSection from "@/components/HowItWorksSection";
-import ManifestoSection from "@/components/ManifestoSection";
-import BenefitsSection from "@/components/BenefitsSection";
-import EcosystemSection from "@/components/EcosystemSection";
-import FinalCTASection from "@/components/FinalCTASection";
-import SellPropertySection from "@/components/SellPropertySection";
-import FooterSection from "@/components/FooterSection";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import VizHero from "@/components/viz/VizHero";
+import VizStatsBar from "@/components/viz/VizStatsBar";
+import VizProblemSection from "@/components/viz/VizProblemSection";
+import VizSolutionSection from "@/components/viz/VizSolutionSection";
+import VizHowItWorks from "@/components/viz/VizHowItWorks";
+import VizServicesGrid from "@/components/viz/VizServicesGrid";
+import VizRoadmap from "@/components/viz/VizRoadmap";
+import VizWaitlistForm from "@/components/viz/VizWaitlistForm";
+import VizFooter from "@/components/viz/VizFooter";
 
 const Index = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const state = location.state as { scrollTo?: string } | null;
+    if (state?.scrollTo) {
+      requestAnimationFrame(() => {
+        document
+          .getElementById(state.scrollTo!)
+          ?.scrollIntoView({ behavior: "smooth" });
+      });
+    }
+  }, [location.state]);
+
   return (
-    <div className="min-h-screen">
-      {/* Hero Section - Primeira coisa que vê */}
-      <HeroSection />
-
-      {/* Imóveis em Destaque - COM VÍDEO 360° do VistaBella */}
-      <FeaturedPropertiesSection />
-
-      {/* Ecossistema de Serviços (monetização) */}
-      <EcosystemServicesSection />
-
-      {/* Resto das seções */}
-      <NotAgencySection />
-      <ComparisonSection />
-      <HowItWorksSection />
-      <ManifestoSection />
-      <BenefitsSection />
-      <EcosystemSection />
-      <FinalCTASection />
-      <SellPropertySection />
-      <FooterSection />
-    </div>
+    <main className="min-h-screen">
+      <VizHero />
+      <VizStatsBar />
+      <VizProblemSection />
+      <VizSolutionSection />
+      <VizHowItWorks />
+      <VizServicesGrid />
+      <div id="roadmap" className="scroll-mt-20">
+        <VizRoadmap />
+      </div>
+      <VizWaitlistForm />
+      <VizFooter />
+    </main>
   );
 };
 
