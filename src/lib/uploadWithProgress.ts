@@ -26,7 +26,9 @@ export async function uploadWithProgress(
     xhr.setRequestHeader("Authorization", `Bearer ${session.access_token}`);
     xhr.setRequestHeader("apikey", SUPABASE_PUBLISHABLE_KEY);
     xhr.setRequestHeader("x-bucket", bucket);
-    xhr.setRequestHeader("x-path", path);
+    // URL-encode to keep header ASCII-safe (HTTP headers are Latin-1 only) —
+    // filenames may contain spaces/accents/emoji that would break setRequestHeader.
+    xhr.setRequestHeader("x-path", encodeURIComponent(path));
     xhr.setRequestHeader("x-upsert", opts.upsert ? "true" : "false");
     xhr.setRequestHeader("Content-Type", "application/octet-stream");
 
