@@ -55,6 +55,12 @@ export default {
           green: "hsl(var(--viz-green))",
           blue: "hsl(var(--viz-blue))",
         },
+        brand: {
+          blue: "hsl(var(--brand-blue))",
+          cyan: "hsl(var(--brand-cyan))",
+          success: "hsl(var(--brand-success))",
+          danger: "hsl(var(--brand-danger))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
