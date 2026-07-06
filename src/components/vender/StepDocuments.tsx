@@ -50,13 +50,26 @@ const StepDocuments = ({ propertyId, userId, onNext }: StepDocumentsProps) => {
       return;
     }
 
+    // Client-side type/size guard (backend also enforces via magic bytes)
+    const ACCEPTED = ["application/pdf", "image/jpeg", "image/png"];
+    if (!ACCEPTED.includes(file.type)) {
+      toast({ title: "Tipo de ficheiro não suportado", description: "Apenas PDF, JPG ou PNG.", variant: "destructive" });
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      toast({ title: "Ficheiro muito grande", description: "Máximo 15 MB.", variant: "destructive" });
+      return;
+    }
+
     setDocuments((prev) => ({
       ...prev,
       [key]: { ...prev[key], file, uploading: true },
     }));
 
     try {
-      const filePath = `${userId}/${propertyId}/documents/${key}_${Date.now()}_${file.name}`;
+      // Sanitize filename to keep storage paths clean and predictable.
+      const safeName = file.name.replace(/[^\w.\-]+/g, "_");
+      const filePath = `${userId}/${propertyId}/documents/${key}_${Date.now()}_${safeName}`;
 
       try {
         await uploadWithProgress("property-files", filePath, file, () => {});
@@ -148,7 +161,7 @@ const StepDocuments = ({ propertyId, userId, onNext }: StepDocumentsProps) => {
                     <input
                       ref={(el) => { fileInputRefs.current[doc.key] = el; }}
                       type="file"
-                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                      accept="application/pdf,image/jpeg,image/png"
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];

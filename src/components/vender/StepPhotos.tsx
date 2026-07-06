@@ -28,15 +28,37 @@ const StepPhotos = ({ propertyId, userId, onFinish, onBack }: StepPhotosProps) =
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const ACCEPTED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+  const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
+
   const handleFilesSelect = (files: FileList) => {
-    const newPhotos: PhotoItem[] = Array.from(files).map((file) => ({
-      id: crypto.randomUUID(),
-      file,
-      preview: URL.createObjectURL(file),
-      enhancing: false,
-      uploaded: false,
-    }));
-    setPhotos((prev) => [...prev, ...newPhotos]);
+    const rejected: string[] = [];
+    const accepted: PhotoItem[] = [];
+    Array.from(files).forEach((file) => {
+      if (!ACCEPTED_PHOTO_TYPES.includes(file.type)) {
+        rejected.push(`${file.name}: tipo não suportado`);
+        return;
+      }
+      if (file.size > MAX_PHOTO_BYTES) {
+        rejected.push(`${file.name}: excede 15 MB`);
+        return;
+      }
+      accepted.push({
+        id: crypto.randomUUID(),
+        file,
+        preview: URL.createObjectURL(file),
+        enhancing: false,
+        uploaded: false,
+      });
+    });
+    if (rejected.length) {
+      toast({
+        title: "Algumas fotos foram ignoradas",
+        description: rejected.join(" · "),
+        variant: "destructive",
+      });
+    }
+    if (accepted.length) setPhotos((prev) => [...prev, ...accepted]);
   };
 
   const removePhoto = (id: string) => {
@@ -104,11 +126,9 @@ const StepPhotos = ({ propertyId, userId, onFinish, onBack }: StepPhotosProps) =
       return;
     }
     setUploading(true);
+    let uploadedCount = 0;
     try {
       for (const photo of photos) {
-        const ext = photo.file.name.split(".").pop();
-        const filePath = `${userId}/${propertyId}/photos/${photo.id}.${ext}`;
-
         let fileToUpload: File = photo.file;
         if (photo.enhancedPreview) {
           const res = await fetch(photo.enhancedPreview);
@@ -116,14 +136,39 @@ const StepPhotos = ({ propertyId, userId, onFinish, onBack }: StepPhotosProps) =
           fileToUpload = new File([blob], photo.file.name, { type: blob.type || photo.file.type });
         }
 
+        // Only jpeg/png/webp are accepted server-side; ensure ext matches actual type.
+        const mimeToExt: Record<string, string> = {
+          "image/jpeg": "jpg",
+          "image/png": "png",
+          "image/webp": "webp",
+        };
+        const ext = mimeToExt[fileToUpload.type] ?? "jpg";
+        const filePath = `${userId}/${propertyId}/photos/${photo.id}.${ext}`;
+
         try {
           await uploadWithProgress("property-files", filePath, fileToUpload, () => {}, { upsert: true });
         } catch (err: any) {
           toast({ title: `Erro ao carregar ${photo.file.name}`, description: err.message, variant: "destructive" });
           continue;
         }
+
+        // Register in client_documents so photos are visible in admin/user areas.
+        const safeName = photo.file.name.replace(/[^\w.\-]+/g, "_");
+        const { error: insertError } = await supabase.from("client_documents").insert({
+          user_id: userId,
+          bucket: "property-files",
+          storage_path: filePath,
+          file_name: safeName,
+          document_type: "foto",
+        });
+        if (insertError) console.error("Error registering photo:", insertError);
+        uploadedCount++;
       }
 
+      if (uploadedCount === 0) {
+        toast({ title: "Nenhuma foto foi carregada", variant: "destructive" });
+        return;
+      }
       toast({ title: "Fotos carregadas com sucesso!" });
       onFinish();
     } catch (e) {
@@ -144,7 +189,7 @@ const StepPhotos = ({ propertyId, userId, onFinish, onBack }: StepPhotosProps) =
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         multiple
         className="hidden"
         onChange={(e) => {
