@@ -54,19 +54,20 @@ const HeroSection = () => {
       <div className="container max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-8 items-center relative z-10">
         {/* Left — Text */}
         <div className="flex flex-col items-start">
-          {/* Logo pill */}
+          {/* Logo pill — escondido em mobile (já existe no TopNav) */}
           <div
-            className="mb-8 opacity-0 animate-fade-up"
+            className="hidden md:block mb-8 opacity-0 animate-fade-up"
             style={{ animationDelay: "0ms" }}
           >
             <img src={vizLogoCube} alt="VIZ" className="w-12 h-12 object-contain" />
           </div>
 
           <h1
-            className="text-5xl font-bold leading-[1.05] tracking-tight mb-5 opacity-0 animate-fade-up"
+            className="font-bold leading-[1.05] tracking-tight mb-5 opacity-0 animate-fade-up text-[clamp(2.25rem,7vw,4.5rem)]"
             style={{ animationDelay: "100ms", textWrap: "balance" }}
           >
-            SuperApp da casa<br />
+            SuperApp da casa.
+            <br />
             Comprar ou vender, <span className="text-gradient">sem comissões.</span>
           </h1>
 
@@ -158,9 +159,9 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Right — Cube */}
+        {/* Right — Cube (escondido em mobile; reduzido em tablet para não tapar CTAs) */}
         <div
-          className="flex items-center justify-center opacity-0 animate-fade-up"
+          className="hidden md:flex items-center justify-center opacity-0 animate-fade-up md:scale-90 lg:scale-100 md:translate-x-4 lg:translate-x-0"
           style={{ animationDelay: "300ms" }}
         >
           <Suspense fallback={<img src={vizLogoCube} alt="Cubo VIZ" className="w-64 h-64 opacity-70" loading="lazy" decoding="async" />}>
