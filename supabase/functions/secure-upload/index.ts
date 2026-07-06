@@ -74,7 +74,14 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
 
     const bucket = req.headers.get("x-bucket") ?? "";
-    const path = req.headers.get("x-path") ?? "";
+    const rawPath = req.headers.get("x-path") ?? "";
+    let path = rawPath;
+    try {
+      // Client encodes x-path with encodeURIComponent to keep the header Latin-1 safe.
+      path = decodeURIComponent(rawPath);
+    } catch {
+      /* keep raw */
+    }
     const upsert = (req.headers.get("x-upsert") ?? "false") === "true";
     const rules = BUCKET_RULES[bucket];
     if (!rules) {
