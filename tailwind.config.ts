@@ -15,7 +15,6 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
-        display: ['Outfit', '"DM Sans"', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -54,12 +53,6 @@ export default {
         viz: {
           green: "hsl(var(--viz-green))",
           blue: "hsl(var(--viz-blue))",
-        },
-        brand: {
-          blue: "hsl(var(--brand-blue))",
-          cyan: "hsl(var(--brand-cyan))",
-          success: "hsl(var(--brand-success))",
-          danger: "hsl(var(--brand-danger))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
