@@ -159,9 +159,9 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Right — Cube */}
+        {/* Right — Cube (escondido em mobile; reduzido em tablet para não tapar CTAs) */}
         <div
-          className="flex items-center justify-center opacity-0 animate-fade-up"
+          className="hidden md:flex items-center justify-center opacity-0 animate-fade-up md:scale-90 lg:scale-100 md:translate-x-4 lg:translate-x-0"
           style={{ animationDelay: "300ms" }}
         >
           <Suspense fallback={<img src={vizLogoCube} alt="Cubo VIZ" className="w-64 h-64 opacity-70" loading="lazy" decoding="async" />}>

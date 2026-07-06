@@ -196,7 +196,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+    <div className="min-h-screen flex items-start md:items-center justify-center px-4 pt-12 md:pt-6 pb-12 bg-background">
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
           className="absolute w-[140%] h-[140%] -top-[20%] -left-[20%]"
@@ -209,7 +209,7 @@ const Auth = () => {
         />
       </div>
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-md md:max-w-lg relative z-10">
         <Button variant="ghost" className="mb-6 text-muted-foreground" onClick={() => navigate("/")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar ao site
