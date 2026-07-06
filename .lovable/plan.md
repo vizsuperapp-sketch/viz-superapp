@@ -1,61 +1,52 @@
 ## Objetivo
-Enviar uma notificação WhatsApp para **+351 916 021 831** sempre que ocorrer:
-1. **Novo registo** em `/auth`
-2. **Novo upload** de documento (em `/vender` ou `/documentos`)
-3. **Nova conversa** de chat iniciada (1 notificação por sessão, não por mensagem)
+Receber um email em **viz.superapp@gmail.com** sempre que ocorrer:
+1. Novo registo em `/auth`
+2. Novo upload de documento
+3. Nova conversa de chat iniciada
 
-Canal de envio: **Twilio WhatsApp** via connector gateway da Lovable.
+Sem Twilio, sem WhatsApp, sem connectors externos — usa a infraestrutura de email da própria Lovable (Lovable Emails).
 
-## Pré-requisitos (ação do utilizador)
-1. **Ligar o connector Twilio** — vou pedir a ligação; precisas de ter uma conta Twilio (o sandbox WhatsApp serve para testes).
-2. **Número From aprovado no Twilio** — normalmente `whatsapp:+14155238886` no sandbox, ou o teu número WhatsApp Business aprovado em produção.
-3. **Sandbox**: enviar `join <código>` do +351 916 021 831 para o número Twilio sandbox uma vez, para poder receber mensagens.
+## Porquê esta alternativa
+- Zero configuração de contas de terceiros. Só precisas de aprovar um domínio de envio (subdomínio tipo `notify.oteudominio.com`) através do diálogo de setup da Lovable. Se ainda não tiveres domínio, uso um durante o setup.
+- Entrega fiável, com fila, retries automáticos e log de envios (`email_send_log`) para auditoria.
+- Gratuito dentro dos limites da Lovable Cloud.
 
-Guardo o número `From` como secret `TWILIO_WHATSAPP_FROM` e o destino `TWILIO_WHATSAPP_TO=whatsapp:+351916021831` (fixo, o teu número).
+## Trade-offs vs WhatsApp
+- Chega ao Gmail, não ao telemóvel — sem push instantâneo (podes ativar notificação do Gmail no telefone para ficar quase equivalente).
+- Se quiseres SMS/WhatsApp no futuro, mantém-se a opção de ligar Twilio depois.
 
 ## Arquitetura
 
-Uma única edge function `notify-whatsapp` (privada, service-role) que:
-- Recebe `{ event: "signup" | "upload" | "chat", payload: {...} }`.
-- Formata a mensagem em PT-PT.
-- Chama Twilio via `https://connector-gateway.lovable.dev/twilio/Messages.json`.
-- É *fire-and-forget* — falhas não bloqueiam o fluxo do utilizador (log em `console.error` + tabela `notification_log` para auditoria).
+Uma edge function partilhada `send-transactional-email` (criada pelo scaffold da Lovable) e 3 templates React Email:
 
-Cada evento é disparado a partir do sítio certo:
-
-| Evento | Disparo | Ficheiro |
+| Template | Assunto | Disparo |
 |---|---|---|
-| Novo registo | Trigger PG em `auth.users` (AFTER INSERT) → `net.http_post` para `notify-whatsapp` | Migração SQL |
-| Novo upload | No fim do `secure-upload/index.ts`, depois de gravar em `client_documents` | Edge function existente |
-| Nova conversa | Após criar `chat_sessions` (primeira vez), invoke client-side de `notify-whatsapp` | `src/components/chat/ChatPreForm.tsx` |
+| `signup-notification` | 🆕 Novo registo VIZ — {email} | Trigger PG em `auth.users` → chama a função |
+| `upload-notification` | 📎 Novo upload VIZ — {ficheiro} | No fim de `secure-upload/index.ts`, após insert em `client_documents` |
+| `chat-notification` | 💬 Novo cliente no chat VIZ — {nome} | Após criar `chat_sessions` em `src/components/chat/ChatPreForm.tsx` |
 
-Para o registo uso trigger DB (garantido, mesmo em signup por Google/OAuth). Para upload e chat uso invoke direto porque já há contexto server/client.
+Destinatário fixo `viz.superapp@gmail.com` (hard-coded na função — sem UI de configuração, conforme pediste).
 
-### Tabela de auditoria
-```
-notification_log(id, event_type, payload jsonb, status, twilio_sid, error, created_at)
-```
-Só service_role escreve/lê. Útil para depurar entregas.
-
-## Formato das mensagens
-
-- **Registo**: `🆕 Novo registo VIZ\nNome: {nome}\nEmail: {email}\nData: {hora PT}`
-- **Upload**: `📎 Novo upload VIZ\nCliente: {email}\nFicheiro: {nome} ({tipo})\nData: {hora PT}`
-- **Chat**: `💬 Novo cliente no chat VIZ\nNome: {nome}\nInteresse: {interesse}\nData: {hora PT}`
+Cada envio usa `idempotencyKey` derivado do id do evento para evitar duplicados em retries.
 
 ## Passos de implementação
 
-1. Connector Twilio (`standard_connectors--connect`).
-2. Guardar `TWILIO_WHATSAPP_FROM` e `TWILIO_WHATSAPP_TO` como secrets.
-3. Criar tabela `notification_log` (migração com GRANTs + RLS service-role only).
-4. Criar edge function `notify-whatsapp` (com CORS, sem verify_jwt para permitir chamada de trigger PG e client).
-5. Migração: trigger `on_auth_user_created_notify` em `auth.users`.
-6. Editar `supabase/functions/secure-upload/index.ts` → invoke `notify-whatsapp` após insert em `client_documents`.
-7. Editar `src/components/chat/ChatPreForm.tsx` → invoke `notify-whatsapp` após criar `chat_sessions`.
-8. Testar cada fluxo end-to-end e confirmar entrega WhatsApp + linha em `notification_log`.
+1. **Setup do domínio de email** (diálogo Lovable) — só se ainda não existir. É a única ação manual.
+2. `email_domain--setup_email_infra` — cria filas pgmq, tabelas de log/suppression, cron job.
+3. `email_domain--scaffold_transactional_email` — cria `send-transactional-email`, `handle-email-unsubscribe`, `handle-email-suppression`.
+4. Criar 3 templates em `supabase/functions/_shared/transactional-email-templates/` com estética VIZ (dark, glass) e registá-los em `registry.ts`.
+5. Migração SQL: trigger `on_auth_user_created_notify` em `auth.users` (AFTER INSERT) que chama `send-transactional-email` via `net.http_post` com `templateName: 'signup-notification'`.
+6. Editar `supabase/functions/secure-upload/index.ts` → `supabase.functions.invoke('send-transactional-email', ...)` após insert em `client_documents`.
+7. Editar `src/components/chat/ChatPreForm.tsx` (ou o parent que cria a `chat_sessions`) → `invoke` após criar a sessão.
+8. Deploy das edge functions.
+9. Testar cada fluxo e confirmar linha em `email_send_log` + email na inbox.
 
 ## Fora de âmbito
-- UI para configurar destinatários (número fica hard-coded via secret).
-- Notificações por email em paralelo.
-- Alertas para outros eventos (ex: leads, geração IA).
-- Alterações visuais.
+- UI para gerir destinatários (email fica hard-coded).
+- WhatsApp / SMS / push.
+- Alertas para outros eventos (leads, geração IA, etc).
+- Alterações visuais na app.
+
+## O que preciso de ti
+- Confirmar que queres avançar por email para `viz.superapp@gmail.com`.
+- Se ainda não houver domínio de email configurado, completar o diálogo de setup quando eu o mostrar (2 min, requer acesso ao DNS do teu domínio).
