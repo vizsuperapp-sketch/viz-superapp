@@ -1,20 +1,23 @@
+# Obter o código completo via GitHub
 
-## Estado
+## Objetivo
+Ter todo o código-fonte do site VIZ num repositório GitHub do utilizador, com sincronização automática bidirecional (Lovable ↔ GitHub).
 
-Os 4 ajustes de responsividade já foram aplicados no turno anterior:
+## Passos
 
-1. **`HeroSection.tsx`** — mini-cubo escondido em `< md`; headline com quebra semântica (`SuperApp da casa.` / `Comprar ou vender, sem comissões.`) e tipografia fluida `clamp(2.25rem, 7vw, 4.5rem)`.
-2. **`HeroSection.tsx`** — cubo 3D escondido em mobile, reduzido (`md:scale-90`) e afastado (`md:translate-x-4`) em tablet para libertar os CTAs.
-3. **`Auth.tsx`** — cartão de login com `max-w-lg` a partir de `md`, ancorado ao topo em mobile (`items-start md:items-center`, `pt-12 md:pt-6`).
-4. **`index.css`** — `footer { padding-bottom: calc(env(safe-area-inset-bottom) + 5rem) }` em `max-width: 767px` para o FAB do chat não tapar o rodapé.
+1. **Conectar o projeto ao GitHub** (ação do utilizador no editor Lovable):
+   - Abrir o menu **Plus (+)** na caixa de chat (canto inferior esquerdo) → **GitHub** → **Connect project**
+   - Autorizar a aplicação Lovable no GitHub
+   - Selecionar a conta/organização onde o repositório será criado
+   - Clicar em **Create Repository** — a Lovable cria o repositório com todo o código do projeto
 
-O build e a verificação Playwright ficaram por concluir porque o sandbox reiniciou.
+2. **Resultado**:
+   - Todo o código fica em `https://github.com/<tua-conta>/<nome-do-projeto>`
+   - Alterações feitas na Lovable são enviadas automaticamente para o GitHub (e vice-versa)
+   - Download ZIP ou `git clone` disponíveis diretamente no GitHub
 
-## O que falta fazer (só verificação)
+3. **Backup imediato (opcional, feito por mim)**:
+   - Gerar um ficheiro `.zip` com o código-fonte atual do projeto e entregá-lo aqui no chat, para teres já uma cópia enquanto ligas o GitHub.
 
-- Re-correr o build de produção (`bun run build`).
-- Re-capturar screenshots mobile (390 px) e tablet (820 px) das 7 rotas (`/`, `/imoveis`, `/vender`, `/servicos`, `/precos`, `/documentos`, `/auth`).
-- Confirmar visualmente que os 4 pontos ficaram resolvidos e que o desktop não regrediu.
-- Se algum ponto não estiver perfeito, aplicar patch adicional na mesma volta.
-
-Nenhuma alteração de código nova está prevista neste passo — só validação. Se surgirem regressões durante a verificação, corrigem-se de imediato.
+## Nota
+Os dados da base de dados não vão no repositório (só código). Exportam-se separadamente em Cloud → Advanced settings → Export data.
